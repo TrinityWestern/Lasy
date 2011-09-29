@@ -1,0 +1,4 @@
+﻿ID Name Value Deprecated 
+-- ---- ----- ----------
+1  Foo  Val   NULL
+2  Bar  NULL  True

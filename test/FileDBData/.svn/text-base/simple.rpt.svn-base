@@ -1,0 +1,4 @@
+﻿ID Name Value Deprecated 
+-- ---- ----- ----------
+1  Foo  Val   False
+2  Bar  Bal   True
