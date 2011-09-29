@@ -8,6 +8,7 @@ using NUnit.Framework;
 namespace LasyTests
 {
     [TestFixture]
+    [Ignore("These tests depend on having a configured MS SQL Server, which you're probably not gonna have")]
     public class RealDBTests
     {
         private const string connString = "Data Source=db3.twu.dev; Initial Catalog=Lasy; User Id=jbabbitt; Password=superCupcake$$;";
