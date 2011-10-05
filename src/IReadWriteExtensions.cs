@@ -9,6 +9,14 @@ namespace Lasy
 {
     public static class IReadWriteExtensions
     {
+        /// <summary>
+        /// Inserts the row if it doesn't exist, update the row(s) if they do
+        /// </summary>
+        /// <param name="readWrite"></param>
+        /// <param name="tablename"></param>
+        /// <param name="dataFields"></param>
+        /// <param name="keyFields"></param>
+        /// <param name="trans"></param>
         public static void Ensure(this IReadWrite readWrite,
             string tablename,
             Dictionary<string, object> dataFields,
@@ -27,6 +35,14 @@ namespace Lasy
             }
         }
 
+        /// <summary>
+        /// Inserts the row if it doesn't exist, update the row(s) if they do
+        /// </summary>
+        /// <param name="readWrite"></param>
+        /// <param name="tablename"></param>
+        /// <param name="dataObj"></param>
+        /// <param name="keyObj"></param>
+        /// <param name="trans"></param>
         public static void Ensure(this IReadWrite readWrite,
             string tablename,
             object dataObj,
@@ -40,6 +56,13 @@ namespace Lasy
                 trans);
         }
 
+        /// <summary>
+        /// Inserts the row if it doesn't exist, update the row(s) if they do
+        /// </summary>
+        /// <param name="readWrite"></param>
+        /// <param name="tablename"></param>
+        /// <param name="values"></param>
+        /// <param name="trans"></param>
         public static void Ensure(this IReadWrite readWrite,
             string tablename,
             Dictionary<string, object> values,
@@ -49,6 +72,13 @@ namespace Lasy
             Ensure(readWrite, tablename, values, keyFields, trans);
         }
 
+        /// <summary>
+        /// Inserts the row if it doesn't exist, update the row(s) if they do
+        /// </summary>
+        /// <param name="readWrite"></param>
+        /// <param name="tablename"></param>
+        /// <param name="valueObj"></param>
+        /// <param name="trans"></param>
         public static void Ensure(this IReadWrite readWrite,
             string tablename,
             object valueObj,
