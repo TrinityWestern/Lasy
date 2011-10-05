@@ -47,6 +47,7 @@
     <Compile Include="FileDB.cs" />
     <Compile Include="IDBAnalyzer.cs" />
     <Compile Include="IReadWrite.cs" />
+    <Compile Include="IReadWriteExtensions.cs" />
     <Compile Include="ITransaction.cs" />
     <Compile Include="IReadableExtensions.cs" />
     <Compile Include="IWritableExtensions.cs" />

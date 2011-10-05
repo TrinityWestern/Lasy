@@ -18,6 +18,26 @@ namespace Lasy
         }
 
         /// <summary>
+        /// Gets all the primary keys for tablename from values. Throws an exception if any of the keys
+        /// are not supplied
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="tablename"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static Dictionary<string, object> ExtractKeys(this IWriteable writer, string tablename,
+            Dictionary<string, object> values)
+        {
+            var keynames = writer.Analyzer.GetPrimaryKeys(tablename);
+            // Make sure they supplied all the keys
+            if (!values.Keys.ToSet().IsSupersetOf(keynames))
+                throw new KeyNotSetException(tablename, keynames.Except(values.Keys));
+
+            var keys = values.Only(keynames);
+            return keys;
+        }
+
+        /// <summary>
         /// Update, and figure out the keys to use by analyzing the database for the primary key names. If the primary keys
         /// are not supplied in values, an exception will be thrown
         /// </summary>
@@ -27,13 +47,7 @@ namespace Lasy
         /// <param name="trans"></param>
         public static void Update(this IWriteable writer, string tablename, Dictionary<string, object> values, ITransaction trans = null)
         {
-            var keynames = writer.Analyzer.GetPrimaryKeys(tablename);
-            // Make sure they've supplied all the keys
-            if (!values.Keys.ToSet().IsSupersetOf(keynames))
-                throw new KeyNotSetException(tablename, keynames.Except(values.Keys));
-
-            var keys = values.WhereKeys(k => keynames.Contains(k));
-
+            var keys = writer.ExtractKeys(tablename, values);
             writer.Update(tablename, values, keys, trans);
         }
 

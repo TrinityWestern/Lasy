@@ -47,6 +47,7 @@
     <Compile Include="FakeDBTableTests.cs" />
     <Compile Include="FakeDBTests.cs" />
     <Compile Include="FileDBTests.cs" />
+    <Compile Include="IReadWriteExtensionTests.cs" />
     <Compile Include="Organization.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="RealDBTests.cs" />
