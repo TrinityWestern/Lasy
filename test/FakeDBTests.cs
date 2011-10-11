@@ -3,6 +3,8 @@ using Nvelope;
 using Nvelope.Reflection;
 using Lasy;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LasyTests
 {
@@ -71,6 +73,23 @@ namespace LasyTests
             db.Insert("P", new {Z = "B"});
             Assert.AreEqual("(([PId,1],[Z,A]),([PId,3],[Z,B]))", db.Table("P").Print());
         }
-        
+
+        [Test(Description = @"We can't create anonymous objects with properties that are null, but we'd like to be
+            able to do filters like Read(new {Hanlded = null}). In order to do this, we can use DBNull.Value
+            instead, but then we have to ensure that the system handles DBNull and null the same")]
+        public void TreatsNullsAndDbNullsTheSame()
+        {
+            var db = new FakeDB();
+            var rows = new object[]{
+                new { Age = DBNull.Value },
+                new Person() { Age = null }
+            };
+
+            var ids = rows.Select(r => db.InsertAutoKey("Person", r)).ToList();
+
+            var fromDb = db.Read("Person", new { Age = DBNull.Value });
+            Assert.AreEqual(2, fromDb.Count());
+            Assert.AreEqual(fromDb.First()["Age"], fromDb.Second()["Age"]);
+        }
     }
 }

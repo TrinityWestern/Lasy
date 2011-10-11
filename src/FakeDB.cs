@@ -24,11 +24,14 @@ namespace Lasy
             if (!DataStore.ContainsKey(tableName))
                 return new List<Dictionary<string, object>>();
 
+            id = id.ScrubNulls();
+
             return DataStore[tableName].FindByFieldValues(id);
         }
 
         public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null)
         {
+            id = id.ScrubNulls();
             return DataStore[tableName].FindByFieldValues(id).Select(row => row.WhereKeys(key => fields.Contains(key)));
         }
 
@@ -58,10 +61,11 @@ namespace Lasy
             if (!DataStore.ContainsKey(tableName))
                 DataStore.Add(tableName, new FakeDBTable());
 
+            row = row.ScrubNulls();
+
             var table = DataStore[tableName];
 
             var dictToUse = row.Copy();
-            //var id = DataStore[tableName].Count + 1;
             var primaryKeys = Analyzer.GetPrimaryKeys(tableName);
             var autoKey = Analyzer.GetAutoNumberKey(tableName);
 
@@ -85,6 +89,7 @@ namespace Lasy
         {
             if (DataStore.ContainsKey(tableName))
             {
+                fieldValues = fieldValues.ScrubNulls();
                 var victims = DataStore[tableName].FindByFieldValues(fieldValues).ToList();
                 victims.ForEach(x => DataStore[tableName].Remove(x));
             }
@@ -94,6 +99,9 @@ namespace Lasy
         {
             if(!DataStore.ContainsKey(tableName))
                 return;
+
+            dataFields = dataFields.ScrubNulls();
+            keyFields = keyFields.ScrubNulls();
 
             var victims = DataStore[tableName].Where(r => r.IsSameAs(keyFields, keyFields.Keys))
                 .Where(r => r != dataFields && r != keyFields); // Don't update if we've passed in the object itself,

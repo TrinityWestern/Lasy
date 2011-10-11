@@ -2,6 +2,7 @@
 using System.Linq;
 using Nvelope;
 using Nvelope.Reflection;
+using System;
 
 namespace Lasy
 {
@@ -86,5 +87,7 @@ namespace Lasy
             var dict = obj as Dictionary<string, object>;
             writer.Delete(tablename, dict ?? obj._AsDictionary(), trans);
         }
+
+        
     }
 }
