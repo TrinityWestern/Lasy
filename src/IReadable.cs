@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Lasy
 {
-    public interface IReadable
+    public interface IReadable : IAnalyzable
     {
         /// <summary>
         /// Read all that match on id from the table
@@ -24,10 +24,6 @@ namespace Lasy
         /// <param name="transaction"></param>
         /// <returns></returns>
         IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null);
-        /// <summary>
-        /// Get the analyzer for the DB
-        /// </summary>
-        IDBAnalyzer Analyzer { get; }
         /// <summary>
         /// Read all the rows from a table
         /// </summary>

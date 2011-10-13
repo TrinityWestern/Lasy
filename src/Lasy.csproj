@@ -46,6 +46,8 @@
     <Compile Include="FakeDBTable.cs" />
     <Compile Include="FakeDBTransaction.cs" />
     <Compile Include="FileDB.cs" />
+    <Compile Include="IAnalyzable.cs" />
+    <Compile Include="IAnalyzableExtensions.cs" />
     <Compile Include="IDBAnalyzer.cs" />
     <Compile Include="IReadWrite.cs" />
     <Compile Include="IReadWriteExtensions.cs" />
