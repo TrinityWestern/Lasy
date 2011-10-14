@@ -38,7 +38,7 @@ namespace Lasy
             else if (AssumeStandardKeys)
                 return _unschemadTablename(tableName) + "Id";
             else
-                throw new NotImplementedException("Dont know what the autonumbers for " + tableName + " would be. Either add that table's autonumbers to the AutoNumberKeys collection, or set AssumeStandardKeys to true for the default autonumber behavior");
+                return null;
         }
 
         private string _unschemadTablename(string tablename)
