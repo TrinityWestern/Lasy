@@ -9,6 +9,15 @@ namespace Lasy
 {
     public class FakeDB : IReadable, IWriteable, IReadWrite
     {
+        public FakeDB()
+        {
+        }
+
+        public FakeDB(IDBAnalyzer analyzer) : this()
+        {
+            Analyzer = analyzer;
+        }
+
         public Dictionary<string, FakeDBTable> DataStore = new Dictionary<string, FakeDBTable>();
 
         public FakeDBTable Table(string tableName)
