@@ -28,6 +28,11 @@ namespace Lasy
                 return new FakeDBTable();
         }
 
+        public void Wipe()
+        {
+            DataStore = new Dictionary<string, FakeDBTable>();
+        }
+
         public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id, ITransaction transaction = null)
         {
             if (!DataStore.ContainsKey(tableName))
@@ -35,13 +40,15 @@ namespace Lasy
 
             id = id.ScrubNulls();
 
-            return DataStore[tableName].FindByFieldValues(id);
+            return DataStore[tableName].FindByFieldValues(id)
+                .Select(d => d.Copy());
         }
 
         public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null)
         {
             id = id.ScrubNulls();
-            return DataStore[tableName].FindByFieldValues(id).Select(row => row.WhereKeys(key => fields.Contains(key)));
+            return DataStore[tableName].FindByFieldValues(id).Select(row => row.WhereKeys(key => fields.Contains(key)))
+                .Select(d => d.Copy());
         }
 
         public IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null)
@@ -49,7 +56,7 @@ namespace Lasy
             if (!DataStore.ContainsKey(tableName))
                 return new List<Dictionary<string, object>>();
 
-            return DataStore[tableName];
+            return DataStore[tableName].Select(d => d.Copy());
         }
 
         public IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields, ITransaction transaction = null)
