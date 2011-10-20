@@ -9,6 +9,10 @@ using System.Linq;
 namespace LasyTests
 {
     [TestFixture]
+    public class FakeDbReadConsistency : ReadConsistencyTests<FakeDB>
+    { }
+
+    [TestFixture]
     public class FakeDBTests
     {
         [Test]
@@ -92,28 +96,6 @@ namespace LasyTests
             Assert.AreEqual(fromDb.First()["Age"], fromDb.Second()["Age"]);
         }
 
-        [Test]
-        public void RawReadReturnsCopiesOfDicts()
-        {
-            var db = new FakeDB();
-            var row = new { A = 1, B = 2 };
-            var id = db.Insert("Tbl", row);
-            var fromDb = db.RawRead("Tbl", id).Single();
-            // This shouldn't change the value in the DB
-            fromDb["A"] = 7;
-            Assert.AreEqual(1, db.RawRead("Tbl", id).Single()["A"]);
-        }
-
-        [Test]
-        public void RawReadAllReturnsCopiesOfDicts()
-        {
-            var db = new FakeDB();
-            var row = new { A = 1, B = 2 };
-            var id = db.Insert("Tbl", row);
-            var fromDb = db.RawReadAll("Tbl").Single();
-            // This shouldn't change the value in the DB
-            fromDb["A"] = 7;
-            Assert.AreEqual(1, db.RawReadAll("Tbl").Single()["A"]);
-        }
+        
     }
 }
