@@ -28,12 +28,12 @@ namespace Lasy
                 return new FakeDBTable();
         }
 
-        public void Wipe()
+        public virtual void Wipe()
         {
             DataStore = new Dictionary<string, FakeDBTable>();
         }
 
-        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id, ITransaction transaction = null)
+        public virtual IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id, ITransaction transaction = null)
         {
             if (!DataStore.ContainsKey(tableName))
                 return new List<Dictionary<string, object>>();
@@ -44,14 +44,14 @@ namespace Lasy
                 .Select(d => d.Copy());
         }
 
-        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null)
+        public virtual IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null)
         {
             id = id.ScrubNulls();
             return DataStore[tableName].FindByFieldValues(id).Select(row => row.WhereKeys(key => fields.Contains(key)))
                 .Select(d => d.Copy());
         }
 
-        public IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null)
+        public virtual IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null)
         {
             if (!DataStore.ContainsKey(tableName))
                 return new List<Dictionary<string, object>>();
@@ -59,7 +59,7 @@ namespace Lasy
             return DataStore[tableName].Select(d => d.Copy());
         }
 
-        public IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields, ITransaction transaction = null)
+        public virtual IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields, ITransaction transaction = null)
         {
             return DataStore[tableName].Select(row => row.WhereKeys(key => fields.Contains(key)));
         }
@@ -72,7 +72,7 @@ namespace Lasy
             set { _analyzer = value; }
         }
 
-        public Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row, ITransaction transaction = null)
+        public virtual Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row, ITransaction transaction = null)
         {
             if (!DataStore.ContainsKey(tableName))
                 DataStore.Add(tableName, new FakeDBTable());
@@ -101,7 +101,7 @@ namespace Lasy
             return dictToUse.WhereKeys(key => primaryKeys.Contains(key));
         }
 
-        public void Delete(string tableName, Dictionary<string, object> fieldValues, ITransaction transaction = null)
+        public virtual void Delete(string tableName, Dictionary<string, object> fieldValues, ITransaction transaction = null)
         {
             if (DataStore.ContainsKey(tableName))
             {
@@ -111,7 +111,7 @@ namespace Lasy
             }
         }
 
-        public void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields, ITransaction transaction = null)
+        public virtual void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields, ITransaction transaction = null)
         {
             if(!DataStore.ContainsKey(tableName))
                 return;
@@ -131,7 +131,7 @@ namespace Lasy
                     vic[key] = dataFields[key];                
         }
 
-        public ITransaction BeginTransaction()
+        public virtual  ITransaction BeginTransaction()
         {
             return new FakeDBTransaction();
         }
