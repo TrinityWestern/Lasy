@@ -119,13 +119,7 @@ namespace Lasy
             dataFields = dataFields.ScrubNulls();
             keyFields = keyFields.ScrubNulls();
 
-            var victims = DataStore[tableName].Where(r => r.IsSameAs(keyFields, keyFields.Keys))
-                .Where(r => r != dataFields && r != keyFields); // Don't update if we've passed in the object itself,
-                // because at that point the change has already been made by a sneaky back-door reference change,
-                // and if we try to modify it here, we'll modify the collection while iterating over it, causing an exception
-                // The non-hacky fix would be to return copies of the rows from the Read methods. That way, the user couldn't
-                // make sneaky back-door changes. However, this would be a substantial performance penalty. Grr, I want
-                // Clojure's persistent collections here...
+            var victims = DataStore[tableName].Where(r => r.IsSameAs(keyFields, keyFields.Keys));
             foreach (var vic in victims)
                 foreach (var key in dataFields.Keys)
                     vic[key] = dataFields[key];                
