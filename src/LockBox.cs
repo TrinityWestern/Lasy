@@ -40,15 +40,15 @@ namespace Lasy
         public DateTime LockDate { get; protected set; }
 
         private object _s_contentLock = new object();
-        protected IEnumerable<T> _s_contents;
-        protected IEnumerable<T> _contents
+        protected List<T> _s_contents;
+        protected List<T> _contents
         {
             get
             {
                 if (_s_contents == null)
                     lock (_s_contentLock)
                     {
-                        _s_contents = _lockRead(Criteria, LockDate);
+                        _s_contents = _lockRead(Criteria, LockDate).ToList();
                     }
 
                 return _s_contents;
@@ -105,8 +105,11 @@ namespace Lasy
             var updateData = new { LockId = DBNull.Value, LockDate = DBNull.Value };
             var keys = new { LockId = LockId };
             Db.Update(Tablename, updateData, keys);
-        }
 
+            // Clear out the cache, so that we report that the box is empty
+            if(_s_contents != null)
+                _s_contents.Clear();
+        }
 
         public void Dispose()
         {

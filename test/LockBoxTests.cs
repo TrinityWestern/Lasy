@@ -19,9 +19,9 @@ namespace LasyTests
             }
         }
 
-        protected FakeDB _setup()
+        protected FakeDB _setup(FakeDB db = null)
         {
-            var db = new FakeDB();
+            db = db ?? new FakeDB();
             db.Insert("Tbl", new { ShouldProcess = true, LockId = DBNull.Value, LockDate = DBNull.Value });
             return db;
         }
@@ -88,6 +88,29 @@ namespace LasyTests
 
             var rows2 = new LockBox(db, "Tbl", _criteria);
             Assert.AreNotEqual(0, rows2.Count(), "The old lock went out of scope, so we should find rows here - they should be unlocked");
+        }
+
+        [Test(Description="Once the box has been unlocked, its contents should have escaped - there should be nothing inside anymore")]
+        public void UnlockingEmptiesBox()
+        {
+            var db = _setup();
+            var box = new LockBox(db, "Tbl", _criteria);
+            Assert.True(box.Any(), "The box should not have been empty");
+            box.Unlock();
+            Assert.False(box.Any(), "The box should have been empty after unlocking it");
+        }
+
+        [Test]
+        public void CachesContents()
+        {
+            var db = new UnreliableDb();
+            _setup(db);
+            var box = new LockBox(db, "Tbl", _criteria);
+            Assert.True(box.Any(), "The box should not have been empty");
+            // Now, we'll make the database blow up if it gets accessed again
+            db.FailOnNextOp = true;
+            // When we access the box again, it shouldn't make the db explode
+            Assert.True(box.Any(), "This should not blow up the box");
         }
     }
 }
