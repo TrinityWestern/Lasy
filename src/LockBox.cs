@@ -14,14 +14,22 @@ namespace Lasy
     /// </summary>
     /// <remarks>Best practice is to use this object in a using block, so you release
     /// the locks as soon as your done your operations</remarks>
-    public class LockBox : IDisposable
+    public class LockBox<T> : IEnumerable<T>, IDisposable where T : class, new()
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="tablename"></param>
+        /// <param name="criteria">An object containing key-value pairs of the rows to lock in the database.
+        /// For example {ShouldProcess = true}</param>
+        /// <param name="lockDate">If not supplied, will be DateTime.Now</param>
         public LockBox(IReadWrite db, string tablename, object criteria, DateTime? lockDate = null)
         {
             Db = db;
             Tablename = tablename;
             LockId = Guid.NewGuid().ToString();
-            Criteria = criteria;
+            Criteria = criteria._AsDictionary();
             LockDate = lockDate ?? DateTime.Now;
         }
 
@@ -31,19 +39,19 @@ namespace Lasy
         public object Criteria { get; protected set; }
         public DateTime LockDate { get; protected set; }
 
-        private object _contentLock = new object();
-        protected IEnumerable<Dictionary<string, object>> _contents;
-        public IEnumerable<Dictionary<string, object>> Contents
+        private object _s_contentLock = new object();
+        protected IEnumerable<T> _s_contents;
+        protected IEnumerable<T> _contents
         {
             get
             {
-                if(_contents == null)
-                    lock (_contentLock)
+                if (_s_contents == null)
+                    lock (_s_contentLock)
                     {
-                        _contents = _lockRead(Criteria, LockDate);
+                        _s_contents = _lockRead(Criteria, LockDate);
                     }
 
-                return _contents;
+                return _s_contents;
             }
         }
 
@@ -55,7 +63,7 @@ namespace Lasy
         /// ie  {Processed = false}</param>
         /// <param name="lockDate"></param>
         /// <returns></returns>
-        protected IEnumerable<Dictionary<string, object>> _lockRead(object criteria, DateTime? lockDate = null)
+        protected IEnumerable<T> _lockRead(object criteria, DateTime? lockDate = null)
         {
             lockDate = lockDate ?? DateTime.Now;
 
@@ -70,9 +78,22 @@ namespace Lasy
             // Get all the rows that we successfully locked
             // Don't use the lock date, just the lockId, because SQL Server will 
             // truncate datetimes, so the values won't match
-            var fromDb = Db.Read(Tablename, lockCriteria.Assoc("LockId", LockId));
+            var fromDb = _readLockedRows(Db, Tablename, lockCriteria.Assoc("LockId", LockId));
 
             return fromDb;
+        }
+
+        /// <summary>
+        /// This function is responsible for reading back the rows that we've already locked in whatever
+        /// format we need them in
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="tablename"></param>
+        /// <param name="lockCriteria"></param>
+        /// <returns></returns>
+        protected virtual IEnumerable<T> _readLockedRows(IReadWrite db, string tablename, Dictionary<string, object> lockCriteria)
+        {
+            return db.Read<T>(tablename, lockCriteria);
         }
 
         /// <summary>
@@ -90,6 +111,44 @@ namespace Lasy
         public void Dispose()
         {
             Unlock();
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            foreach (var item in _contents)
+                yield return item;
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+    /// <summary>
+    /// Provides a disposable wrapper for locking rows in a database. When the object is 
+    /// disposed, the rows are unlocked. Note: Assumes a LockId and LockDate field on 
+    /// the table it's used on
+    /// </summary>
+    /// <remarks>Best practice is to use this object in a using block, so you release
+    /// the locks as soon as your done your operations</remarks>
+    public class LockBox : LockBox<Dictionary<string, object>>
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="tablename"></param>
+        /// <param name="criteria">An object containing key-value pairs of the rows to lock in the database.
+        /// For example {ShouldProcess = true}</param>
+        /// <param name="lockDate">If not supplied, will be DateTime.Now</param>
+        public LockBox(IReadWrite db, string tablename, object criteria, DateTime? lockDate = null)
+            : base(db, tablename, criteria, lockDate)
+        { }
+
+        protected override IEnumerable<Dictionary<string, object>> _readLockedRows(IReadWrite db, string tablename, Dictionary<string, object> lockCriteria)
+        {
+            return db.Read(tablename, lockCriteria);
         }
     }
 }
