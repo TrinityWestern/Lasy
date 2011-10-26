@@ -30,7 +30,7 @@ namespace LasyTests
         public void GeneratesUniqueLocks()
         {
             var db = _setup();
-            var locks = 1.To(10).Select(i => new LockBox(db, "Tbl").LockId);
+            var locks = 1.To(10).Select(i => new LockBox(db, "Tbl", new { }).LockId);
 
             Assert.False(locks.Any(l => l.IsNullOrEmpty()), "None of the locks should have been empty");
             Assert.False(locks.AreAllEqual(), "Locks should all have been different, but were: " + locks.Print());
@@ -41,9 +41,8 @@ namespace LasyTests
         {
             var db = _setup();
 
-
-            var lb = new LockBox(db, "Tbl");
-            var rows = lb.LockRead(_criteria);
+            var lb = new LockBox(db, "Tbl", _criteria);
+            var rows = lb.Contents;
             var rowLocks = rows.Select(r => r["LockId"].ToString());
             foreach (var rowLock in rowLocks)
                 Assert.AreEqual(lb.LockId, rowLock, "Expected each row to have the lockId set");
@@ -59,26 +58,25 @@ namespace LasyTests
         {
             var db = _setup();
 
-            var lb = new LockBox(db, "Tbl");
-            var rows = lb.LockRead(_criteria);
+            var lb = new LockBox(db, "Tbl", _criteria);
+            var rows = lb.Contents;
             Assert.NotNull(rows.Single()["LockDate"]);
 
             var fromDb = db.Read("Tbl", _criteria);
             Assert.NotNull(fromDb.Single()["LockDate"]);
         }
 
-
         [Test]
         public void WontLockLockedRows()
         {
             var db = _setup();
 
-            var lb = new LockBox(db, "Tbl");
-            var rows = lb.LockRead(_criteria);
+            var lb = new LockBox(db, "Tbl", _criteria);
+            var rows = lb.Contents;
             Assert.AreNotEqual(0, rows.Count(), "We should have found rows on the first lock");
 
-            var lb2 = new LockBox(db, "Tbl");
-            var rows2 = lb2.LockRead(_criteria);
+            var lb2 = new LockBox(db, "Tbl", _criteria);
+            var rows2 = lb2.Contents;
             Assert.AreEqual(0, rows2.Count(), "We shouldn't have found any rows on the second lock");
         }
 
@@ -87,14 +85,14 @@ namespace LasyTests
         {
             var db = _setup();
 
-            using (var lb = new LockBox(db, "Tbl"))
+            using (var lb = new LockBox(db, "Tbl", _criteria))
             {
-                var rows = lb.LockRead(_criteria);
+                var rows = lb.Contents;
                 Assert.AreNotEqual(0, rows.Count(), "We should have found rows");
             }
 
-            var lb2 = new LockBox(db, "Tbl");
-            var rows2 = lb2.LockRead(_criteria);
+            var lb2 = new LockBox(db, "Tbl", _criteria);
+            var rows2 = lb2.Contents;
             Assert.AreNotEqual(0, rows2.Count(), "The old lock went out of scope, so we should find rows here - they should be unlocked");
         }
     }

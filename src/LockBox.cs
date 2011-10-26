@@ -16,16 +16,36 @@ namespace Lasy
     /// the locks as soon as your done your operations</remarks>
     public class LockBox : IDisposable
     {
-        public LockBox(IReadWrite db, string tablename)
+        public LockBox(IReadWrite db, string tablename, object criteria, DateTime? lockDate = null)
         {
             Db = db;
             Tablename = tablename;
             LockId = Guid.NewGuid().ToString();
+            Criteria = criteria;
+            LockDate = lockDate ?? DateTime.Now;
         }
 
         public string LockId { get; protected set; }
         public IReadWrite Db { get; protected set; }
         public string Tablename { get; protected set; }
+        public object Criteria { get; protected set; }
+        public DateTime LockDate { get; protected set; }
+
+        private object _contentLock = new object();
+        protected IEnumerable<Dictionary<string, object>> _contents;
+        public IEnumerable<Dictionary<string, object>> Contents
+        {
+            get
+            {
+                if(_contents == null)
+                    lock (_contentLock)
+                    {
+                        _contents = _lockRead(Criteria, LockDate);
+                    }
+
+                return _contents;
+            }
+        }
 
         /// <summary>
         /// Read and lock some rows from the db. Only returns those rows that were successfully
@@ -35,7 +55,7 @@ namespace Lasy
         /// ie  {Processed = false}</param>
         /// <param name="lockDate"></param>
         /// <returns></returns>
-        public IEnumerable<Dictionary<string, object>> LockRead(object criteria, DateTime? lockDate = null)
+        protected IEnumerable<Dictionary<string, object>> _lockRead(object criteria, DateTime? lockDate = null)
         {
             lockDate = lockDate ?? DateTime.Now;
 
