@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LockBoxTests.cs" />
     <Compile Include="ReadConsistencyTests.cs" />
     <Compile Include="FakeDBTableTests.cs" />
     <Compile Include="FakeDBTests.cs" />

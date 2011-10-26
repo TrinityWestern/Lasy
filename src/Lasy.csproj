@@ -57,6 +57,7 @@
     <Compile Include="LasyExceptions.cs" />
     <Compile Include="IReadable.cs" />
     <Compile Include="IWriteable.cs" />
+    <Compile Include="LockBox.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RealDB.cs" />
     <Compile Include="RealDBTransaction.cs" />
