@@ -53,6 +53,10 @@ namespace Lasy
 
                 return _s_contents;
             }
+            set
+            {
+                _s_contents = value;
+            }
         }
 
         /// <summary>
@@ -99,16 +103,20 @@ namespace Lasy
         /// <summary>
         /// Clears the lock
         /// </summary>
-        public void Unlock()
+        /// <remarks>The list of items that the box had locked</remarks>
+        public IEnumerable<T> Unlock()
         {
+            var res = _contents;
+
             // Clear the lockDate and LockId for any row that has this lockId
             var updateData = new { LockId = DBNull.Value, LockDate = DBNull.Value };
             var keys = new { LockId = LockId };
             Db.Update(Tablename, updateData, keys);
-
+            
             // Clear out the cache, so that we report that the box is empty
-            if(_s_contents != null)
-                _s_contents.Clear();
+            _contents = new List<T>();
+
+            return res;
         }
 
         public void Dispose()
