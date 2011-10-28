@@ -24,13 +24,18 @@ namespace Lasy
         /// <param name="transaction"></param>
         /// <returns></returns>
         IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null);
+
+        // TODO: Is this necessary, or could we just call RawRead with an empty parameter object?
         /// <summary>
         /// Read all the rows from a table
         /// </summary>
+        /// <remarks>TODO: Is this necessary</remarks>
         /// <param name="tableName"></param>
         /// <param name="transaction"></param>
         /// <returns></returns>
         IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null);
+
+        // TODO: Is this necessary, or could we just call RawReadCustomFields with an empty parameter object?
         /// <summary>
         /// Read just the specified fields from the table, but for all rows
         /// </summary>
