@@ -35,33 +35,46 @@ namespace Lasy
 
         public virtual IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id, ITransaction transaction = null)
         {
+            if (transaction != null)
+                return (transaction as FakeDBTransaction).RawRead(tableName, id);
+
             if (!DataStore.ContainsKey(tableName))
                 return new List<Dictionary<string, object>>();
 
-            id = id.ScrubNulls();
-
-            return DataStore[tableName].FindByFieldValues(id)
-                .Select(d => d.Copy());
+            return DataStore[tableName].Read(id);
         }
 
         public virtual IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null)
         {
-            id = id.ScrubNulls();
-            return DataStore[tableName].FindByFieldValues(id).Select(row => row.WhereKeys(key => fields.Contains(key)))
-                .Select(d => d.Copy());
+            if (transaction != null)
+                return (transaction as FakeDBTransaction).RawReadCustomFields(tableName, fields, id);
+
+            if (!DataStore.ContainsKey(tableName))
+                return new List<Dictionary<string, object>>();
+
+            return DataStore[tableName].Read(id, fields);
         }
 
         public virtual IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null)
         {
+            if (transaction != null)
+                return (transaction as FakeDBTransaction).RawReadAll(tableName);
+
             if (!DataStore.ContainsKey(tableName))
                 return new List<Dictionary<string, object>>();
 
-            return DataStore[tableName].Select(d => d.Copy());
+            return DataStore[tableName].Read(new Dictionary<string, object>());
         }
 
         public virtual IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields, ITransaction transaction = null)
         {
-            return DataStore[tableName].Select(row => row.WhereKeys(key => fields.Contains(key)));
+            if (transaction != null)
+                return (transaction as FakeDBTransaction).RawReadAllCustomFields(tableName, fields);
+
+            if (!DataStore.ContainsKey(tableName))
+                return new List<Dictionary<string, object>>();
+
+            return DataStore[tableName].Read(new Dictionary<string, object>(), fields);
         }
 
         private IDBAnalyzer _analyzer = new FakeDBAnalyzer();
@@ -72,37 +85,61 @@ namespace Lasy
             set { _analyzer = value; }
         }
 
-        public virtual Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row, ITransaction transaction = null)
+        public Dictionary<string, object> NewAutokey(string tableName)
         {
             if (!DataStore.ContainsKey(tableName))
                 DataStore.Add(tableName, new FakeDBTable());
 
-            row = row.ScrubNulls();
-
             var table = DataStore[tableName];
 
-            var dictToUse = row.Copy();
-            var primaryKeys = Analyzer.GetPrimaryKeys(tableName);
             var autoKey = Analyzer.GetAutoNumberKey(tableName);
+            if (autoKey == null)
+                return new Dictionary<string, object>();
+            else
+                return new Dictionary<string, object>() { { autoKey, table.NextAutoKey++ } };
+        }
 
-            if (autoKey != null)
+        public bool CheckKeys(string tableName, Dictionary<string, object> row)
+        {
+            try
             {
-                if (!dictToUse.ContainsKey(autoKey))
-                    dictToUse.Add(autoKey, table.NextAutoKey++);
-                else
-                    dictToUse[autoKey] = table.NextAutoKey++;
+                var res = this.ExtractKeys(tableName, row);
+                return true;
             }
+            catch (KeyNotSetException)
+            {
+                return false;
+            }
+        }
 
-            var invalid = primaryKeys.Where(key => dictToUse[key] == null);
-            if (invalid.Any())
-                throw new KeyNotSetException(tableName, invalid);
+        public virtual Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row, ITransaction transaction = null)
+        {
+            if (transaction != null)
+                return (transaction as FakeDBTransaction).Insert(tableName, row);
 
+            if (!DataStore.ContainsKey(tableName))
+                DataStore.Add(tableName, new FakeDBTable());
+            
+            var table = DataStore[tableName];
+
+            row = row.ScrubNulls();
+
+            var autoKeys = NewAutokey(tableName);
+            var dictToUse = row.Union(autoKeys);
+            CheckKeys(tableName, dictToUse);
             table.Add(dictToUse);
-            return dictToUse.WhereKeys(key => primaryKeys.Contains(key));
+
+            return this.ExtractKeys(tableName, dictToUse);
         }
 
         public virtual void Delete(string tableName, Dictionary<string, object> fieldValues, ITransaction transaction = null)
         {
+            if (transaction != null)
+            {
+                (transaction as FakeDBTransaction).Delete(tableName, fieldValues);
+                return;
+            }
+
             if (DataStore.ContainsKey(tableName))
             {
                 fieldValues = fieldValues.ScrubNulls();
@@ -113,6 +150,12 @@ namespace Lasy
 
         public virtual void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields, ITransaction transaction = null)
         {
+            if (transaction != null)
+            {
+                (transaction as FakeDBTransaction).Update(tableName, dataFields, keyFields);
+                return;
+            }
+
             if(!DataStore.ContainsKey(tableName))
                 return;
 
@@ -127,7 +170,7 @@ namespace Lasy
 
         public virtual  ITransaction BeginTransaction()
         {
-            return new FakeDBTransaction();
+            return new FakeDBTransaction(this);
         }
     }
 }
