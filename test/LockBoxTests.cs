@@ -19,9 +19,9 @@ namespace LasyTests
             }
         }
 
-        protected FakeDB _setup(FakeDB db = null)
+        protected UnreliableDb _setup(UnreliableDb db = null)
         {
-            db = db ?? new FakeDB();
+            db = db ?? new UnreliableDb();
             db.Insert("Tbl", new { ShouldProcess = true, LockId = DBNull.Value, LockDate = DBNull.Value });
             return db;
         }

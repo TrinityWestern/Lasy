@@ -41,6 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DictionaryExtensions.cs" />
+    <Compile Include="EventedReadable.cs" />
+    <Compile Include="EventedReadWrite.cs" />
+    <Compile Include="EventedWriteable.cs" />
     <Compile Include="FakeDB.cs" />
     <Compile Include="FakeDBAnalyzer.cs" />
     <Compile Include="FakeDBTable.cs" />
@@ -58,6 +61,7 @@
     <Compile Include="IReadable.cs" />
     <Compile Include="IWriteable.cs" />
     <Compile Include="LockBox.cs" />
+    <Compile Include="MetaExtensions.cs" />
     <Compile Include="MockDBFailure.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RealDB.cs" />
