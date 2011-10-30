@@ -13,6 +13,10 @@ namespace LasyTests
     { }
 
     [TestFixture]
+    public class FakeDbTransactionTests : TransactionTests<FakeDB>
+    { }
+
+    [TestFixture]
     public class FakeDBTests
     {
         [Test]
