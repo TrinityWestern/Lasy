@@ -25,8 +25,10 @@ namespace Lasy
 
         public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keys, ITransaction transaction = null)
         {
-
-            var sql = "SELECT * FROM " + tableName + " WHERE " + keys.Select(x => x.Key + " = @" + x.Key).Join(" AND "); 
+            var whereClause = "";
+            if (keys.Any())
+                whereClause = " WHERE " + keys.Select(x => x.Key + " = @" + x.Key).Join(" AND ");
+            var sql = "SELECT * FROM " + tableName + whereClause;
 
             return sqlRead(sql, transaction, keys);
         }
@@ -38,33 +40,17 @@ namespace Lasy
         /// <returns>An IEnumerable of a Dictionary with each dictionary representing the column names and values associated with them.</returns>
         public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> keys, ITransaction transaction = null)
         {
-
-            var sql = "SELECT " + fields.Join(", ") + " FROM " + tableName + " WHERE " + keys.Select(x => x.Key + " = @" + x.Key).Join(" AND ");
+            var whereClause = "";
+            if (keys.Any())
+                whereClause = " WHERE " + keys.Select(x => x.Key + " = @" + x.Key).Join(" AND ");
+            var sql = "SELECT " + fields.Join(", ") + " FROM " + tableName + whereClause;
 
             return sqlRead(sql, transaction, keys);
         }
 
-        public IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null)
-        {
-            var sql = "SELECT * FROM " + tableName;
+        #endregion
 
-            return sqlRead(sql, transaction);
-        }
-
-        /// <summary>
-        /// Retrieves only specified columns from a table
-        /// </summary>
-        /// <param name="fields">IEnumerable<string> of column names that you want from a table</param>
-        /// <param name="keys">The keys and values of a SQL where clause to let you find specific table rows</param>
-        /// <param name="transaction">Optional - you can pass in a Database transaction for this to be attached to</param>
-        /// <returns>An IEnumerable of a Dictionary with each dictionary representing the column names and values associated with them.</returns>
-        public IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields, ITransaction transaction = null)
-        {
-
-            var sql = "SELECT " + fields.Join(", ") + " FROM " + tableName;
-
-            return sqlRead(sql, transaction);
-        }
+        #region Helpers
 
         private IEnumerable<Dictionary<string, object>> sqlRead(string sql, ITransaction transaction, Dictionary<string, object> values = null)
         {

@@ -56,7 +56,7 @@ namespace Lasy
             if(tableName.IsNullOrEmpty())
                 tableName = typeof(T).Name;
 
-            var results = reader.RawReadAll(tableName, transaction);
+            var results = reader.RawRead(tableName, new Dictionary<string,object>(), transaction);
 
             return results.Select(x => new T()._SetFrom(x) );
         }
@@ -84,6 +84,16 @@ namespace Lasy
             var res = Read(reader, tableName, values, trans);
             ObjectReader<T> converter = new ObjectReader<T>();
             return converter.ReadAll(res);
+        }
+
+        public static IEnumerable<Dictionary<string, object>> RawReadAll(this IReadable reader, string tableName, ITransaction trans = null)
+        {
+            return reader.RawRead(tableName, new Dictionary<string, object>(), trans);
+        }
+
+        public static IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(this IReadable reader, string tableName, IEnumerable<string> fields, ITransaction trans = null)
+        {
+            return reader.RawReadCustomFields(tableName, fields, new Dictionary<string, object>(), trans);
         }
     }
 }

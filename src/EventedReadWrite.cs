@@ -58,20 +58,6 @@ namespace Lasy
             return _underlyingDb.RawReadCustomFields(tableName, fields, id, transaction);
         }
 
-        public IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null)
-        {
-            if (OnRead != null)
-                OnRead(tableName, new Dictionary<string, object>(), transaction);
-            return _underlyingDb.RawReadAll(tableName, transaction);
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields, ITransaction transaction = null)
-        {
-            if (OnRead != null)
-                OnRead(tableName, new Dictionary<string, object>(), transaction);
-            return _underlyingDb.RawReadAllCustomFields(tableName, fields, transaction);
-        }
-
         public IDBAnalyzer Analyzer
         {
             get { return _underlyingDb.Analyzer; }

@@ -55,28 +55,6 @@ namespace Lasy
             return DataStore[tableName].Read(id, fields);
         }
 
-        public virtual IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null)
-        {
-            if (transaction != null)
-                return (transaction as FakeDBTransaction).RawReadAll(tableName);
-
-            if (!DataStore.ContainsKey(tableName))
-                return new List<Dictionary<string, object>>();
-
-            return DataStore[tableName].Read(new Dictionary<string, object>());
-        }
-
-        public virtual IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields, ITransaction transaction = null)
-        {
-            if (transaction != null)
-                return (transaction as FakeDBTransaction).RawReadAllCustomFields(tableName, fields);
-
-            if (!DataStore.ContainsKey(tableName))
-                return new List<Dictionary<string, object>>();
-
-            return DataStore[tableName].Read(new Dictionary<string, object>(), fields);
-        }
-
         private IDBAnalyzer _analyzer = new FakeDBAnalyzer();
 
         public IDBAnalyzer Analyzer
