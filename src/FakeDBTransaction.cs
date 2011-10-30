@@ -148,7 +148,7 @@ namespace Lasy
             var inserted = row.ScrubNulls().Union(autoKeys);
             
             var pks = _db.ExtractKeys(tableName, inserted);
-            _operations.Add(new InsertOp(tableName, row));
+            _operations.Add(new InsertOp(tableName, inserted));
             return pks;
         }
 
