@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractTableTests.cs" />
+    <Compile Include="EventTests.cs" />
     <Compile Include="TransactionTests.cs" />
     <Compile Include="LockBoxTests.cs" />
     <Compile Include="ReadConsistencyTests.cs" />
