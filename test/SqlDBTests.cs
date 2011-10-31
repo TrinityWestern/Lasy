@@ -5,6 +5,7 @@ using Nvelope.Reflection;
 using Lasy;
 using NUnit.Framework;
 using System;
+using Nvelope;
 
 namespace LasyTests
 {
@@ -59,9 +60,26 @@ namespace LasyTests
             var data = new Person() { FirstName = "test", LastName = "person", Age = null };
             var dataKeys = db.Insert("Person", data);
 
+            // Read where Age is null
             var fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", DBNull.Value } });
             Assert.True(fromDb.Any());
             fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", null } });
+            Assert.True(fromDb.Any());
+
+            db.Delete("Person", dataKeys);
+        }
+
+        [Test]
+        public void ReadFilterByMultipleNullField()
+        {
+            var db = new SqlDB(connString);
+            var data = new Person() { FirstName = "test", LastName = "person", Age = null };
+            var dataKeys = db.Insert("Person", data);
+
+            // Read where Age is null and PersonId = X
+            var fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", DBNull.Value } }.Union(dataKeys)); ;
+            Assert.True(fromDb.Any());
+            fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", null } }.Union(dataKeys));
             Assert.True(fromDb.Any());
 
             db.Delete("Person", dataKeys);
