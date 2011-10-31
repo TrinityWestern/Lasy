@@ -53,7 +53,7 @@ namespace LasyTests
         [Test]
         public void ReadCustomFields()
         {
-            var vals = _db.RawReadCustomFields("Simple", "ID".And("Name"), new { ID = 1 }._AsDictionary());
+            var vals = _db.RawRead("Simple", new { ID = 1 }._AsDictionary(), "ID".And("Name"));
             Assert.AreEqual("(([ID,1],[Name,Foo]))", vals.Print());
         }
 
@@ -67,7 +67,7 @@ namespace LasyTests
         [Test]
         public void ReadAllCustomFields()
         {
-            var vals = _db.RawReadAllCustomFields("Simple", "ID".And("Name"));
+            var vals = _db.RawRead("Simple", null, "ID".And("Name"));
             Assert.AreEqual("(([ID,1],[Name,Foo]),([ID,2],[Name,Bar]))", vals.Print());
         }
 

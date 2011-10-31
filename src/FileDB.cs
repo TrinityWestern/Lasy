@@ -125,10 +125,18 @@ namespace Lasy
 
         public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields)
         {
+            fields = fields ?? new string[] { };
+            keyFields = keyFields ?? new Dictionary<string, object>();
+
             var table = getTable(tableName);
-            var rows = table.Select(d => convertRow(d)).ToList();
-            var results = rows.Where(row => keyFields.IsSameAs(row));
-            return results;
+            var rows = table.Select(d => convertRow(d));
+            if(keyFields.Any())
+                rows = rows.Where(r => keyFields.IsSameAs(r));
+
+            if (fields.Any())
+                return rows.Select(r => r.Only(fields)).ToList();
+            else
+                return rows.ToList(); ;
         }
 
         public IDBAnalyzer Analyzer
