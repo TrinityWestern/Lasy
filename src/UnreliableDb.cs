@@ -7,6 +7,10 @@ using Nvelope;
 
 namespace Lasy
 {
+    /// <summary>
+    /// A db class that we can set up to fail on the next read operation
+    /// Useful for simulating DB failures in the middle of transactions
+    /// </summary>
     public class UnreliableDb : EventedReadWrite
     {
         public UnreliableDb()
