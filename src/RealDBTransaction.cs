@@ -6,27 +6,63 @@ using System.Data.SqlClient;
 
 namespace Lasy
 {
-    public class RealDBTransaction : ITransaction
+    public class RealDBTransaction : AbstractSqlReadWrite, ITransaction
     {
-        public SqlTransaction UnderlyingTransaction;
+        public RealDB UnderlyingDB;
+        protected SqlConnection _conn;
+        protected SqlTransaction _transaction;
 
-        public RealDBTransaction(SqlTransaction transaction)
+        public RealDBTransaction(RealDB db)
+            : base(db.ConnectionString, db.Analyzer)
         {
-            UnderlyingTransaction = transaction;
+            UnderlyingDB = db;
+            _conn = new SqlConnection(db.ConnectionString);
+            _conn.Open();
+            _transaction = _conn.BeginTransaction();
         }
-
-        #region ITransaction Members
 
         public void Commit()
         {
-            UnderlyingTransaction.Commit();
+            _transaction.Commit();
         }
 
         public void Rollback()
         {
-            UnderlyingTransaction.Rollback();
-        }   
+            _transaction.Rollback();
+        }
 
-        #endregion
+        protected override IEnumerable<Dictionary<string, object>> sqlRead(string sql, Dictionary<string, object> values = null)
+        {
+            if (values == null)
+                values = new Dictionary<string, object>();
+
+            var command = new SqlCommand(sql, _conn, _transaction);
+            return command.Execute(sql, values);
+
+        }
+
+        protected override int? sqlInsert(string sql, Dictionary<string, object> values = null)
+        {
+            if (values == null)
+                values = new Dictionary<string, object>();
+
+            var command = new SqlCommand(sql, _conn, _transaction);
+            return command.ExecuteSingleValue<int?>(sql, values);
+        }
+
+        protected override void sqlUpdate(string sql, Dictionary<string, object> values = null)
+        {
+            if (values == null)
+                values = new Dictionary<string, object>();
+
+            var command = new SqlCommand(sql, _conn, _transaction);
+            command.Execute(sql, values);
+           
+        }
+
+        public void Dispose()
+        {
+            _conn.Dispose();
+        }
     }
 }

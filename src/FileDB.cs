@@ -125,16 +125,16 @@ namespace Lasy
 
         #region IReadable Members
 
-        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id, ITransaction transaction = null)
+        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id)
         {
-            var table = RawReadAll(tableName, transaction);
+            var table = RawReadAll(tableName);
             var results = table.Where(row => row.IsSameAs(id, id.Keys));
             return results;
         }
 
-        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null)
+        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id)
         {
-            var res = RawRead(tableName, id, transaction);
+            var res = RawRead(tableName, id);
             return res.Select(r => r.WhereKeys(f => fields.Contains(f)));
         }
 
@@ -143,16 +143,16 @@ namespace Lasy
             get { throw new NotImplementedException(); }
         }
 
-        public IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null)
+        public IEnumerable<Dictionary<string, object>> RawReadAll(string tableName)
         {
             var raw = getTable(tableName);
             var table = raw.Select(d => convertRow(d));
             return table;
         }
 
-        public IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields, ITransaction transaction = null)
+        public IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields)
         {
-            var res = RawReadAll(tableName, transaction);
+            var res = RawReadAll(tableName);
             return res.Select(r => r.WhereKeys(f => fields.Contains(f)));
         }
 

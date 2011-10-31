@@ -27,5 +27,19 @@ namespace Lasy
             var keys = values.Only(keynames);
             return keys;
         }
+
+        /// <summary>
+        /// Make sure that values contains all the keys needed to insert into tablename. If not, 
+        /// a KeyNotSetException will be thrown
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="tablename"></param>
+        /// <param name="values"></param>
+        public static void AssertInsertKeys(this IAnalyzable writer, string tablename, Dictionary<string, object> values)
+        {
+            var keys = writer.Analyzer.GetPrimaryKeys(tablename).Except(writer.Analyzer.GetAutoNumberKey(tablename));
+            if (!values.Keys.ToSet().IsSupersetOf(keys))
+                throw new KeyNotSetException(tablename, keys.Except(values.Keys));
+        }
     }
 }

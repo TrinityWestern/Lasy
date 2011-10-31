@@ -5,10 +5,8 @@ using System.Text;
 
 namespace Lasy
 {
-    public interface ITransaction : IReadWrite, IDisposable
+    public interface ITransactable : IReadWrite
     {
-        void Commit();
-
-        void Rollback();
+        ITransaction BeginTransaction();
     }
 }

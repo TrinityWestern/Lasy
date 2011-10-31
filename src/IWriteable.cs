@@ -7,12 +7,10 @@ namespace Lasy
 {
     public interface IWriteable : IAnalyzable
     {
-        Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row, ITransaction transaction = null);
+        Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row);
 
-        void Delete(string tableName, Dictionary<string, object> row, ITransaction transaction = null);
+        void Delete(string tableName, Dictionary<string, object> keyFields);
 
-        void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields, ITransaction transaction = null);
-
-        ITransaction BeginTransaction();
+        void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields);
     }
 }

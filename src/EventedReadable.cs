@@ -17,20 +17,20 @@ namespace Lasy
         /// <summary>
         /// Fires before a Read operation
         /// </summary>
-        public event Action<string, Dictionary<string, object>, ITransaction> OnRead;
+        public event Action<string, Dictionary<string, object>> OnRead;
 
-        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id, ITransaction transaction = null)
+        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id)
         {
             if (OnRead != null)
-                OnRead(tableName, id, transaction);
-            return _underlying.RawRead(tableName, id, transaction);
+                OnRead(tableName, id);
+            return _underlying.RawRead(tableName, id);
         }
 
-        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null)
+        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id)
         {
             if (OnRead != null)
-                OnRead(tableName, id, transaction);
-            return _underlying.RawReadCustomFields(tableName, fields, id, transaction);
+                OnRead(tableName, id);
+            return _underlying.RawReadCustomFields(tableName, fields, id);
         }
 
         public IDBAnalyzer Analyzer

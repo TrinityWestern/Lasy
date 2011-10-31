@@ -25,9 +25,9 @@ namespace Lasy
         {
             // Create event handlers for insert, update, delete
             // that just call our method to see if FailOnNextOp is set
-            this.OnDelete += (a, b, c) => _failCheck();
-            this.OnInsert += (a, b, c) => _failCheck();
-            this.OnUpdate += (a, b, c, d) => _failCheck();
+            this.OnDelete += (a, b) => _failCheck();
+            this.OnInsert += (a, b) => _failCheck();
+            this.OnUpdate += (a, b, c) => _failCheck();
         }
 
         public bool FailOnNextOp = false;

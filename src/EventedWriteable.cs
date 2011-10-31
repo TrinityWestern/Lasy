@@ -18,56 +18,45 @@ namespace Lasy
         /// <summary>
         /// Fires before an insert
         /// </summary>
-        public event Action<string, Dictionary<string, object>, ITransaction> OnInsert;
+        public event Action<string, Dictionary<string, object>> OnInsert;
         /// <summary>
         /// Fires before a delete
         /// </summary>
-        public event Action<string, Dictionary<string, object>, ITransaction> OnDelete;
+        public event Action<string, Dictionary<string, object>> OnDelete;
         /// <summary>
         /// Fires before an update
         /// </summary>
-        public event Action<string, Dictionary<string, object>, Dictionary<string, object>, ITransaction> OnUpdate;
+        public event Action<string, Dictionary<string, object>, Dictionary<string, object>> OnUpdate;
         /// <summary>
         /// Fires before every insert, update, or delete
         /// </summary>
-        public event Action<string, Dictionary<string, object>, ITransaction> OnWrite;
-        /// <summary>
-        /// Fires before beginning a transaction
-        /// </summary>
-        public event Action OnBeginTransaction;
+        public event Action<string, Dictionary<string, object>> OnWrite;
 
-        public Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row, ITransaction transaction = null)
+        public Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row)
         {
             if (OnInsert != null)
-                OnInsert(tableName, row, transaction);
+                OnInsert(tableName, row);
             if (OnWrite != null)
-                OnWrite(tableName, row, transaction);
-            return _underlying.Insert(tableName, row, transaction);
+                OnWrite(tableName, row);
+            return _underlying.Insert(tableName, row);
         }
 
-        public void Delete(string tableName, Dictionary<string, object> row, ITransaction transaction = null)
+        public void Delete(string tableName, Dictionary<string, object> row)
         {
             if (OnDelete != null)
-                OnDelete(tableName, row, transaction);
+                OnDelete(tableName, row);
             if (OnWrite != null)
-                OnWrite(tableName, row, transaction);
-            _underlying.Delete(tableName, row, transaction);
+                OnWrite(tableName, row);
+            _underlying.Delete(tableName, row);
         }
 
-        public void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields, ITransaction transaction = null)
+        public void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
         {
             if (OnUpdate != null)
-                OnUpdate(tableName, dataFields, keyFields, transaction);
+                OnUpdate(tableName, dataFields, keyFields);
             if (OnWrite != null)
-                OnWrite(tableName, dataFields.Union(keyFields), transaction);
-            _underlying.Update(tableName, dataFields, keyFields, transaction);
-        }
-
-        public ITransaction BeginTransaction()
-        {
-            if (OnBeginTransaction != null)
-                OnBeginTransaction();
-            return _underlying.BeginTransaction();
+                OnWrite(tableName, dataFields.Union(keyFields));
+            _underlying.Update(tableName, dataFields, keyFields);
         }
 
         public IDBAnalyzer Analyzer

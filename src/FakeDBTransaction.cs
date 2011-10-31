@@ -10,7 +10,7 @@ namespace Lasy
     /// Fakes a transaction on a FakeDB
     /// </summary>
     /// <remarks>Oh, the lies upon lies....</remarks>
-    public class FakeDBTransaction : IReadWrite, ITransaction
+    public class FakeDBTransaction : ITransaction
     {
         public FakeDBTransaction(FakeDB db)
         {
@@ -117,24 +117,14 @@ namespace Lasy
             return res;
         }
 
-        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id, ITransaction transaction = null)
+        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id)
         {
             return _getTable(tableName).Read(id);
         }
 
-        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null)
+        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id)
         {
             return _getTable(tableName).Read(id, fields);
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null)
-        {
-            return _getTable(tableName).Read();
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields, ITransaction transaction = null)
-        {
-            return _getTable(tableName).Read(fields: fields);
         }
 
         public IDBAnalyzer Analyzer
@@ -142,7 +132,7 @@ namespace Lasy
             get { return _db.Analyzer; }
         }
 
-        public Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row, ITransaction transaction = null)
+        public Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row)
         {
             var autoKeys = _db.NewAutokey(tableName);
             var inserted = row.ScrubNulls().Union(autoKeys);
@@ -152,19 +142,19 @@ namespace Lasy
             return pks;
         }
 
-        public void Delete(string tableName, Dictionary<string, object> row, ITransaction transaction = null)
+        public void Delete(string tableName, Dictionary<string, object> row)
         {
             _operations.Add(new DeleteOp(tableName, row.ScrubNulls()));
         }
 
-        public void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields, ITransaction transaction = null)
+        public void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
         {
             _operations.Add(new UpdateOp(tableName, dataFields.ScrubNulls(), keyFields.ScrubNulls()));
         }
 
-        public ITransaction BeginTransaction()
+        public void Dispose()
         {
-            throw new NotImplementedException();
+            // Don't need to do anything
         }
     }
 }

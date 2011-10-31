@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractSqlReadWrite.cs" />
     <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="EventedReadable.cs" />
     <Compile Include="EventedReadWrite.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="IDBAnalyzer.cs" />
     <Compile Include="IReadWrite.cs" />
     <Compile Include="IReadWriteExtensions.cs" />
+    <Compile Include="ITransactable.cs" />
     <Compile Include="ITransaction.cs" />
     <Compile Include="IReadableExtensions.cs" />
     <Compile Include="IWritableExtensions.cs" />

@@ -16,7 +16,7 @@ namespace LasyTests
     /// for an example
     /// </summary>
     /// <typeparam name="TDb"></typeparam>
-    public class TransactionTests<T> where T: IReadWrite, new()
+    public class TransactionTests<T> where T: ITransactable, new()
     {
         /// <summary>
         /// Create a new db

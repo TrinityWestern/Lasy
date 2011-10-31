@@ -7,7 +7,7 @@ using Nvelope;
 
 namespace Lasy
 {
-    public class FakeDB : IReadable, IWriteable, IReadWrite
+    public class FakeDB : ITransactable
     {
         public FakeDB()
         {
@@ -33,22 +33,16 @@ namespace Lasy
             DataStore = new Dictionary<string, FakeDBTable>();
         }
 
-        public virtual IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id, ITransaction transaction = null)
+        public virtual IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id)
         {
-            if (transaction != null)
-                return (transaction as FakeDBTransaction).RawRead(tableName, id);
-
             if (!DataStore.ContainsKey(tableName))
                 return new List<Dictionary<string, object>>();
 
             return DataStore[tableName].Read(id);
         }
 
-        public virtual IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null)
+        public virtual IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id)
         {
-            if (transaction != null)
-                return (transaction as FakeDBTransaction).RawReadCustomFields(tableName, fields, id);
-
             if (!DataStore.ContainsKey(tableName))
                 return new List<Dictionary<string, object>>();
 
@@ -90,11 +84,8 @@ namespace Lasy
             }
         }
 
-        public virtual Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row, ITransaction transaction = null)
+        public virtual Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row)
         {
-            if (transaction != null)
-                return (transaction as FakeDBTransaction).Insert(tableName, row);
-
             if (!DataStore.ContainsKey(tableName))
                 DataStore.Add(tableName, new FakeDBTable());
             
@@ -110,14 +101,8 @@ namespace Lasy
             return this.ExtractKeys(tableName, dictToUse);
         }
 
-        public virtual void Delete(string tableName, Dictionary<string, object> fieldValues, ITransaction transaction = null)
+        public virtual void Delete(string tableName, Dictionary<string, object> fieldValues)
         {
-            if (transaction != null)
-            {
-                (transaction as FakeDBTransaction).Delete(tableName, fieldValues);
-                return;
-            }
-
             if (DataStore.ContainsKey(tableName))
             {
                 fieldValues = fieldValues.ScrubNulls();
@@ -126,14 +111,8 @@ namespace Lasy
             }
         }
 
-        public virtual void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields, ITransaction transaction = null)
+        public virtual void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
         {
-            if (transaction != null)
-            {
-                (transaction as FakeDBTransaction).Update(tableName, dataFields, keyFields);
-                return;
-            }
-
             if(!DataStore.ContainsKey(tableName))
                 return;
 

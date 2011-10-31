@@ -104,33 +104,33 @@ namespace LasyTests
             Assert.AreEqual(person.LastName, retrieved["LastName"]);
         }
 
-        [Test]
-        public void RealUpdate()
-        {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+        //[Test]
+        //public void RealUpdate()
+        //{
+        //    var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
 
-            var person = new Person();
-            person.FirstName = "test";
-            person.LastName = "person";
+        //    var person = new Person();
+        //    person.FirstName = "test";
+        //    person.LastName = "person";
 
-            var keys = db.Insert("Person", person._AsDictionary());
+        //    var keys = db.Insert("Person", person._AsDictionary());
 
-            //Retrieve the saved person so we can verify it saved with our intended data
-            var retrieved = db.RawRead("Person", keys).First();
-            Assert.AreEqual(person.FirstName, retrieved["FirstName"]);
-            Assert.AreEqual(person.LastName, retrieved["LastName"]);
+        //    //Retrieve the saved person so we can verify it saved with our intended data
+        //    var retrieved = db.RawRead("Person", keys).First();
+        //    Assert.AreEqual(person.FirstName, retrieved["FirstName"]);
+        //    Assert.AreEqual(person.LastName, retrieved["LastName"]);
 
-            person.FirstName = "newFirst";
-            person.LastName = "newLastName";
+        //    person.FirstName = "newFirst";
+        //    person.LastName = "newLastName";
 
-            //Update and retrieve the person again so we can verify that the Update worked
-            var data = person._AsDictionary().Where(kv => !keys.Keys.Contains(kv.Key))
-                .ToDictionary(i => i.Key, i => i.Value);
-            db.RealUpdate("Person", data, keys);
-            retrieved = db.RawRead("Person", keys).First();
-            Assert.AreEqual(person.FirstName, retrieved["FirstName"]);
-            Assert.AreEqual(person.LastName, retrieved["LastName"]);
-        }
+        //    //Update and retrieve the person again so we can verify that the Update worked
+        //    var data = person._AsDictionary().Where(kv => !keys.Keys.Contains(kv.Key))
+        //        .ToDictionary(i => i.Key, i => i.Value);
+        //    db.RealUpdate("Person", data, keys);
+        //    retrieved = db.RawRead("Person", keys).First();
+        //    Assert.AreEqual(person.FirstName, retrieved["FirstName"]);
+        //    Assert.AreEqual(person.LastName, retrieved["LastName"]);
+        //}
 
         [Test(Description = "Verify that a record has been deleted")]
         public void Delete()
@@ -183,10 +183,10 @@ namespace LasyTests
         {
             var keys = new Dictionary<string, object>();
 
-            using (var db = new RealDB(connString, new SQL2005DBAnalyzer(connString)))
-            {
-                var transaction = db.BeginTransaction();
+            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
 
+            using(var transaction = db.BeginTransaction())
+            {
                 var person = new Person();
                 person.FirstName = "test";
                 person.LastName = "person";
