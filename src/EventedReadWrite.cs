@@ -40,18 +40,11 @@ namespace Lasy
         /// </summary>
         public event Action<string, Dictionary<string, object>> OnWrite;
 
-        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id)
+        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields)
         {
             if (OnRead != null)
-                OnRead(tableName, id);
-            return _underlyingDb.RawRead(tableName, id);
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id)
-        {
-            if (OnRead != null)
-                OnRead(tableName, id);
-            return _underlyingDb.RawReadCustomFields(tableName, fields, id);
+                OnRead(tableName, keyFields);
+            return _underlyingDb.RawRead(tableName, keyFields, fields);
         }
 
         public IDBAnalyzer Analyzer

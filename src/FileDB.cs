@@ -123,39 +123,17 @@ namespace Lasy
             return value.ConvertTo(outputType);
         }
 
-        #region IReadable Members
-
-        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id)
+        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields)
         {
-            var table = RawReadAll(tableName);
-            var results = table.Where(row => row.IsSameAs(id, id.Keys));
+            var table = getTable(tableName);
+            var rows = table.Select(d => convertRow(d)).ToList();
+            var results = rows.Where(row => keyFields.IsSameAs(row));
             return results;
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id)
-        {
-            var res = RawRead(tableName, id);
-            return res.Select(r => r.WhereKeys(f => fields.Contains(f)));
         }
 
         public IDBAnalyzer Analyzer
         {
             get { throw new NotImplementedException(); }
         }
-
-        public IEnumerable<Dictionary<string, object>> RawReadAll(string tableName)
-        {
-            var raw = getTable(tableName);
-            var table = raw.Select(d => convertRow(d));
-            return table;
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields)
-        {
-            var res = RawReadAll(tableName);
-            return res.Select(r => r.WhereKeys(f => fields.Contains(f)));
-        }
-
-        #endregion
     }
 }

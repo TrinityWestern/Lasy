@@ -33,20 +33,12 @@ namespace Lasy
             DataStore = new Dictionary<string, FakeDBTable>();
         }
 
-        public virtual IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id)
+        public virtual IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields = null)
         {
             if (!DataStore.ContainsKey(tableName))
                 return new List<Dictionary<string, object>>();
 
-            return DataStore[tableName].Read(id);
-        }
-
-        public virtual IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id)
-        {
-            if (!DataStore.ContainsKey(tableName))
-                return new List<Dictionary<string, object>>();
-
-            return DataStore[tableName].Read(id, fields);
+            return DataStore[tableName].Read(keyFields, fields);
         }
 
         private IDBAnalyzer _analyzer = new FakeDBAnalyzer();

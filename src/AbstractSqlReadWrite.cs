@@ -86,13 +86,7 @@ namespace Lasy
             return "DELETE FROM " + tableName + " WHERE " + keyFields.Select(x => x.Key + " = @" + x.Key).Join(" AND ");
         }
 
-        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields)
-        {
-            var sql = MakeReadSql(tableName, keyFields);
-            return sqlRead(sql, keyFields);
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> keyFields)
+        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields = null)
         {
             var sql = MakeReadSql(tableName, keyFields, fields);
             return sqlRead(sql, keyFields);

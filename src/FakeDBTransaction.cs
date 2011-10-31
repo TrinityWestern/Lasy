@@ -117,14 +117,9 @@ namespace Lasy
             return res;
         }
 
-        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id)
+        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields)
         {
-            return _getTable(tableName).Read(id);
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id)
-        {
-            return _getTable(tableName).Read(id, fields);
+            return _getTable(tableName).Read(keyFields, fields);
         }
 
         public IDBAnalyzer Analyzer
