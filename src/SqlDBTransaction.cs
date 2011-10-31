@@ -6,13 +6,13 @@ using System.Data.SqlClient;
 
 namespace Lasy
 {
-    public class RealDBTransaction : AbstractSqlReadWrite, ITransaction
+    public class SqlDBTransaction : AbstractSqlReadWrite, ITransaction
     {
-        public RealDB UnderlyingDB;
+        public SqlDB UnderlyingDB;
         protected SqlConnection _conn;
         protected SqlTransaction _transaction;
 
-        public RealDBTransaction(RealDB db)
+        public SqlDBTransaction(SqlDB db)
             : base(db.ConnectionString, db.Analyzer)
         {
             UnderlyingDB = db;

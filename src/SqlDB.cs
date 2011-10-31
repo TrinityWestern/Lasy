@@ -10,9 +10,9 @@ namespace Lasy
     /// <summary>
     /// Provides an implementation of ITransactable for MS SQL Server
     /// </summary>
-    public class RealDB : AbstractSqlReadWrite, ITransactable
+    public class SqlDB : AbstractSqlReadWrite, ITransactable
     {
-        public RealDB(string connectionString, IDBAnalyzer analyzer)
+        public SqlDB(string connectionString, IDBAnalyzer analyzer)
             : base(connectionString, analyzer)
         { }
 
@@ -51,7 +51,7 @@ namespace Lasy
 
         public ITransaction BeginTransaction()
         {
-            return new RealDBTransaction(this);
+            return new SqlDBTransaction(this);
         }
     }
 }

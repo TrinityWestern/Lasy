@@ -66,8 +66,8 @@
     <Compile Include="MetaExtensions.cs" />
     <Compile Include="MockDBFailure.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RealDB.cs" />
-    <Compile Include="RealDBTransaction.cs" />
+    <Compile Include="SqlDB.cs" />
+    <Compile Include="SqlDBTransaction.cs" />
     <Compile Include="SQL2000DBAnalyzer.cs" />
     <Compile Include="SQL2005DBAnalyzer.cs" />
     <Compile Include="SQLAnalyzer.cs" />

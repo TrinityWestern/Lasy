@@ -9,14 +9,14 @@ namespace LasyTests
 {
     [TestFixture]
     //[Ignore("These tests depend on having a configured MS SQL Server, which you're probably not gonna have")]
-    public class RealDBTests
+    public class SqlDBTests
     {
         private const string connString = "Data Source=.\\SQLEXPRESS; Initial Catalog=LasyTests; User Id=LasyTest; Password=abc123;";
 
         [Test]
         public void ReadAll()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
 
             var results = db.ReadAll<Person>();
 
@@ -32,7 +32,7 @@ namespace LasyTests
         [Test (Description = "If we want to select only certain columns from an entire table, rather than entire rows")]
         public void ReadAllCustomFields()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
 
             var desiredColumns = new List<string>(){ "PersonId", "FirstName" };
 
@@ -57,7 +57,7 @@ namespace LasyTests
         [Test]
         public void Insert()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
 
             var contents = db.ReadAll<Person>();
 
@@ -73,7 +73,7 @@ namespace LasyTests
         [Test]
         public void Update()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
 
             var person = new Person();
             person.FirstName = "test";
@@ -99,7 +99,7 @@ namespace LasyTests
         [Test(Description = "Verify that a record has been deleted")]
         public void Delete()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
 
             var person = new Person();
             person.FirstName = "bob";
@@ -114,7 +114,7 @@ namespace LasyTests
         [Test(Description = "We need to make sure we can pass in null values to inserts")]
         public void AllowNullInsert()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
 
             var org = new Organization();
             org.Name = "My Organization";
@@ -128,7 +128,7 @@ namespace LasyTests
         [Test(Description = "If a transaction is rolled back we should not see any results in our connection or any other connections")]
         public void TransactionRollback()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
             var transaction = db.BeginTransaction();
 
             var person = new Person();
@@ -147,7 +147,7 @@ namespace LasyTests
         {
             var keys = new Dictionary<string, object>();
 
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
 
             using(var transaction = db.BeginTransaction())
             {
@@ -158,14 +158,14 @@ namespace LasyTests
                 keys = transaction.Insert("Person", person._AsDictionary());
             }
 
-            var conn = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var conn = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
             Assert.AreEqual(0, conn.RawRead("Person", keys).Count());
         }
 
         [Test(Description = "Results should be present on a successful, committed transaction")]
         public void TransactionSuccessful()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
             var transaction = db.BeginTransaction();
 
             var person = new Person();
