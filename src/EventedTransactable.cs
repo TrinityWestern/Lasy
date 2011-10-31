@@ -10,14 +10,14 @@ namespace Lasy
     /// Provides a wrapper around an IReadWrite that allows you to add events to operations.
     /// Helpful for logging, mocks, and that sort of thing
     /// </summary>
-    public class EventedReadWrite : IReadWrite
+    public class EventedTransactable : ITransactable
     {
-        public EventedReadWrite(IReadWrite underlyingDb)
+        public EventedTransactable(ITransactable underlyingDb)
         {
             _underlyingDb = underlyingDb;
         }
 
-        protected IReadWrite _underlyingDb;
+        protected ITransactable _underlyingDb;
 
         /// <summary>
         /// Fires before a read operation
@@ -39,6 +39,10 @@ namespace Lasy
         /// Fired for every insert, update, or delete
         /// </summary>
         public event Action<string, Dictionary<string, object>> OnWrite;
+        /// <summary>
+        /// Fired every time a transaction is created
+        /// </summary>
+        public event Action OnBeginTransaction;
 
         public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields)
         {
@@ -77,6 +81,13 @@ namespace Lasy
             if (OnWrite != null)
                 OnWrite(tableName, dataFields.Union(keyFields));
             _underlyingDb.Update(tableName, dataFields, keyFields);
+        }
+
+        public ITransaction BeginTransaction()
+        {
+            if (OnBeginTransaction != null)
+                OnBeginTransaction();
+            return _underlyingDb.BeginTransaction();
         }
     }
 }

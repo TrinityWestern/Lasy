@@ -43,7 +43,7 @@
     <Compile Include="AbstractSqlReadWrite.cs" />
     <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="EventedReadable.cs" />
-    <Compile Include="EventedReadWrite.cs" />
+    <Compile Include="EventedTransactable.cs" />
     <Compile Include="EventedWriteable.cs" />
     <Compile Include="FakeDB.cs" />
     <Compile Include="FakeDBAnalyzer.cs" />

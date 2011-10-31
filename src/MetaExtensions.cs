@@ -10,9 +10,9 @@ namespace Lasy
     /// </summary>
     public static class MetaExtensions
     {
-        public static EventedReadWrite AddEvents(this IReadWrite db)
+        public static EventedTransactable AddEvents(this ITransactable db)
         {
-            return new EventedReadWrite(db);
+            return new EventedTransactable(db);
         }
 
         public static EventedReadable AddEvents(this IReadable reader)
