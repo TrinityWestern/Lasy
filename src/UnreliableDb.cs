@@ -11,16 +11,16 @@ namespace Lasy
     /// A db class that we can set up to fail on the next read operation
     /// Useful for simulating DB failures in the middle of transactions
     /// </summary>
-    public class UnreliableDb : EventedTransactable
+    public class UnreliableDb : FakeDB
     {
         public UnreliableDb()
-            : base(new FakeDB())
+            : base()
         {
             _setup();
         }
 
         public UnreliableDb(IDBAnalyzer analyzer)
-            : base(new FakeDB(analyzer))
+            : base(analyzer)
         {
             _setup(); 
         }

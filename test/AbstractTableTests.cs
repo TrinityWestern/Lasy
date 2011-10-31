@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace LasyTests
 {
-    public class AbstractTableTests<T> where T: ITransactable, new()
+    public class AbstractTableTests<T> where T: IReadWrite, new()
     {
         /// <summary>
         /// Create a new db

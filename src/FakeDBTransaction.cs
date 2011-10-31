@@ -119,6 +119,7 @@ namespace Lasy
 
         public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields)
         {
+            _db.FireOnRead(tableName, keyFields);
             return _getTable(tableName).Read(keyFields, fields);
         }
 
@@ -129,6 +130,8 @@ namespace Lasy
 
         public Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row)
         {
+            _db.FireOnInsert(tableName, row);
+
             var autoKeys = _db.NewAutokey(tableName);
             var inserted = row.ScrubNulls().Union(autoKeys);
             
@@ -139,11 +142,13 @@ namespace Lasy
 
         public void Delete(string tableName, Dictionary<string, object> row)
         {
+            _db.FireOnDelete(tableName, row);
             _operations.Add(new DeleteOp(tableName, row.ScrubNulls()));
         }
 
         public void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
         {
+            _db.FireOnUpdate(tableName, dataFields, keyFields);
             _operations.Add(new UpdateOp(tableName, dataFields.ScrubNulls(), keyFields.ScrubNulls()));
         }
 

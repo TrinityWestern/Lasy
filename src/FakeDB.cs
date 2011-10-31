@@ -7,7 +7,7 @@ using Nvelope;
 
 namespace Lasy
 {
-    public class FakeDB : ITransactable
+    public class FakeDB : ITransactable, IRWEvented
     {
         public FakeDB()
             : this(new FakeDBAnalyzer())
@@ -35,6 +35,8 @@ namespace Lasy
 
         public virtual IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields = null)
         {
+            FireOnRead(tableName, keyFields);
+            
             if (!DataStore.ContainsKey(tableName))
                 return new List<Dictionary<string, object>>();
 
@@ -78,6 +80,8 @@ namespace Lasy
 
         public virtual Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row)
         {
+            FireOnInsert(tableName, row);
+
             if (!DataStore.ContainsKey(tableName))
                 DataStore.Add(tableName, new FakeDBTable());
             
@@ -95,6 +99,8 @@ namespace Lasy
 
         public virtual void Delete(string tableName, Dictionary<string, object> fieldValues)
         {
+            FireOnDelete(tableName, fieldValues);
+
             if (DataStore.ContainsKey(tableName))
             {
                 fieldValues = fieldValues.ScrubNulls();
@@ -105,6 +111,8 @@ namespace Lasy
 
         public virtual void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
         {
+            FireOnUpdate(tableName, dataFields, keyFields);
+
             if(!DataStore.ContainsKey(tableName))
                 return;
 
@@ -121,5 +129,45 @@ namespace Lasy
         {
             return new FakeDBTransaction(this);
         }
+
+        public void FireOnInsert(string tableName, Dictionary<string, object> keyFields)
+        {
+            if (OnInsert != null)
+                OnInsert(tableName, keyFields);
+            if (OnWrite != null)
+                OnWrite(tableName, keyFields);
+        }
+
+        public void FireOnDelete(string tableName, Dictionary<string, object> fieldValues)
+        {
+            if (OnDelete != null)
+                OnDelete(tableName, fieldValues);
+            if (OnWrite != null)
+                OnWrite(tableName, fieldValues);
+        }
+
+        public void FireOnUpdate(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
+        {
+            if (OnUpdate != null)
+                OnUpdate(tableName, dataFields, keyFields);
+            if (OnWrite != null)
+                OnWrite(tableName, dataFields.Union(keyFields));
+        }
+
+        public void FireOnRead(string tableName, Dictionary<string, object> keyFields)
+        {
+            if (OnRead != null)
+                OnRead(tableName, keyFields);
+        }
+
+        public event Action<string, Dictionary<string, object>> OnInsert;
+
+        public event Action<string, Dictionary<string, object>> OnDelete;
+
+        public event Action<string, Dictionary<string, object>, Dictionary<string, object>> OnUpdate;
+
+        public event Action<string, Dictionary<string, object>> OnWrite;
+
+        public event Action<string, Dictionary<string, object>> OnRead;
     }
 }

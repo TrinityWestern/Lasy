@@ -9,12 +9,12 @@ using Nvelope.Reflection;
 
 namespace LasyTests
 {
-    public class EventTests<T> : AbstractTableTests<T> where T: ITransactable, new()
+    public class EventTests<T> : AbstractTableTests<T> where T: IRWEvented, ITransactable, new()
     {
         [Test]
         public void OnInsert()
         {
-            var db = _setupInsert().AddEvents();
+            var db = _setupInsert();
             // When we do an insert, it should increment the counter
             var count = 0;
             db.OnInsert += (x, y) => ++count;
@@ -28,7 +28,7 @@ namespace LasyTests
         [Test]
         public void OnInsertTransaction()
         {
-            var db = _setupInsert().AddEvents();
+            var db = _setupInsert();
             // When we do an insert, it should increment the counter
             var count = 0;
             db.OnInsert += (x, y) => ++count;
@@ -44,7 +44,7 @@ namespace LasyTests
         [Test]
         public void OnUpdate()
         {
-            var db = _setupUpdate().AddEvents();
+            var db = _setupUpdate();
             var count = 0;
             db.OnUpdate += (x, y, z) => ++count;
 
@@ -57,7 +57,7 @@ namespace LasyTests
         [Test]
         public void OnUpdateTransaction()
         {
-            var db = _setupUpdate().AddEvents();
+            var db = _setupUpdate();
             var count = 0;
             db.OnUpdate += (x, y, z) => ++count;
 
@@ -72,7 +72,7 @@ namespace LasyTests
         [Test]
         public void OnDelete()
         {
-            var db = _setupDelete().AddEvents();
+            var db = _setupDelete();
             var count = 0;
             db.OnDelete += (x,y) => ++count;
 
@@ -85,7 +85,7 @@ namespace LasyTests
         [Test]
         public void OnDeleteTransaction()
         {
-            var db = _setupDelete().AddEvents();
+            var db = _setupDelete();
             var count = 0;
             db.OnDelete += (x,y) => ++count;
 
@@ -100,7 +100,7 @@ namespace LasyTests
         [Test]
         public void OnRead()
         {
-            var db = _setupUpdate().AddEvents();
+            var db = _setupUpdate();
             var count = 0;
             db.OnRead += (x,y) => ++count;
 
@@ -113,7 +113,7 @@ namespace LasyTests
         [Test]
         public void OnReadTransaction()
         {
-            var db = _setupUpdate().AddEvents();
+            var db = _setupUpdate();
             var count = 0;
             db.OnRead += (x, y) => ++count;
 
@@ -123,19 +123,6 @@ namespace LasyTests
 
             Assert.AreEqual(1, count,
                 "The transaction did not fire the event on the database");
-        }
-
-        [Test]
-        public void OnBeginTransaction()
-        {
-            var db = _setupInsert().AddEvents();
-            var count = 0;
-            db.OnBeginTransaction += () => ++count;
-
-            db.BeginTransaction().Commit();
-
-            Assert.AreEqual(1, count,
-                "Starting a transaction did not fire the event");
         }
     }
 }
