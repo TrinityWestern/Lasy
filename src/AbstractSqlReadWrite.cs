@@ -25,9 +25,18 @@ namespace Lasy
         {
             keyFields = keyFields ?? new Dictionary<string, object>();
 
+            // TODO: Figure out how to pass null values as parameters
+            // instead of hardcoding them in here
+            var nullFields = keyFields.WhereValues(v => v == DBNull.Value || v == null).Keys;
+            var nullFieldParts = nullFields.Select(x => x + " is null");
+
+            var nonNullFields = keyFields.Except(nullFields).Keys;
+            var nonNullFieldParts = nonNullFields.Select(x => x + " = @" + paramPrefix + x);
+
             var whereClause = "";
             if (keyFields.Any())
-                whereClause = " WHERE " + keyFields.Select(x => x.Key + " = @" + paramPrefix + x.Key).Join(" AND ");
+                whereClause = " WHERE " + nullFieldParts.And(nonNullFieldParts).Join(" AND ");
+
             return whereClause;
         }
 
@@ -82,8 +91,8 @@ namespace Lasy
 
         public virtual string MakeDeleteSql(string tableName, Dictionary<string, object> keyFields)
         {
-            keyFields = keyFields ?? new Dictionary<string, object>();
-            return "DELETE FROM " + tableName + " WHERE " + keyFields.Select(x => x.Key + " = @" + x.Key).Join(" AND ");
+            var whereClause = MakeWhereClause(keyFields);
+            return "DELETE FROM " + tableName + whereClause;
         }
 
         public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields = null)

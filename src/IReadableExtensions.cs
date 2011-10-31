@@ -9,9 +9,10 @@ namespace Lasy
 {
     public static class IReadableExtensions
     {
+        [Obsolete("Use RawRead instead")]
         public static IEnumerable<Dictionary<string, object>> RawReadCustomFields(this IReadable reader, string tableName, IEnumerable<string> fields, object id)
         {
-            return reader.RawReadCustomFields(tableName, fields, id as Dictionary<string, object> ?? id._AsDictionary());
+            return reader.RawRead(tableName, id as Dictionary<string, object> ?? id._AsDictionary(), fields);
         }
 
         public static IEnumerable<Dictionary<string, object>> RawRead(this IReadable reader, string tableName, Dictionary<string, object> id)

@@ -12,6 +12,15 @@ namespace Lasy
     /// </summary>
     public class SqlDB : AbstractSqlReadWrite, ITransactable
     {
+        public SqlDB(string connectionString)
+            : base(connectionString, new SQL2005DBAnalyzer(connectionString))
+        { }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <param name="analyzer">Defaults to a new SQL2005DBAnalyzer</param>
         public SqlDB(string connectionString, IDBAnalyzer analyzer)
             : base(connectionString, analyzer)
         { }

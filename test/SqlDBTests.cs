@@ -4,6 +4,7 @@ using System.Linq;
 using Nvelope.Reflection;
 using Lasy;
 using NUnit.Framework;
+using System;
 
 namespace LasyTests
 {
@@ -50,6 +51,22 @@ namespace LasyTests
             //Make sure we only got the columns we requested rather than entire rows
             Assert.AreEqual(results.First().Keys.ToList(), desiredColumns);
         }
+
+        [Test]
+        public void ReadFilterByNullField()
+        {
+            var db = new SqlDB(connString);
+            var data = new Person() { FirstName = "test", LastName = "person", Age = null };
+            var dataKeys = db.Insert("Person", data);
+
+            var fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", DBNull.Value } });
+            Assert.True(fromDb.Any());
+            fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", null } });
+            Assert.True(fromDb.Any());
+
+            db.Delete("Person", dataKeys);
+        }
+
 
         /// <summary>
         /// If someone else is using the database at the same time, this could fail
