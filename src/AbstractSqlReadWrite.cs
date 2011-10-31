@@ -17,17 +17,17 @@ namespace Lasy
 
         public string ConnectionString { get; protected set; }
         
-        protected abstract IEnumerable<Dictionary<string, object>> sqlRead(string sql, Dictionary<string, object> values = null);
-        protected abstract int? sqlInsert(string sql, Dictionary<string, object> values = null);
-        protected abstract void sqlUpdate(string sql, Dictionary<string, object> values = null);
+        protected abstract IEnumerable<Dictionary<string, object>> sqlRead(string sql, Dictionary<string, object> values);
+        protected abstract int? sqlInsert(string sql, Dictionary<string, object> values);
+        protected abstract void sqlUpdate(string sql, Dictionary<string, object> values);
       
-        public virtual string MakeWhereClause(Dictionary<string, object> keyFields)
+        public virtual string MakeWhereClause(Dictionary<string, object> keyFields, string paramPrefix = "")
         {
             keyFields = keyFields ?? new Dictionary<string, object>();
 
             var whereClause = "";
             if (keyFields.Any())
-                whereClause = " WHERE " + keyFields.Select(x => x.Key + " = @" + x.Key).Join(" AND ");
+                whereClause = " WHERE " + keyFields.Select(x => x.Key + " = @" + paramPrefix + x.Key).Join(" AND ");
             return whereClause;
         }
 
@@ -74,7 +74,7 @@ namespace Lasy
             if (dbFields.Any()) // If we don't get anything back, that means we don't know what the DB fields are
                 setFields = setFields.Intersect(dbFields);
 
-            var whereClause = MakeWhereClause(keyFields);
+            var whereClause = MakeWhereClause(keyFields, "key");
 
             var sql = "UPDATE " + tableName + " SET " + setFields.Select(x => x + " = @data" + x).Join(", ") + "\n" + whereClause;
             return sql;
@@ -88,12 +88,14 @@ namespace Lasy
 
         public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields)
         {
-            return sqlRead(MakeReadSql(tableName, keyFields));
+            var sql = MakeReadSql(tableName, keyFields);
+            return sqlRead(sql, keyFields);
         }
 
         public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> keyFields)
         {
-            return sqlRead(MakeReadSql(tableName, keyFields, fields));
+            var sql = MakeReadSql(tableName, keyFields, fields);
+            return sqlRead(sql, keyFields);
         }
 
         public IDBAnalyzer Analyzer

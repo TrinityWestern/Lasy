@@ -8,18 +8,10 @@ using NUnit.Framework;
 namespace LasyTests
 {
     [TestFixture]
-    [Ignore("These tests depend on having a configured MS SQL Server, which you're probably not gonna have")]
+    //[Ignore("These tests depend on having a configured MS SQL Server, which you're probably not gonna have")]
     public class RealDBTests
     {
-        private const string connString = "Data Source=db3.twu.dev; Initial Catalog=Lasy; User Id=jbabbitt; Password=superCupcake$$;";
-
-        [Test]
-        public void CanConnectToDB()
-        {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
-
-            Assert.IsNull(db.ReadPK("Person", -1));
-        }
+        private const string connString = "Data Source=.\\SQLEXPRESS; Initial Catalog=LasyTests; User Id=LasyTest; Password=abc123;";
 
         [Test]
         public void ReadAll()
