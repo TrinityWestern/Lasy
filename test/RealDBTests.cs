@@ -171,7 +171,7 @@ namespace LasyTests
             person.FirstName = "test";
             person.LastName = "person";
 
-            var keys = db.Insert("Person", person._AsDictionary(), transaction);
+            var keys = transaction.Insert("Person", person._AsDictionary());
 
             transaction.Rollback();
 
@@ -191,7 +191,7 @@ namespace LasyTests
                 person.FirstName = "test";
                 person.LastName = "person";
 
-                keys = db.Insert("Person", person._AsDictionary(), transaction);
+                keys = transaction.Insert("Person", person._AsDictionary());
             }
 
             var conn = new RealDB(connString, new SQL2005DBAnalyzer(connString));
@@ -208,7 +208,7 @@ namespace LasyTests
             person.FirstName = "test";
             person.LastName = "person";
 
-            var keys = db.Insert("Person", person._AsDictionary(), transaction);
+            var keys = transaction.Insert("Person", person._AsDictionary());
 
             transaction.Commit();
 

@@ -10,10 +10,10 @@ namespace Lasy
     public class FakeDB : ITransactable
     {
         public FakeDB()
-        {
-        }
+            : this(new FakeDBAnalyzer())
+        { }
 
-        public FakeDB(IDBAnalyzer analyzer) : this()
+        public FakeDB(IDBAnalyzer analyzer)
         {
             Analyzer = analyzer;
         }

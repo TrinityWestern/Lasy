@@ -20,18 +20,17 @@ namespace Lasy
         public static void Ensure(this IReadWrite readWrite,
             string tablename,
             Dictionary<string, object> dataFields,
-            Dictionary<string, object> keyFields,
-            ITransaction trans = null)
+            Dictionary<string, object> keyFields)
         {
             // See if the keyFields exist
             // If so, update them, otherwise insert them
-            var existing = readWrite.Read(tablename, keyFields, trans);
+            var existing = readWrite.Read(tablename, keyFields);
             if (existing.Any())
-                readWrite.Update(tablename, dataFields, keyFields, trans);
+                readWrite.Update(tablename, dataFields, keyFields);
             else
             {
                 var newRow = dataFields.Union(keyFields);
-                var newKeys = readWrite.Insert(tablename, newRow, trans);
+                var newKeys = readWrite.Insert(tablename, newRow);
             }
         }
 
@@ -46,14 +45,12 @@ namespace Lasy
         public static void Ensure(this IReadWrite readWrite,
             string tablename,
             object dataObj,
-            object keyObj,
-            ITransaction trans = null)
+            object keyObj)
         {
             Ensure(readWrite,
                 tablename,
                 dataObj._AsDictionary(),
-                keyObj._AsDictionary(),
-                trans);
+                keyObj._AsDictionary());
         }
 
         /// <summary>
@@ -65,11 +62,10 @@ namespace Lasy
         /// <param name="trans"></param>
         public static void Ensure(this IReadWrite readWrite,
             string tablename,
-            Dictionary<string, object> values,
-            ITransaction trans = null)
+            Dictionary<string, object> values)
         {
             var keyFields = readWrite.ExtractKeys(tablename, values);
-            Ensure(readWrite, tablename, values, keyFields, trans);
+            Ensure(readWrite, tablename, values, keyFields);
         }
 
         /// <summary>
@@ -81,10 +77,9 @@ namespace Lasy
         /// <param name="trans"></param>
         public static void Ensure(this IReadWrite readWrite,
             string tablename,
-            object valueObj,
-            ITransaction trans = null)
+            object valueObj)
         {
-            Ensure(readWrite, tablename, valueObj._AsDictionary(), trans);
+            Ensure(readWrite, tablename, valueObj._AsDictionary());
         }
     }
 }

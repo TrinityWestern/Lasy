@@ -8,14 +8,14 @@ namespace Lasy
 {
     public static class IWritableExtensions
     {
-        public static Dictionary<string, object> Insert(this IWriteable writer, string tablename, object obj, ITransaction trans = null)
+        public static Dictionary<string, object> Insert(this IWriteable writer, string tablename, object obj)
         {
-            return writer.Insert(tablename, obj as Dictionary<string, object> ?? obj._AsDictionary(), trans);
+            return writer.Insert(tablename, obj as Dictionary<string, object> ?? obj._AsDictionary());
         }
 
-        public static int InsertAutoKey(this IWriteable writer, string tablename, object obj, ITransaction trans = null)
+        public static int InsertAutoKey(this IWriteable writer, string tablename, object obj)
         {
-            return writer.Insert(tablename, obj as Dictionary<string, object> ?? obj._AsDictionary(), trans).Single().Value.ConvertTo<int>();
+            return writer.Insert(tablename, obj as Dictionary<string, object> ?? obj._AsDictionary()).Single().Value.ConvertTo<int>();
         }
 
         /// <summary>
@@ -26,10 +26,10 @@ namespace Lasy
         /// <param name="tablename"></param>
         /// <param name="values"></param>
         /// <param name="trans"></param>
-        public static void Update(this IWriteable writer, string tablename, Dictionary<string, object> values, ITransaction trans = null)
+        public static void Update(this IWriteable writer, string tablename, Dictionary<string, object> values)
         {
             var keys = writer.ExtractKeys(tablename, values);
-            writer.Update(tablename, values, keys, trans);
+            writer.Update(tablename, values, keys);
         }
 
         /// <summary>
@@ -40,11 +40,11 @@ namespace Lasy
         /// <param name="tablename"></param>
         /// <param name="obj"></param>
         /// <param name="trans"></param>
-        public static void Update(this IWriteable writer, string tablename, object obj, ITransaction trans = null)
+        public static void Update(this IWriteable writer, string tablename, object obj)
         {
             var values = obj as Dictionary<string, object> ?? obj._AsDictionary();
 
-            Update(writer, tablename, values, trans);
+            Update(writer, tablename, values);
         }
 
         /// <summary>
@@ -55,17 +55,17 @@ namespace Lasy
         /// <param name="dataObj">If Dict[string,object] it will be passed through, otherwise converted</param>
         /// <param name="keysObj">If Dict[string,object] it will be passed through, otherwise converted</param>
         /// <param name="trans"></param>
-        public static void Update(this IWriteable writer, string tablename, object dataObj, object keysObj, ITransaction trans = null)
+        public static void Update(this IWriteable writer, string tablename, object dataObj, object keysObj)
         {
             Dictionary<string,object> data = dataObj as Dictionary<string, object> ?? dataObj._AsDictionary();
             Dictionary<string,object> keys = keysObj as Dictionary<string, object> ?? keysObj._AsDictionary();
-            writer.Update(tablename, data, keys, trans);
+            writer.Update(tablename, data, keys);
         }
 
-        public static void Delete(this IWriteable writer, string tablename, object obj, ITransaction trans = null)
+        public static void Delete(this IWriteable writer, string tablename, object obj)
         {
             var dict = obj as Dictionary<string, object>;
-            writer.Delete(tablename, dict ?? obj._AsDictionary(), trans);
+            writer.Delete(tablename, dict ?? obj._AsDictionary());
         }
 
         

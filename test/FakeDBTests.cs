@@ -20,6 +20,16 @@ namespace LasyTests
     public class FakeDBTests
     {
         [Test]
+        public void Instantiate()
+        {
+            var db = new FakeDB();
+            var data = new { F = 1, B = 2 };
+            var key = db.Insert("tbl", data);
+            Assert.NotNull(key);
+            Assert.NotNull(db);
+        }
+
+        [Test]
         public void InsertPK()
         {
             var db = new FakeDB();

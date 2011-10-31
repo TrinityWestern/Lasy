@@ -104,9 +104,9 @@ namespace LasyTests
         /// <param name="db"></param>
         /// <param name="trans">If supplied read using the transaction</param>
         /// <param name="contents"></param>
-        protected void _assertHas(IReadWrite db, Dictionary<string, object> contents, ITransaction trans = null)
+        protected void _assertHas(IReadWrite db, Dictionary<string, object> contents)
         {
-            var rows = db.Read(_table, _keys, trans);
+            var rows = db.Read(_table, _keys);
             Assert.AreEqual(1, rows.Count(), "Expected the row to be in the database");
             var exceptAutokey = rows.Single().Except(db.Analyzer.GetAutoNumberKey(_table));
             Assert.AreEqual(contents.Print(), exceptAutokey.Print(), "The row was there, but not with the values we expected");
@@ -117,9 +117,9 @@ namespace LasyTests
         /// </summary>
         /// <param name="db"></param>
         /// <param name="trans"></param>
-        protected void _assertGone(IReadWrite db, ITransaction trans = null)
+        protected void _assertGone(IReadWrite db)
         {
-            Assert.False(db.Read(_table, _keys, trans).Any(), "Expected there to be no row in the database");
+            Assert.False(db.Read(_table, _keys).Any(), "Expected there to be no row in the database");
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace LasyTests
         {
             var db = _setupInsert();
             var trans = db.BeginTransaction();
-            db.Insert(_table, _row, trans);
+            trans.Insert(_table, _row);
             trans.Rollback();
             // The row shouldn't exist anymore
             _assertGone(db);
@@ -138,7 +138,7 @@ namespace LasyTests
         {
             var db = _setupInsert();
             var trans = db.BeginTransaction();
-            db.Insert(_table, _row, trans);
+            trans.Insert(_table, _row);
             trans.Commit();
             // The row should be in the db now
             _assertHas(db, _row);
@@ -149,11 +149,11 @@ namespace LasyTests
         {
             var db = _setupInsert();
             var trans = db.BeginTransaction();
-            db.Insert(_table, _row, trans);
+            trans.Insert(_table, _row);
             // At this point, before we commit the transaction, the change should't be visible outside the transaction
             // But it should be visible inside the transaction
             _assertGone(db);
-            _assertHas(db, _row, trans);
+            _assertHas(trans, _row);
 
             trans.Commit();
         }
@@ -163,7 +163,7 @@ namespace LasyTests
         {
             var db = _setupUpdate();
             var trans = db.BeginTransaction();
-            db.Update(_table, _updatedRow, _keys, trans);
+            trans.Update(_table, _updatedRow, _keys);
             trans.Rollback();
             // The row be in it's original state
             _assertHas(db, _row);
@@ -174,7 +174,7 @@ namespace LasyTests
         {
             var db = _setupUpdate();
             var trans = db.BeginTransaction();
-            db.Update(_table, _updatedRow, _keys, trans);
+            trans.Update(_table, _updatedRow, _keys);
             trans.Commit();
             // The row should now be updated
             _assertHas(db, _updatedRow);
@@ -185,9 +185,9 @@ namespace LasyTests
         {
             var db = _setupUpdate();
             var trans = db.BeginTransaction();
-            db.Update(_table, _updatedRow, _keys, trans);
+            trans.Update(_table, _updatedRow, _keys);
             // At this point, the row should be updated in the transaction, but not outside of it
-            _assertHas(db, _updatedRow, trans);
+            _assertHas(trans, _updatedRow);
             _assertHas(db, _row);
 
             trans.Commit();
@@ -198,7 +198,7 @@ namespace LasyTests
         {
             var db = _setupDelete();
             var trans = db.BeginTransaction();
-            db.Delete(_table, _keys, trans);
+            trans.Delete(_table, _keys);
             trans.Rollback();
             // The row should still exist
             _assertHas(db, _row);
@@ -209,7 +209,7 @@ namespace LasyTests
         {
             var db = _setupDelete();
             var trans = db.BeginTransaction();
-            db.Delete(_table, _keys, trans);
+            trans.Delete(_table, _keys);
             trans.Commit();
             // The row should be gone
             _assertGone(db);
@@ -220,9 +220,9 @@ namespace LasyTests
         {
             var db = _setupDelete();
             var trans = db.BeginTransaction();
-            db.Delete(_table, _keys, trans);
+            trans.Delete(_table, _keys);
             // At this point, the row should be deleted in the transaction, but not outside it
-            _assertGone(db, trans);
+            _assertGone(trans);
             _assertHas(db, _row);
 
             trans.Commit();
