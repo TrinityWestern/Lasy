@@ -46,6 +46,9 @@
   <ItemGroup>
     <Compile Include="AbstractTableTests.cs" />
     <Compile Include="EventTests.cs" />
+    <Compile Include="SQLDBAnalyzerTests.cs" />
+    <Compile Include="SqlDBBuilderTests.cs" />
+    <Compile Include="TableCreationTests.cs" />
     <Compile Include="TransactionTests.cs" />
     <Compile Include="LockBoxTests.cs" />
     <Compile Include="ReadConsistencyTests.cs" />
