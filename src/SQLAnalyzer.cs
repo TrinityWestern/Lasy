@@ -12,13 +12,17 @@ namespace Lasy
         public SQLAnalyzer(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
         {
             if(cacheDuration == default(TimeSpan))
-                cacheDuration = new TimeSpan(0,10,0);
+                cacheDuration = _defaultCacheDuration();
 
             _connectionString = connectionString;
-            _getAutonumberKey = new Func<string, string>(_s_getAutonumberKey).Memoize(cacheDuration);
-            _getFields = new Func<string, ICollection<string>>(_s_getFields).Memoize(cacheDuration);
-            _getPrimaryKeys = new Func<string, ICollection<string>>(_s_getPrimaryKeys).Memoize(cacheDuration);
+            _getAutonumberKey = new Func<string, string>(_getAutonumberKeyFromDB).Memoize(cacheDuration);
+            _getFields = new Func<string, ICollection<string>>(_getFieldsFromDB).Memoize(cacheDuration);
+            _getPrimaryKeys = new Func<string, ICollection<string>>(_getPrimaryKeysFromDB).Memoize(cacheDuration);
+        }
 
+        protected virtual TimeSpan _defaultCacheDuration()
+        {
+            return new TimeSpan(0, 10, 0);
         }
 
         protected Func<string, ICollection<string>> _getPrimaryKeys;
@@ -35,11 +39,11 @@ namespace Lasy
             return _getPrimaryKeys(tableName);
         }
 
-        private ICollection<string> _s_getPrimaryKeys(string tableName)
+        protected ICollection<string> _getPrimaryKeysFromDB(string tableName)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
-                return conn.ExecuteSingleColumn<string>(_getPrimaryKeySql(), new { table = _stripSchema(tableName) });
+                return conn.ExecuteSingleColumn<string>(_getPrimaryKeySql(), new { table = _tableOnly(tableName) });
             }
         }
 
@@ -48,19 +52,29 @@ namespace Lasy
             return _getAutonumberKey(tableName);
         }
 
-        private string _s_getAutonumberKey(string tableName)
+        protected string _getAutonumberKeyFromDB(string tableName)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
-                var res = conn.ExecuteSingleColumn<string>(_getAutonumberKeySql(), new { table = _stripSchema(tableName) });
+                var res = conn.ExecuteSingleColumn<string>(_getAutonumberKeySql(), new { table = _tableOnly(tableName) });
                 return res.FirstOr(null);
             }           
         }
 
-        private string _stripSchema(string tablename)
+        protected string _tableOnly(string tablename)
         {
             var res = tablename.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Last().ChopEnd("]").ChopStart("[");
             return res;
+        }
+
+        protected string _schemaOnly(string tablename)
+        {
+            var parts = tablename.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.ChopEnd("]").ChopStart("["));
+            if (parts.Count() > 1)
+                return parts.First();
+            else
+                return "";
         }
 
         public ICollection<string> GetFields(string tableName)
@@ -68,11 +82,11 @@ namespace Lasy
             return _getFields(tableName);
         }
 
-        protected ICollection<string> _s_getFields(string tableName)
+        protected ICollection<string> _getFieldsFromDB(string tableName)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
-                return conn.ExecuteSingleColumn<string>(_getFieldsSql(), new { table = _stripSchema(tableName) });
+                return conn.ExecuteSingleColumn<string>(_getFieldsSql(), new { table = _tableOnly(tableName) });
             }
         }
     }

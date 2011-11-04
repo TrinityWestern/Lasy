@@ -50,6 +50,7 @@
     <Compile Include="IAnalyzable.cs" />
     <Compile Include="IAnalyzableExtensions.cs" />
     <Compile Include="IDBAnalyzer.cs" />
+    <Compile Include="SqlMetaAnalyzer.cs" />
     <Compile Include="IReadWrite.cs" />
     <Compile Include="IReadWriteExtensions.cs" />
     <Compile Include="IRWEvented.cs" />
