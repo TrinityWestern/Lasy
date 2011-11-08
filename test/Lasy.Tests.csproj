@@ -46,8 +46,6 @@
   <ItemGroup>
     <Compile Include="AbstractTableTests.cs" />
     <Compile Include="EventTests.cs" />
-    <Compile Include="SQLDBAnalyzerTests.cs" />
-    <Compile Include="SqlDBBuilderTests.cs" />
     <Compile Include="TableCreationTests.cs" />
     <Compile Include="TransactionTests.cs" />
     <Compile Include="LockBoxTests.cs" />
@@ -63,7 +61,7 @@
     <Compile Include="SqlTypeConversionTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Nvelope\src\Nvelope.csproj">
+    <ProjectReference Include="..\..\Nvelope\src\Nvelope\Nvelope.csproj">
       <Project>{AC4A93B6-DDB6-4FE1-B528-665DE101052B}</Project>
       <Name>Nvelope</Name>
     </ProjectReference>
@@ -85,6 +83,11 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

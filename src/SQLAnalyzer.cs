@@ -15,6 +15,26 @@ namespace Lasy
                 cacheDuration = _defaultCacheDuration();
 
             _connectionString = connectionString;
+
+            // We use function references instead of directly exposing the functions so 
+            // that we can build in caching without much work.
+            // We'll do caching using Memoize - it'll cache the results of the function
+            // for as long as cacheDuration.
+            // Also, in some subclasses (ie, SqlMetaAnalyzer), we implement a different
+            // caching scheme - using these function references lets us do that without 
+            // having to change anything here.
+
+            // Why didn't we just do this through polymorphism, you ask?
+            // Well, if we did, we wouldn't be able to compose our functions easily - we can't 
+            // override a function and just say "hey, use a memoized version of this function instead
+            // of the base-class version" - we'd have to implement memoization from scratch in each
+            // method. That's just a silly waste of time. Also, when we subclass, we'd have to implement
+            // all of the memoization and cache invalidation we do in SqlMetaAnalyzer for each of these
+            // methods again! Polymorphism doesn't allow us to do any manipulation of our functions - all you
+            // can do is reimplement them, you can't get at the underlying binding and change it. That is to say,
+            // there's no way using override to say "replace this method with a memoized version of it" - all you 
+            // can do is implement the guts of memoize inside your function, and repeat it for every function
+            // you want to do the same thing to.
             _getAutonumberKey = new Func<string, string>(_getAutonumberKeyFromDB).Memoize(cacheDuration);
             _getFields = new Func<string, ICollection<string>>(_getFieldsFromDB).Memoize(cacheDuration);
             _getPrimaryKeys = new Func<string, ICollection<string>>(_getPrimaryKeysFromDB).Memoize(cacheDuration);

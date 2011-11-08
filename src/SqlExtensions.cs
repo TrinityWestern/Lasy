@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using Nvelope;
 using Nvelope.Data;
 using Nvelope.Reflection;
 
@@ -196,14 +197,32 @@ namespace Lasy
         /// <returns></returns>
         public static T ExecuteSingleValue<T>(this SqlConnection conn, string sql, object parameterObject)
         {
-            var dict = parameterObject as Dictionary<string, object>;
-            return ExecuteSingleValue<T>(conn, sql, dict ?? parameterObject._AsDictionary());
+            return ExecuteSingleValue<T>(conn, sql, parameterObject._AsDictionary());
         }
 
         public static T ExecuteSingleValue<T>(this SqlCommand comm, string sql, object parameterObject)
         {
-            var dict = parameterObject as Dictionary<string, object>;
-            return ExecuteSingleValue<T>(comm, sql, dict ?? parameterObject._AsDictionary());
+            return ExecuteSingleValue<T>(comm, sql, parameterObject._AsDictionary());
+        }
+
+        /// <summary>
+        /// Executes the query and returns the single value returned. If no value is returned from the db,
+        /// return defaultVal
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="conn"></param>
+        /// <param name="defaultVal"></param>
+        /// <param name="sql"></param>
+        /// <param name="parameterObject"></param>
+        /// <returns></returns>
+        public static T ExecuteSingleValueOr<T>(this SqlConnection conn, T defaultVal, string sql, object parameterObject)
+        {
+            return ExecuteSingleValueOr<T>(conn, defaultVal, sql, parameterObject._AsDictionary());
+        }
+
+        public static T ExecuteSingleValueOr<T>(this SqlConnection conn, T defaultVal, string sql, Dictionary<string, object> parameters)
+        {
+            return ExecuteSingleColumn<T>(conn, sql, parameters).SingleOr(defaultVal);
         }
 
         /// <summary>

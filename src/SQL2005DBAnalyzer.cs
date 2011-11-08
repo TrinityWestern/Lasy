@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Lasy
 {
-    public class SQL2005DBAnalyzer : SQLAnalyzer
+    public class SQL2005DBAnalyzer : SqlMetaAnalyzer
     {
         public SQL2005DBAnalyzer(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
             : base(connectionString, cacheDuration)
@@ -60,6 +60,16 @@ namespace Lasy
                 on cu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
                 where isc.TABLE_NAME = @table
                 order by ORDINAL_POSITION";
+        }
+
+        protected override string _getTableExistsSql(string schema, string table)
+        {
+            return "select 1 from sys.tables where name = @table";
+        }
+
+        protected override string _getCreateTableSql(string schema, string table, Dictionary<string, Type> fields)
+        {
+            throw new NotImplementedException();
         }
     }
 }

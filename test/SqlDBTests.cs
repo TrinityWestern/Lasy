@@ -6,14 +6,20 @@ using Lasy;
 using NUnit.Framework;
 using System;
 using Nvelope;
+using Nvelope.Configuration;
 
 namespace LasyTests
 {
     [TestFixture]
-    //[Ignore("These tests depend on having a configured MS SQL Server, which you're probably not gonna have")]
     public class SqlDBTests
     {
-        private const string connString = "Data Source=.\\SQLEXPRESS; Initial Catalog=LasyTests; User Id=LasyTest; Password=abc123;";
+        private string connString
+        {
+            get
+            {
+                return Config.ConnectionString("testdb");
+            }
+        }
 
         [Test]
         public void ReadAll()
