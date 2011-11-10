@@ -34,7 +34,7 @@ namespace LasyTests
         [TearDown]
         public void Cleanup()
         {
-            var ana = new Sql2005DBModifier(connStr);
+            var ana = new Sql2005Meta(connStr);
 
             if (ana.TableExists("dbo.Unicorn"))
                 using (var conn = new SqlConnection(connStr))
@@ -52,7 +52,7 @@ namespace LasyTests
         [Test]
         public void TableExists()
         {
-            var ana = new Sql2005DBModifier(connStr);
+            var ana = new Sql2005Meta(connStr);
             Assert.True(ana.TableExists("dbo.Person"));
             Assert.False(ana.TableExists("dbo.Unicorn"));
         }
@@ -60,7 +60,7 @@ namespace LasyTests
         [Test]
         public void CreatesTable()
         {
-            var ana = new Sql2005DBModifier(connStr);
+            var ana = new Sql2005Meta(connStr);
 
             Assert.False(ana.TableExists("dbo.Unicorn"));
             ana.CreateTable("dbo.Unicorn", fredTheUnicorn);
@@ -70,10 +70,10 @@ namespace LasyTests
         [Test]
         public void CreatesCorrectColumns()
         {
-            var ana = new Sql2005DBModifier(connStr);
+            var ana = new Sql2005Meta(connStr);
 
             ana.CreateTable("dbo.Unicorn", fredTheUnicorn);
-            var db = new SqlDB(connStr);
+            var db = ConnectTo.Sql2005(connStr);
             db.Insert("dbo.Unicorn", fredTheUnicorn);
             var fromDb = db.RawReadAll("dbo.Unicorn");
             Assert.AreEqual(1, fromDb.Count());
@@ -83,7 +83,7 @@ namespace LasyTests
         [Test]
         public void CreatesSchema()
         {
-            var ana = new Sql2005DBModifier(connStr);
+            var ana = new Sql2005Meta(connStr);
             Assert.False(ana.SchemaExists("TestSchema"));
             ana.CreateSchema("TestSchema");
             Assert.True(ana.SchemaExists("TestSchema"));
@@ -92,12 +92,12 @@ namespace LasyTests
         [Test]
         public void ImplicitlyCreatesSchema()
         {
-            var ana = new Sql2005DBModifier(connStr);
+            var ana = new Sql2005Meta(connStr);
             Assert.False(ana.SchemaExists("TestSchema"));
             ana.CreateTable("TestSchema.Pegasus", fredTheUnicorn);
             Assert.True(ana.TableExists("TestSchema.Pegasus"));
 
-            var db = new SqlDB(connStr);
+            var db = ConnectTo.Sql2005(connStr);
             db.Insert("TestSchema.Pegasus", fredTheUnicorn);
             var fromDb = db.RawReadAll("TestSchema.Pegasus");
             Assert.AreEqual(1, fromDb.Count());
@@ -109,7 +109,7 @@ namespace LasyTests
         {
             // In order to implicitly create tables, we need to use a db that supports that - 
             // ie ModifiableSqlDB
-            var db = new ModifiableSqlDB(connStr);
+            var db = ConnectTo.ModifiableSql2005(connStr);
             Assert.False(db.Analyzer.TableExists("TestSchema.Pegasus"));
             db.Insert("TestSchema.Pegasus", fredTheUnicorn);
             Assert.True(db.Analyzer.TableExists("TestSchema.Pegasus"));
@@ -123,7 +123,7 @@ namespace LasyTests
         {
             // If we're not using a ModifiableSqlDB, we should throw an exception when inserting into a table
             // that doesn't exist
-            var db = new SqlDB(connStr);
+            var db = ConnectTo.Sql2005(connStr);
             Assert.False(db.Analyzer.TableExists("dbo.Unicorn"));
             Assert.Throws<NotATableException>(() => db.Insert("dbo.Unicorn", fredTheUnicorn));
         }
@@ -131,7 +131,7 @@ namespace LasyTests
         [Test(Description="If EnforceTables mode is True, throw an exception if you try to read from a non-existant table")]
         public void ReadThrowsExceptionIfNoTable()
         {
-            var db = new SqlDB(connStr);
+            var db = ConnectTo.Sql2005(connStr);
             Assert.False(db.Analyzer.TableExists("dbo.Unicorn"));
             Assert.Throws<NotATableException>(() => db.RawReadAll("dbo.Unicorn"));
         }
@@ -140,7 +140,7 @@ namespace LasyTests
             "then ask for the PKs again, we should get the right answer")]
         public void GetPrimaryKeyNotCached()
         {
-            var db = new ModifiableSqlDB(connStr);
+            var db = ConnectTo.ModifiableSql2005(connStr);
             Assert.AreEqual("()", db.Analyzer.GetPrimaryKeys("dbo.Unicorn").Print());
             db.Insert("dbo.Unicorn", fredTheUnicorn);
             Assert.AreEqual("(UnicornId)", db.Analyzer.GetPrimaryKeys("dbo.Unicorn").Print());
@@ -150,7 +150,7 @@ namespace LasyTests
             "then ask for the autonumbers again, we should get the right answer")]
         public void GetAutonumberNotCached()
         {
-            var db = new ModifiableSqlDB(connStr);
+            var db = ConnectTo.ModifiableSql2005(connStr);
             Assert.Null(db.Analyzer.GetAutoNumberKey("dbo.Unicorn"));
             db.Insert("dbo.Unicorn", fredTheUnicorn);
             Assert.AreEqual("UnicornId", db.Analyzer.GetAutoNumberKey("dbo.Unicorn"));
@@ -160,7 +160,7 @@ namespace LasyTests
             "then ask for the fields again, we should get the right answer")]
         public void GetFieldsNotCached()
         {
-            var db = new ModifiableSqlDB(connStr);
+            var db = ConnectTo.ModifiableSql2005(connStr);
             Assert.AreEqual("()", db.Analyzer.GetFields("dbo.Unicorn").Print());
             db.Insert("dbo.Unicorn", fredTheUnicorn);
             Assert.AreEqual(fredTheUnicorn._Fields().Print(), db.Analyzer.GetFields("dbo.Unicorn").Except("UnicornId").Print());

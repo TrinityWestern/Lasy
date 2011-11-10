@@ -6,7 +6,7 @@ using Nvelope;
 
 namespace Lasy
 {
-    public class FakeDBAnalyzer : IDBAnalyzer
+    public class FakeDBMeta : IDBAnalyzer
     {
         public Dictionary<string, ICollection<string>> PrimaryKeys = new Dictionary<string, ICollection<string>>();
 

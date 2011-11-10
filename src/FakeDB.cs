@@ -10,7 +10,7 @@ namespace Lasy
     public class FakeDB : ITransactable, IRWEvented
     {
         public FakeDB()
-            : this(new FakeDBAnalyzer())
+            : this(new FakeDBMeta())
         { }
 
         public FakeDB(IDBAnalyzer analyzer)
@@ -43,7 +43,7 @@ namespace Lasy
             return DataStore[tableName].Read(keyFields, fields);
         }
 
-        private IDBAnalyzer _analyzer = new FakeDBAnalyzer();
+        private IDBAnalyzer _analyzer = new FakeDBMeta();
 
         public IDBAnalyzer Analyzer
         {

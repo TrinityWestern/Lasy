@@ -8,9 +8,9 @@ using System.Text.RegularExpressions;
 
 namespace Lasy
 {
-    public class Sql2005DBModifier : SqlModifier
+    public class Sql2005Meta : SqlModifier
     {
-        public Sql2005DBModifier(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
+        public Sql2005Meta(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
             : base(connectionString, cacheDuration)
         { }
 

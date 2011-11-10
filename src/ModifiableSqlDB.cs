@@ -12,12 +12,9 @@ namespace Lasy
     /// needs to be for a dbo user on the database</remarks>
     public class ModifiableSqlDB : SqlDB, IRWModifiable
     {
-        public ModifiableSqlDB(string connectionString)
-            : base(connectionString, false)
+        public static ModifiableSqlDB New<T>(string connStr, T modifier) where T : IDBAnalyzer, IDBModifier
         {
-            // Assumes that the default constructor for SqlDB still instantiates a Sql2005Analyzer
-            // as the analyzer, which is also a IDBModifier
-            Modifier = (IDBModifier)this.Analyzer;
+            return new ModifiableSqlDB(connStr, modifier as IDBAnalyzer, modifier as IDBModifier);
         }
 
         public ModifiableSqlDB(string connectionString, IDBAnalyzer analyzer, IDBModifier modifier)

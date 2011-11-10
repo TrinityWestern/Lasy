@@ -7,9 +7,9 @@ using Nvelope;
 
 namespace Lasy
 {
-    public class Sql2000DBModifier : SqlModifier
+    public class Sql2000Meta : SqlModifier
     {
-        public Sql2000DBModifier(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
+        public Sql2000Meta(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
             : base(connectionString, cacheDuration)
         { }
         

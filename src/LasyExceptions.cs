@@ -19,4 +19,26 @@ namespace Lasy
             : base(message)
         { }
     }
+
+    public class NotATableException : Exception
+    {
+        public NotATableException(string tablename, string message = null)
+            : base(message ?? (tablename + " was not found in the database"))
+        {
+            Tablename = tablename;
+        }
+
+        public string Tablename { get; private set; }
+    }
+
+    public class MockDBFailure : Exception
+    {
+        public MockDBFailure()
+            : base()
+        { }
+
+        public MockDBFailure(string message)
+            : base(message)
+        { }
+    }
 }
