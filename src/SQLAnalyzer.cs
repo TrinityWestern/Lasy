@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
 using Nvelope;
+using System.Data;
 
 namespace Lasy
 {
-    public abstract class SQLAnalyzer : IDBAnalyzer
+    public abstract class SqlAnalyzer : IDBAnalyzer
     {
-        public SQLAnalyzer(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
+        public SqlAnalyzer(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
         {
             if(cacheDuration == default(TimeSpan))
                 cacheDuration = _defaultCacheDuration();
@@ -38,6 +39,7 @@ namespace Lasy
             _getAutonumberKey = new Func<string, string>(_getAutonumberKeyFromDB).Memoize(cacheDuration);
             _getFields = new Func<string, ICollection<string>>(_getFieldsFromDB).Memoize(cacheDuration);
             _getPrimaryKeys = new Func<string, ICollection<string>>(_getPrimaryKeysFromDB).Memoize(cacheDuration);
+            _tableExists = new Func<string, bool>(_tableExistsFromDB).Memoize(cacheDuration);
         }
 
         protected virtual TimeSpan _defaultCacheDuration()
@@ -48,11 +50,13 @@ namespace Lasy
         protected Func<string, ICollection<string>> _getPrimaryKeys;
         protected Func<string, string> _getAutonumberKey;
         protected Func<string, ICollection<string>> _getFields;
+        protected Func<string, bool> _tableExists;
         protected string _connectionString;
 
         protected abstract string _getPrimaryKeySql();
         protected abstract string _getAutonumberKeySql();
         protected abstract string _getFieldsSql();
+        protected abstract string _getTableExistsSql(string schema, string table);
 
         public ICollection<string> GetPrimaryKeys(string tableName)
         {
@@ -81,6 +85,36 @@ namespace Lasy
             }           
         }
 
+        public ICollection<string> GetFields(string tableName)
+        {
+            return _getFields(tableName);
+        }
+
+        protected ICollection<string> _getFieldsFromDB(string tableName)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                return conn.ExecuteSingleColumn<string>(_getFieldsSql(), new { table = _tableOnly(tableName) });
+            }
+        }
+
+                public bool TableExists(string tablename)
+        {
+            return _tableExists(tablename);
+        }
+
+        protected bool _tableExistsFromDB(string tablename)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var table = _tableOnly(tablename);
+                var schema = _schemaOnly(tablename);
+                var sql = _getTableExistsSql(schema, table);
+                var paras = new { table = table, schema = schema };
+                return conn.ExecuteSingleValueOr<bool>(false, sql, paras);
+            }
+        }
+
         protected string _tableOnly(string tablename)
         {
             var res = tablename.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Last().ChopEnd("]").ChopStart("[");
@@ -95,19 +129,6 @@ namespace Lasy
                 return parts.First();
             else
                 return "";
-        }
-
-        public ICollection<string> GetFields(string tableName)
-        {
-            return _getFields(tableName);
-        }
-
-        protected ICollection<string> _getFieldsFromDB(string tableName)
-        {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                return conn.ExecuteSingleColumn<string>(_getFieldsSql(), new { table = _tableOnly(tableName) });
-            }
         }
     }
 }

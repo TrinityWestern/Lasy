@@ -8,9 +8,9 @@ using System.Text.RegularExpressions;
 
 namespace Lasy
 {
-    public class SQL2005DBAnalyzer : SqlMetaAnalyzer
+    public class Sql2005DBModifier : SqlModifier
     {
-        public SQL2005DBAnalyzer(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
+        public Sql2005DBModifier(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
             : base(connectionString, cacheDuration)
         { }
 
@@ -67,9 +67,30 @@ namespace Lasy
             return "select 1 from sys.tables where name = @table";
         }
 
-        protected override string _getCreateTableSql(string schema, string table, Dictionary<string, Type> fields)
+        protected override string _getCreateTableSql(string schema, string table, Dictionary<string, object> fields)
         {
-            throw new NotImplementedException();
+            // Strip off the primary key if it was supplied in fields - we'll make it ourselves
+            var datafields = fields.Except(table + "Id");
+            var fieldList = _fieldDefinitions(datafields);
+
+            var sql = String.Format(@"CREATE TABLE {0}.{1}
+            (
+                {1}Id int NOT NULL IDENTITY (1,1) PRIMARY KEY,
+                {2}
+            ) ON [PRIMARY]",
+               schema, table, fieldList);
+
+            return sql;
+        }
+
+        protected override string _getSchemaExistsSql()
+        {
+            return "select 1 from sys.schemas where name = @schema";
+        }
+
+        protected override string _getCreateSchemaSql(string schema)
+        {
+            return string.Format("CREATE SCHEMA [{0}] AUTHORIZATION [dbo]", schema);
         }
     }
 }

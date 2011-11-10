@@ -9,17 +9,25 @@ namespace Lasy
 {
     public abstract class AbstractSqlReadWrite : IReadWrite
     {
-        public AbstractSqlReadWrite(string connectionString, IDBAnalyzer analyzer)
+        public AbstractSqlReadWrite(string connectionString, IDBAnalyzer analyzer, bool strictTables = true)
         {
             Analyzer = analyzer;
             ConnectionString = connectionString;
+            StrictTables = strictTables;
         }
 
         public string ConnectionString { get; protected set; }
-        
+
         protected abstract IEnumerable<Dictionary<string, object>> sqlRead(string sql, Dictionary<string, object> values);
         protected abstract int? sqlInsert(string sql, Dictionary<string, object> values);
         protected abstract void sqlUpdate(string sql, Dictionary<string, object> values);
+
+        /// <summary>
+        /// If true, throw an exception when referencing tables that don't exist.
+        /// If false, do something intelligent instead - Reads return nothing, updates and 
+        /// deletes do nothing, but inserts still throw exceptions
+        /// </summary>
+        public bool StrictTables;
       
         public virtual string MakeWhereClause(Dictionary<string, object> keyFields, string paramPrefix = "")
         {
@@ -95,8 +103,11 @@ namespace Lasy
             return "DELETE FROM " + tableName + whereClause;
         }
 
-        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields = null)
+        public virtual IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields = null)
         {
+            if (StrictTables && !Analyzer.TableExists(tableName))
+                throw new NotATableException(tableName);
+
             var sql = MakeReadSql(tableName, keyFields, fields);
             return sqlRead(sql, keyFields);
         }
@@ -107,8 +118,11 @@ namespace Lasy
             protected set;
         }
 
-        public Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row)
+        public virtual Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row)
         {
+            if (StrictTables && !Analyzer.TableExists(tableName))
+                throw new NotATableException(tableName);
+
             // Make sure all the required keys are supplied
             this.AssertInsertKeys(tableName, row);
 
@@ -127,13 +141,19 @@ namespace Lasy
             return row.Only(primaryKeys);
         }
 
-        public void Delete(string tableName, Dictionary<string, object> keyFields)
+        public virtual void Delete(string tableName, Dictionary<string, object> keyFields)
         {
+            if (StrictTables && !Analyzer.TableExists(tableName))
+                throw new NotATableException(tableName);
+
             sqlUpdate(MakeDeleteSql(tableName, keyFields), keyFields);
         }
 
-        public void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
+        public virtual void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
         {
+            if (StrictTables && !Analyzer.TableExists(tableName))
+                throw new NotATableException(tableName);
+
             var sql = MakeUpdateSql(tableName, dataFields, keyFields);
 
             var data = dataFields.SelectKeys(key => "data" + key);

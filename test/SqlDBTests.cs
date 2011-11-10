@@ -24,7 +24,7 @@ namespace LasyTests
         [Test]
         public void ReadAll()
         {
-            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new Sql2005DBModifier(connString));
 
             var results = db.ReadAll<Person>();
 
@@ -40,7 +40,7 @@ namespace LasyTests
         [Test (Description = "If we want to select only certain columns from an entire table, rather than entire rows")]
         public void ReadAllCustomFields()
         {
-            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new Sql2005DBModifier(connString));
 
             var desiredColumns = new List<string>(){ "PersonId", "FirstName" };
 
@@ -98,7 +98,7 @@ namespace LasyTests
         [Test]
         public void Insert()
         {
-            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new Sql2005DBModifier(connString));
 
             var contents = db.ReadAll<Person>();
 
@@ -114,7 +114,7 @@ namespace LasyTests
         [Test]
         public void Update()
         {
-            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new Sql2005DBModifier(connString));
 
             var person = new Person();
             person.FirstName = "test";
@@ -140,7 +140,7 @@ namespace LasyTests
         [Test(Description = "Verify that a record has been deleted")]
         public void Delete()
         {
-            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new Sql2005DBModifier(connString));
 
             var person = new Person();
             person.FirstName = "bob";
@@ -155,7 +155,7 @@ namespace LasyTests
         [Test(Description = "We need to make sure we can pass in null values to inserts")]
         public void AllowNullInsert()
         {
-            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new Sql2005DBModifier(connString));
 
             var org = new Organization();
             org.Name = "My Organization";
@@ -169,7 +169,7 @@ namespace LasyTests
         [Test(Description = "If a transaction is rolled back we should not see any results in our connection or any other connections")]
         public void TransactionRollback()
         {
-            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new Sql2005DBModifier(connString));
             var transaction = db.BeginTransaction();
 
             var person = new Person();
@@ -188,7 +188,7 @@ namespace LasyTests
         {
             var keys = new Dictionary<string, object>();
 
-            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new Sql2005DBModifier(connString));
 
             using(var transaction = db.BeginTransaction())
             {
@@ -199,14 +199,14 @@ namespace LasyTests
                 keys = transaction.Insert("Person", person._AsDictionary());
             }
 
-            var conn = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
+            var conn = new SqlDB(connString, new Sql2005DBModifier(connString));
             Assert.AreEqual(0, conn.RawRead("Person", keys).Count());
         }
 
         [Test(Description = "Results should be present on a successful, committed transaction")]
         public void TransactionSuccessful()
         {
-            var db = new SqlDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = new SqlDB(connString, new Sql2005DBModifier(connString));
             var transaction = db.BeginTransaction();
 
             var person = new Person();

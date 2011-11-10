@@ -18,8 +18,6 @@ namespace Lasy
         /// </summary>
         public bool AssumeStandardKeys = true;
 
-        #region IDBAnalyzer Members
-
         public ICollection<string> GetPrimaryKeys(string tableName)
         {
             if (PrimaryKeys.ContainsKey(tableName))
@@ -54,6 +52,9 @@ namespace Lasy
             return new ReadOnlyCollection<string>(new List<string> { });
         }
 
-        #endregion
+        public bool TableExists(string tableName)
+        {
+            return true;
+        }
     }
 }

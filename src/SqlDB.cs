@@ -12,8 +12,8 @@ namespace Lasy
     /// </summary>
     public class SqlDB : AbstractSqlReadWrite, ITransactable
     {
-        public SqlDB(string connectionString)
-            : base(connectionString, new SQL2005DBAnalyzer(connectionString))
+        public SqlDB(string connectionString, bool strictTables = true)
+            : base(connectionString, new Sql2005DBModifier(connectionString), strictTables)
         { }
 
         /// <summary>
@@ -21,8 +21,8 @@ namespace Lasy
         /// </summary>
         /// <param name="connectionString"></param>
         /// <param name="analyzer">Defaults to a new SQL2005DBAnalyzer</param>
-        public SqlDB(string connectionString, IDBAnalyzer analyzer)
-            : base(connectionString, analyzer)
+        public SqlDB(string connectionString, IDBAnalyzer analyzer, bool strictTables = true)
+            : base(connectionString, analyzer, strictTables)
         { }
 
         protected override IEnumerable<Dictionary<string, object>> sqlRead(string sql, Dictionary<string, object> values = null)

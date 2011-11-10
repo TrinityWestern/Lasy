@@ -8,12 +8,13 @@ using Nvelope.Reactive;
 using Nvelope.Reflection;
 using System.Reactive.Linq;
 using System.Reactive;
+using System.Data;
 
 namespace Lasy
 {
-    public abstract class SqlMetaAnalyzer : SQLAnalyzer
+    public abstract class SqlModifier : SqlAnalyzer, IDBModifier
     {
-        public SqlMetaAnalyzer(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
+        public SqlModifier(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
             : base(connectionString, cacheDuration)
         {
             if (cacheDuration == default(TimeSpan))
@@ -40,11 +41,10 @@ namespace Lasy
             _getFields = new Func<string, ICollection<string>>(_getFieldsFromDB).Memoize(cacheDuration, tableCreatedStream);
             _getAutonumberKey = new Func<string, string>(_getAutonumberKeyFromDB).Memoize(cacheDuration, tableCreatedStream);
             _getPrimaryKeys = new Func<string, ICollection<string>>(_getPrimaryKeysFromDB).Memoize(cacheDuration, tableCreatedStream);
-            // Do the same for our own _tableExists function
             _tableExists = new Func<string, bool>(_tableExistsFromDB).Memoize(cacheDuration, tableCreatedStream);
         }
 
-        protected abstract string _getTableExistsSql(string schema, string table);
+        
         /// <summary>
         /// 
         /// </summary>
@@ -52,51 +52,98 @@ namespace Lasy
         /// <param name="table"></param>
         /// <param name="fields">A mapping of the fieldname to .NET type of the fields</param>
         /// <returns></returns>
-        protected abstract string _getCreateTableSql(string schema, string table, Dictionary<string, Type> fields);
+        protected abstract string _getCreateTableSql(string schema, string table, Dictionary<string, object> fields);
 
-        protected Func<string, bool> _tableExists;
+        protected abstract string _getSchemaExistsSql();
+        protected abstract string _getCreateSchemaSql(string schema);
+
         protected Action<string> _createTable;
 
         /// <summary>
         /// Fired every time a table is created
         /// </summary>
         public event Action<string> TableCreated;
-
-        protected bool _recentlyCreated(string tablename)
-        {
-            return false;
-        }
-
-        public bool TableExists(string tablename)
-        {
-            return _tableExists(tablename);
-        }
-
-        protected bool _tableExistsFromDB(string tablename)
-        {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                var table = _tableOnly(tablename);
-                var schema = _schemaOnly(tablename);
-                var sql = _getTableExistsSql(schema, table);
-                var paras = new { table = table, schema = schema };
-                return conn.ExecuteSingleValueOr<bool>(false, sql, paras);
-            }
-        }
+        /// <summary>
+        /// Fired every time a schema is created
+        /// </summary>
+        public event Action<string> SchemaCreated;
 
         public void CreateTable(string tablename, Dictionary<string, object> fields)
         {
+            var table = _tableOnly(tablename);
+            var schema = _schemaOnly(tablename);
+            var sql = _getCreateTableSql(schema, table, fields);
+            var paras = new { table = table, schema = schema };
+
+            if (!SchemaExists(schema))
+                CreateSchema(schema);
+
             using (var conn = new SqlConnection(_connectionString))
             {
-                var table = _tableOnly(tablename);
-                var schema = _schemaOnly(tablename);
-                var fieldTypes = fields.SelectVals(v => v._AsType());
-                var sql = _getCreateTableSql(schema, table, fieldTypes);
-                var paras = new { table = table, schema = schema };
                 conn.Execute(sql, paras);
+            }
+            if(TableCreated != null)
                 TableCreated(tablename);
+        }
+
+        public virtual bool SchemaExists(string schema)
+        {
+            var paras = new { schema = schema };
+            var sql = _getSchemaExistsSql();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                return conn.ExecuteSingleValueOr(false, sql, paras);
             }
         }
-        
+
+        public virtual void CreateSchema(string schema)
+        {
+            var sql = _getCreateSchemaSql(schema);
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                conn.Execute(sql);
+            }
+            if(SchemaCreated != null)
+                SchemaCreated(schema);
+        }
+
+        protected string guessCharSizeNeeded(object o)
+        {
+            var s = o as string;
+            if (s.IsNullOrEmpty())
+                return "100";
+
+            // If it has just one word in it, make it 100
+            if (s.Tokenize().Count() <= 1)
+                return "100";
+
+            if (s.Length < 20)
+                return "100";
+
+            if (s.Length < 100)
+                return "1000";
+
+            return "MAX";
+        }
+
+        protected string _typename(SqlDbType type, object val)
+        {
+            if (type.In(SqlDbType.NChar, SqlDbType.NVarChar, SqlDbType.VarChar, SqlDbType.Char))
+                return type.ToString().ToLower() + "(" + guessCharSizeNeeded(val) + ")";
+
+            return type.ToString().ToLower();
+        }
+
+        protected string _fieldDefinitions(Dictionary<string, object> fields)
+        {
+            var nullFields = fields.WhereValues(o => o == null || o == DBNull.Value).Keys;
+            var fieldTypes = fields.SelectVals(v => SqlTypeConversion.InferSqlType(v));
+            var fieldTypeStrs = fields.Keys.MapIndex(f => _typename(fieldTypes[f], fields[f]));
+
+            var fieldDefs = fieldTypeStrs.ToList(
+                (f,type) => f + " " + type + " " + (nullFields.Contains(f) ? "NULL" : "NOT NULL"));
+
+            return fieldDefs.Join(",");
+        }
     }
 }

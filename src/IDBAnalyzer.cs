@@ -15,6 +15,7 @@ namespace Lasy
         /// <param name="tableName"></param>
         /// <returns></returns>
         ICollection<string> GetFields(string tableName);
+        bool TableExists(string tableName);
 
     }
 }
