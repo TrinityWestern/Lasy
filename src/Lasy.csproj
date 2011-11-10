@@ -60,6 +60,7 @@
     <Compile Include="IRWModifiable.cs" />
     <Compile Include="ModifiableSqlDB.cs" />
     <Compile Include="NotATableException.cs" />
+    <Compile Include="Sql2000DB.cs" />
     <Compile Include="SqlModifier.cs" />
     <Compile Include="IReadWrite.cs" />
     <Compile Include="IReadWriteExtensions.cs" />
