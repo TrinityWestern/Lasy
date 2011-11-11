@@ -23,7 +23,7 @@ namespace Lasy
     public class NotATableException : Exception
     {
         public NotATableException(string tablename, string message = null)
-            : base(message ?? (tablename + " was not found in the database"))
+            : base(message ?? ("The table '" + tablename + "' was not found in the database"))
         {
             Tablename = tablename;
         }
