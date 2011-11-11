@@ -68,6 +68,17 @@ namespace LasyTests
         }
 
         [Test]
+        public void EnsureTable()
+        {
+            var db = ConnectTo.ModifiableSql2005(connStr);
+            Assert.False(db.Analyzer.TableExists("dbo.Unicorn"));
+            db.EnsureTable("dbo.Unicorn", fredTheUnicorn);
+            Assert.True(db.Analyzer.TableExists("dbo.Unicorn"));
+            // If we call ensure table again, we shouldn't blow up or anything
+            db.EnsureTable("dbo.Unicorn", fredTheUnicorn);
+        }
+
+        [Test]
         public void CreatesCorrectColumns()
         {
             var ana = new Sql2005Meta(connStr);
