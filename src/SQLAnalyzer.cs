@@ -98,7 +98,7 @@ namespace Lasy
             }
         }
 
-                public bool TableExists(string tablename)
+        public bool TableExists(string tablename)
         {
             return _tableExists(tablename);
         }

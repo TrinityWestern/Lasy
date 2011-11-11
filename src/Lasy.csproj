@@ -56,8 +56,10 @@
     <Compile Include="IDBModifier.cs" />
     <Compile Include="IModifiable.cs" />
     <Compile Include="IRWEvented.cs" />
-    <Compile Include="IRWModifiable.cs" />
     <Compile Include="ModifiableSqlDB.cs" />
+    <Compile Include="SqlColumnType.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SqlModifier.cs" />
     <Compile Include="IReadWrite.cs" />
     <Compile Include="ITransactable.cs" />

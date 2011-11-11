@@ -11,7 +11,11 @@ namespace Lasy
     {
         public Sql2000Meta(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
             : base(connectionString, cacheDuration)
-        { }
+        {
+            // SQL 2000 doesn't support schemas, so don't do anything
+            _schemaExists = s => s == "dbo";
+            _dropSchema = s => { };
+        }
         
 
         protected override string _getPrimaryKeySql()
@@ -100,29 +104,23 @@ namespace Lasy
                 WHERE tbl.xtype = 'U' and tbl.name = @table";
         }
 
-        public override void CreateSchema(string schema)
-        {
-            // Do nothing - SQL 2000 doesn't support schemas
-        }
-
-        public override bool SchemaExists(string schema)
-        {
-            // Sql 2000 doesn't support schemas, everythings's good
-            return true;
-        }
-
         protected override string _getSchemaExistsSql()
         {
             // Do nothing - SQL 2000 doesn't support schemas
-            // Overriding SchemaExists in this class should prevent this from being called
-            throw new NotImplementedException();
+            // The only schema is dbo
+            return "select @schema = 'dbo'";
         }
 
         protected override string _getCreateSchemaSql(string schema)
         {
             // Do nothing - SQL 2000 doesn't support schemas
-            // Overriding CreateSchema in this class should prevent this from being called
-            throw new NotImplementedException();
+            return "";
+        }
+
+        protected override string _getDropSchemaSql(string schema)
+        {
+            // Do nothing - SQL 2000 doesn't support schemas
+            return "";
         }
     }
 }

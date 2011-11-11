@@ -14,18 +14,4 @@ namespace Lasy
     {
         IDBModifier Modifier { get; }
     }
-
-    public static class IModifiableExtensions
-    {
-        public static void EnsureTable(this IModifiable db, string tablename, Dictionary<string, object> row)
-        {
-            if (!db.Analyzer.TableExists(tablename))
-                db.Modifier.CreateTable(tablename, row);
-        }
-
-        public static void EnsureTable(this IModifiable db, string tablename, object rowObj)
-        {
-            EnsureTable(db, tablename, rowObj._AsDictionary());
-        }
-    }
 }

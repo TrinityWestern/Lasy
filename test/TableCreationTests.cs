@@ -72,10 +72,23 @@ namespace LasyTests
         {
             var db = ConnectTo.ModifiableSql2005(connStr);
             Assert.False(db.Analyzer.TableExists("dbo.Unicorn"));
-            db.EnsureTable("dbo.Unicorn", fredTheUnicorn);
+            db.Modifier.EnsureTable("dbo.Unicorn", fredTheUnicorn);
             Assert.True(db.Analyzer.TableExists("dbo.Unicorn"));
             // If we call ensure table again, we shouldn't blow up or anything
-            db.EnsureTable("dbo.Unicorn", fredTheUnicorn);
+            db.Modifier.EnsureTable("dbo.Unicorn", fredTheUnicorn);
+        }
+
+        [Test]
+        public void KillTable()
+        {
+            var db = ConnectTo.ModifiableSql2005(connStr);
+            Assert.False(db.Analyzer.TableExists("dbo.Unicorn"));
+            db.Modifier.KillTable("dbo.Unicorn"); // This shouldn't throw an exception
+
+            db.Modifier.EnsureTable("dbo.Unicorn", fredTheUnicorn);
+            Assert.True(db.Analyzer.TableExists("dbo.Unicorn"));
+            db.Modifier.KillTable("dbo.Unicorn"); // Should delete the table
+            Assert.False(db.Analyzer.TableExists("dbo.Unicorn"));
         }
 
         [Test]

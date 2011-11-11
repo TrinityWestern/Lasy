@@ -22,12 +22,12 @@ namespace Lasy
 
         public static ModifiableSqlDB ModifiableSql2000(string connString)
         {
-            return ModifiableSqlDB.New(connString, new Sql2000Meta(connString));
+            return new ModifiableSqlDB(connString, new Sql2000Meta(connString));
         }
 
         public static ModifiableSqlDB ModifiableSql2005(string connString)
         {
-            return ModifiableSqlDB.New(connString, new Sql2005Meta(connString));
+            return new ModifiableSqlDB(connString, new Sql2005Meta(connString));
         }
 
         public static FileDB File(string directory, string fileExtension = ".rpt")

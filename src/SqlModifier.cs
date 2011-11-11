@@ -36,15 +36,25 @@ namespace Lasy
             // Semantically, this is ... = Observable.FromEvent(TableCreated), but unfortunately
             // events aren't first-class in C#, so the syntax doesn't allow for this. The line below 
             // is as good as they could make it.
-            var tableCreatedStream = Observable.FromEvent<string>(del => TableCreated += del, del => TableCreated -= del);
+            var tableCreate = Observable.FromEvent<string>(d => TableCreated += d, d => TableCreated -= d);
+            var tableDrop = Observable.FromEvent<string>(d => TableDropped += d, d => TableDropped -= d);
 
-            _getFields = new Func<string, ICollection<string>>(_getFieldsFromDB).Memoize(cacheDuration, tableCreatedStream);
-            _getAutonumberKey = new Func<string, string>(_getAutonumberKeyFromDB).Memoize(cacheDuration, tableCreatedStream);
-            _getPrimaryKeys = new Func<string, ICollection<string>>(_getPrimaryKeysFromDB).Memoize(cacheDuration, tableCreatedStream);
-            _tableExists = new Func<string, bool>(_tableExistsFromDB).Memoize(cacheDuration, tableCreatedStream);
+            var tableEvents = tableCreate.Merge(tableDrop);
+            
+            _getFields = new Func<string, ICollection<string>>(_getFieldsFromDB).Memoize(cacheDuration, tableEvents);
+            _getAutonumberKey = new Func<string, string>(_getAutonumberKeyFromDB).Memoize(cacheDuration, tableEvents);
+            _getPrimaryKeys = new Func<string, ICollection<string>>(_getPrimaryKeysFromDB).Memoize(cacheDuration, tableEvents);
+            _tableExists = new Func<string, bool>(_tableExistsFromDB).Memoize(cacheDuration, tableEvents);
+
+            var schemaCreate = Observable.FromEvent<string>(d => SchemaCreated += d, d => SchemaCreated -= d);
+            var schemaDrop = Observable.FromEvent<string>(d => SchemaDropped += d, d => SchemaDropped -= d);
+            var schemaEvents  = schemaCreate.Merge(schemaDrop);
+
+            _schemaExists = new Func<string, bool>(_schemaExistsFromDb).Memoize(cacheDuration, schemaEvents);
         }
 
-        
+        protected Func<string, bool> _schemaExists;
+
         /// <summary>
         /// 
         /// </summary>
@@ -53,11 +63,22 @@ namespace Lasy
         /// <param name="fields">A mapping of the fieldname to .NET type of the fields</param>
         /// <returns></returns>
         protected abstract string _getCreateTableSql(string schema, string table, Dictionary<string, object> fields);
-
         protected abstract string _getSchemaExistsSql();
         protected abstract string _getCreateSchemaSql(string schema);
 
+        protected virtual string _getDropSchemaSql(string schema)
+        {
+            return string.Format("drop schema {0}", schema);
+        }
+
+        protected virtual string _getDropTableSql(string tablename)
+        {
+            return string.Format("drop table {0}", tablename);
+        }
+
         protected Action<string> _createTable;
+        protected Action<string> _dropTable;
+        protected Action<string> _dropSchema;
 
         /// <summary>
         /// Fired every time a table is created
@@ -67,6 +88,9 @@ namespace Lasy
         /// Fired every time a schema is created
         /// </summary>
         public event Action<string> SchemaCreated;
+
+        public event Action<string> SchemaDropped;
+        public event Action<string> TableDropped;
 
         public void CreateTable(string tablename, Dictionary<string, object> fields)
         {
@@ -86,7 +110,28 @@ namespace Lasy
                 TableCreated(tablename);
         }
 
-        public virtual bool SchemaExists(string schema)
+        public void DropTable(string tablename)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+                conn.Execute(_getDropTableSql(tablename));
+            if (TableDropped != null)
+                TableDropped(tablename);
+        }
+
+        public void DropSchema(string schema)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+                conn.Execute(_getDropSchemaSql(schema));
+            if(SchemaDropped != null)
+                SchemaDropped(schema);
+        }
+
+        public bool SchemaExists(string schema)
+        {
+            return _schemaExists(schema);
+        }
+
+        protected bool _schemaExistsFromDb(string schema)
         {
             var paras = new { schema = schema };
             var sql = _getSchemaExistsSql();
@@ -96,7 +141,7 @@ namespace Lasy
             }
         }
 
-        public virtual void CreateSchema(string schema)
+        public void CreateSchema(string schema)
         {
             var sql = _getCreateSchemaSql(schema);
             using (var conn = new SqlConnection(_connectionString))
@@ -144,6 +189,12 @@ namespace Lasy
                 (f,type) => f + " " + type + " " + (nullFields.Contains(f) ? "NULL" : "NOT NULL"));
 
             return fieldDefs.Join(",");
+        }
+
+        public void KillSchema(string schema)
+        {
+            if (SchemaExists(schema))
+                DropSchema(schema);
         }
     }
 }

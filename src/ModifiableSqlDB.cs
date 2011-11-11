@@ -10,20 +10,13 @@ namespace Lasy
     /// </summary>
     /// <remarks>In order for the table/schema creation to work, the connection string
     /// needs to be for a dbo user on the database</remarks>
-    public class ModifiableSqlDB : SqlDB, IRWModifiable
+    public class ModifiableSqlDB : SqlDB, IModifiable
     {
-        public static ModifiableSqlDB New<T>(string connStr, T modifier) where T : IDBAnalyzer, IDBModifier
-        {
-            return new ModifiableSqlDB(connStr, modifier as IDBAnalyzer, modifier as IDBModifier);
-        }
+        public ModifiableSqlDB(string connectionString, IDBModifier modifier)
+            : base(connectionString, modifier, false)
+        { }
 
-        public ModifiableSqlDB(string connectionString, IDBAnalyzer analyzer, IDBModifier modifier)
-            : base(connectionString, analyzer, false)
-        {
-            Modifier = modifier;
-        }
-
-        public IDBModifier Modifier { get; protected set; }
+        public IDBModifier Modifier { get { return Analyzer as IDBModifier; } }
 
         public override Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row)
         {
