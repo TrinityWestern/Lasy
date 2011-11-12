@@ -12,7 +12,7 @@ namespace Lasy
     /// </summary>
     public class SqlDB : AbstractSqlReadWrite, ITransactable
     {
-        public SqlDB(string connectionString, IDBAnalyzer analyzer, bool strictTables = true)
+        public SqlDB(string connectionString, SqlAnalyzer analyzer, bool strictTables = true)
             : base(connectionString, analyzer, strictTables)
         { }
 

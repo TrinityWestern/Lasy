@@ -12,22 +12,26 @@ namespace Lasy
     {
         public static SqlDB Sql2000(string connString, bool strictTables = true)
         {
-            return new SqlDB(connString, new Sql2000Meta(connString), strictTables);
+            return new SqlDB(connString, new Sql2000Analyzer(connString), strictTables);
         }
 
         public static SqlDB Sql2005(string connString, bool strictTables = true)
         {
-            return new SqlDB(connString, new Sql2005Meta(connString), strictTables);
+            return new SqlDB(connString, new SqlAnalyzer(connString), strictTables);
         }
 
         public static ModifiableSqlDB ModifiableSql2000(string connString)
         {
-            return new ModifiableSqlDB(connString, new Sql2000Meta(connString));
+            var analyzer = new Sql2000Analyzer(connString);
+            var modifier = new SqlModifier(connString, analyzer);
+            return new ModifiableSqlDB(connString, modifier);
         }
 
         public static ModifiableSqlDB ModifiableSql2005(string connString)
         {
-            return new ModifiableSqlDB(connString, new Sql2005Meta(connString));
+            var analyzer = new SqlAnalyzer(connString);
+            var modifier = new SqlModifier(connString, analyzer);
+            return new ModifiableSqlDB(connString, modifier);
         }
 
         public static FileDB File(string directory, string fileExtension = ".rpt")

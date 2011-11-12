@@ -9,9 +9,9 @@ namespace Lasy
 {
     public abstract class AbstractSqlReadWrite : IReadWrite
     {
-        public AbstractSqlReadWrite(string connectionString, IDBAnalyzer analyzer, bool strictTables = true)
+        public AbstractSqlReadWrite(string connectionString, SqlAnalyzer analyzer, bool strictTables = true)
         {
-            Analyzer = analyzer;
+            SqlAnalyzer = analyzer;
             ConnectionString = connectionString;
             StrictTables = strictTables;
         }
@@ -112,11 +112,8 @@ namespace Lasy
             return sqlRead(sql, keyFields);
         }
 
-        public IDBAnalyzer Analyzer
-        {
-            get;
-            protected set;
-        }
+        public IDBAnalyzer Analyzer { get { return SqlAnalyzer; } }
+        public SqlAnalyzer SqlAnalyzer { get; protected set; }
 
         public virtual Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row)
         {

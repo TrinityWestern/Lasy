@@ -34,17 +34,17 @@ namespace LasyTests
         [TearDown]
         public void Cleanup()
         {
-            var ana = new Sql2005Meta(connStr);
+            var mod = ConnectTo.ModifiableSql2005(connStr);
 
-            if (ana.TableExists("dbo.Unicorn"))
+            if (mod.Analyzer.TableExists("dbo.Unicorn"))
                 using (var conn = new SqlConnection(connStr))
                     conn.Execute("drop table dbo.Unicorn");
 
-            if (ana.TableExists("TestSchema.Pegasus"))
+            if (mod.Analyzer.TableExists("TestSchema.Pegasus"))
                 using (var conn = new SqlConnection(connStr))
                     conn.Execute("drop table TestSchema.Pegasus");
 
-            if (ana.SchemaExists("TestSchema"))
+            if (mod.SqlAnalyzer.SchemaExists("TestSchema"))
                 using (var conn = new SqlConnection(connStr))
                     conn.Execute("drop schema TestSchema");
         }
@@ -52,19 +52,19 @@ namespace LasyTests
         [Test]
         public void TableExists()
         {
-            var ana = new Sql2005Meta(connStr);
-            Assert.True(ana.TableExists("dbo.Person"));
-            Assert.False(ana.TableExists("dbo.Unicorn"));
+            var mod = ConnectTo.ModifiableSql2005(connStr);
+            Assert.True(mod.Analyzer.TableExists("dbo.Person"));
+            Assert.False(mod.Analyzer.TableExists("dbo.Unicorn"));
         }
 
         [Test]
         public void CreatesTable()
         {
-            var ana = new Sql2005Meta(connStr);
+            var db = ConnectTo.ModifiableSql2005(connStr);
 
-            Assert.False(ana.TableExists("dbo.Unicorn"));
-            ana.CreateTable("dbo.Unicorn", fredTheUnicorn);
-            Assert.True(ana.TableExists("dbo.Unicorn"));
+            Assert.False(db.Analyzer.TableExists("dbo.Unicorn"));
+            db.Modifier.CreateTable("dbo.Unicorn", fredTheUnicorn);
+            Assert.True(db.Analyzer.TableExists("dbo.Unicorn"));
         }
 
         [Test]
@@ -94,9 +94,9 @@ namespace LasyTests
         [Test]
         public void CreatesCorrectColumns()
         {
-            var ana = new Sql2005Meta(connStr);
+            var moddb = ConnectTo.ModifiableSql2005(connStr);
 
-            ana.CreateTable("dbo.Unicorn", fredTheUnicorn);
+            moddb.Modifier.CreateTable("dbo.Unicorn", fredTheUnicorn);
             var db = ConnectTo.Sql2005(connStr);
             db.Insert("dbo.Unicorn", fredTheUnicorn);
             var fromDb = db.RawReadAll("dbo.Unicorn");
@@ -107,19 +107,19 @@ namespace LasyTests
         [Test]
         public void CreatesSchema()
         {
-            var ana = new Sql2005Meta(connStr);
-            Assert.False(ana.SchemaExists("TestSchema"));
-            ana.CreateSchema("TestSchema");
-            Assert.True(ana.SchemaExists("TestSchema"));
+            var db = ConnectTo.ModifiableSql2005(connStr);
+            Assert.False(db.SqlAnalyzer.SchemaExists("TestSchema"));
+            db.SqlModifier.CreateSchema("TestSchema");
+            Assert.True(db.SqlAnalyzer.SchemaExists("TestSchema"));
         }
 
         [Test]
         public void ImplicitlyCreatesSchema()
         {
-            var ana = new Sql2005Meta(connStr);
-            Assert.False(ana.SchemaExists("TestSchema"));
-            ana.CreateTable("TestSchema.Pegasus", fredTheUnicorn);
-            Assert.True(ana.TableExists("TestSchema.Pegasus"));
+            var moddb = ConnectTo.ModifiableSql2005(connStr);
+            Assert.False(moddb.SqlAnalyzer.SchemaExists("TestSchema"));
+            moddb.Modifier.CreateTable("TestSchema.Pegasus", fredTheUnicorn);
+            Assert.True(moddb.Analyzer.TableExists("TestSchema.Pegasus"));
 
             var db = ConnectTo.Sql2005(connStr);
             db.Insert("TestSchema.Pegasus", fredTheUnicorn);

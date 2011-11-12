@@ -12,11 +12,15 @@ namespace Lasy
     /// needs to be for a dbo user on the database</remarks>
     public class ModifiableSqlDB : SqlDB, IModifiable
     {
-        public ModifiableSqlDB(string connectionString, IDBModifier modifier)
-            : base(connectionString, modifier, false)
-        { }
+        public ModifiableSqlDB(string connectionString, SqlModifier modifier)
+            : base(connectionString, modifier.SqlAnalyzer, false)
+        {
+            SqlModifier = modifier;
+        }
 
-        public IDBModifier Modifier { get { return Analyzer as IDBModifier; } }
+        public SqlModifier SqlModifier { get; protected set; }
+
+        public IDBModifier Modifier { get { return SqlModifier; } }
 
         public override Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row)
         {

@@ -6,7 +6,7 @@ using Nvelope.Reflection;
 
 namespace Lasy
 {
-    public interface IDBModifier : IDBAnalyzer
+    public interface IDBModifier : IAnalyzable
     {
         void CreateTable(string tablename, Dictionary<string, object> fields);
         void DropTable(string tablename);
@@ -21,7 +21,7 @@ namespace Lasy
 
         public static void EnsureTable(this IDBModifier meta, string tablename, Dictionary<string, object> instance)
         {
-            if (!meta.TableExists(tablename))
+            if (!meta.Analyzer.TableExists(tablename))
                 meta.CreateTable(tablename, instance);
         }
 
@@ -37,7 +37,7 @@ namespace Lasy
         /// <param name="tablename"></param>
         public static void KillTable(this IDBModifier meta, string tablename)
         {
-            if (meta.TableExists(tablename))
+            if (meta.Analyzer.TableExists(tablename))
                 meta.DropTable(tablename);
         }
     }

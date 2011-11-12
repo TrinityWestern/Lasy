@@ -57,6 +57,7 @@
     <Compile Include="IModifiable.cs" />
     <Compile Include="IRWEvented.cs" />
     <Compile Include="ModifiableSqlDB.cs" />
+    <Compile Include="Sql2000Analyzer.cs" />
     <Compile Include="SqlColumnType.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -71,8 +72,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlDB.cs" />
     <Compile Include="SqlDBTransaction.cs" />
-    <Compile Include="Sql2000Meta.cs" />
-    <Compile Include="Sql2005Meta.cs" />
     <Compile Include="SqlAnalyzer.cs" />
     <Compile Include="SqlExtensions.cs" />
     <Compile Include="SqlTypeConversion.cs" />

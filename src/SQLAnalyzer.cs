@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
 using Nvelope;
+using Nvelope.Reactive;
 using System.Data;
+using System.Reactive.Linq;
 
 namespace Lasy
 {
-    public abstract class SqlAnalyzer : IDBAnalyzer
+    public class SqlAnalyzer : IDBAnalyzer
     {
         public SqlAnalyzer(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
         {
@@ -36,10 +38,14 @@ namespace Lasy
             // there's no way using override to say "replace this method with a memoized version of it" - all you 
             // can do is implement the guts of memoize inside your function, and repeat it for every function
             // you want to do the same thing to.
-            _getAutonumberKey = new Func<string, string>(_getAutonumberKeyFromDB).Memoize(cacheDuration);
-            _getFields = new Func<string, ICollection<string>>(_getFieldsFromDB).Memoize(cacheDuration);
-            _getPrimaryKeys = new Func<string, ICollection<string>>(_getPrimaryKeysFromDB).Memoize(cacheDuration);
-            _tableExists = new Func<string, bool>(_tableExistsFromDB).Memoize(cacheDuration);
+            var schemaEvents = Observable.FromEvent<string>(d => OnInvalidateSchemaCache += d, d => OnInvalidateSchemaCache -= d);
+            var tableEvents = Observable.FromEvent<string>(d => OnInvalidateTableCache += d, d => OnInvalidateTableCache -= d);
+
+            _getAutonumberKey = new Func<string, string>(_getAutonumberKeyFromDB).Memoize(cacheDuration, tableEvents);
+            _getFieldTypes = new Func<string, Dictionary<string,SqlColumnType>>(_getFieldTypesFromDB).Memoize(cacheDuration, tableEvents);
+            _getPrimaryKeys = new Func<string, ICollection<string>>(_getPrimaryKeysFromDB).Memoize(cacheDuration, tableEvents);
+            _tableExists = new Func<string, bool>(_tableExistsFromDB).Memoize(cacheDuration, tableEvents);
+            _schemaExists = new Func<string, bool>(_schemaExistsFromDb).Memoize(cacheDuration, schemaEvents);
         }
 
         protected virtual TimeSpan _defaultCacheDuration()
@@ -49,14 +55,90 @@ namespace Lasy
 
         protected Func<string, ICollection<string>> _getPrimaryKeys;
         protected Func<string, string> _getAutonumberKey;
-        protected Func<string, ICollection<string>> _getFields;
+        protected Func<string, Dictionary<string,SqlColumnType>> _getFieldTypes;
         protected Func<string, bool> _tableExists;
+        protected Func<string, bool> _schemaExists;
         protected string _connectionString;
 
-        protected abstract string _getPrimaryKeySql();
-        protected abstract string _getAutonumberKeySql();
-        protected abstract string _getFieldsSql();
-        protected abstract string _getTableExistsSql(string schema, string table);
+        protected event Action<string> OnInvalidateTableCache;
+        protected event Action<string> OnInvalidateSchemaCache;
+        /// <summary>
+        /// Call this to indicate that information for a cached table is no longer valid
+        /// </summary>
+        /// <param name="tablename"></param>
+        public void InvalidateTableCache(string tablename)
+        {
+            if (OnInvalidateTableCache != null)
+                OnInvalidateTableCache(tablename);
+        }
+        /// <summary>
+        /// Call this to indicate that information for a cached schema is no longer valid
+        /// </summary>
+        /// <param name="schema"></param>
+        public void InvalidateSchemaCache(string schema)
+        {
+            if (OnInvalidateSchemaCache != null)
+                OnInvalidateSchemaCache(schema);
+        }
+
+        protected internal virtual string _getPrimaryKeySql()
+        {
+            return @"select isc.Column_name
+                    from 
+                    sys.columns c inner join sys.tables t on c.object_id = t.object_id 
+                    inner join information_schema.columns isc 
+                    on schema_id(isc.TABLE_SCHEMA) = t.schema_id and isc.TABLE_NAME = t.name and isc.COLUMN_NAME = c.name 
+                    left join INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE cu
+                    on cu.TABLE_SCHEMA = isc.TABLE_SCHEMA and cu.TABLE_NAME = isc.TABLE_NAME and cu.COLUMN_NAME = isc.COLUMN_NAME
+                    left join INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+                    on cu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
+                    where isc.TABLE_NAME = @table and tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
+                    order by ORDINAL_POSITION";
+        }
+
+        protected internal virtual string _getAutonumberKeySql()
+        {
+            return @"select isc.Column_name
+                    from 
+                    sys.columns c inner join sys.tables t on c.object_id = t.object_id 
+                    inner join information_schema.columns isc 
+                    on schema_id(isc.TABLE_SCHEMA) = t.schema_id and isc.TABLE_NAME = t.name and isc.COLUMN_NAME = c.name 
+                    left join INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE cu
+                    on cu.TABLE_SCHEMA = isc.TABLE_SCHEMA and cu.TABLE_NAME = isc.TABLE_NAME and cu.COLUMN_NAME = isc.COLUMN_NAME
+                    left join INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+                    on cu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
+                    where isc.TABLE_NAME = @table and is_identity = 1
+                    order by ORDINAL_POSITION";
+        }
+
+        protected internal virtual string _getTableExistsSql(string schema, string table)
+        {
+            return "select 1 from sys.tables where name = @table";
+        }
+
+        protected internal virtual string _getFieldTypeSql()
+        {
+            return @"SELECT     
+                    isc.*
+                FROM 
+                    sysobjects tbl
+                    inner join syscolumns c
+                    on tbl.id = c.id
+                    inner join information_schema.columns isc
+                    on isc.column_name = c.name and isc.table_name = tbl.name
+                    left outer join information_schema.key_column_usage k
+                    on k.table_name = tbl.name and objectproperty(object_id(constraint_name), 'IsPrimaryKey') = 1
+                        and k.column_name = c.name
+                WHERE 
+                    tbl.xtype = 'U'
+                    and tbl.name = @table
+                order by isc.ORDINAL_POSITION";
+        }
+
+        protected internal virtual string _getSchemaExistsSql()
+        {
+            return "select 1 from sys.schemas where name = @schema";
+        }
 
         public ICollection<string> GetPrimaryKeys(string tableName)
         {
@@ -67,7 +149,7 @@ namespace Lasy
         {
             using (var conn = new SqlConnection(_connectionString))
             {
-                return conn.ExecuteSingleColumn<string>(_getPrimaryKeySql(), new { table = _tableOnly(tableName) });
+                return conn.ExecuteSingleColumn<string>(_getPrimaryKeySql(), new { table = TableName(tableName) });
             }
         }
 
@@ -80,22 +162,40 @@ namespace Lasy
         {
             using (var conn = new SqlConnection(_connectionString))
             {
-                var res = conn.ExecuteSingleColumn<string>(_getAutonumberKeySql(), new { table = _tableOnly(tableName) });
+                var res = conn.ExecuteSingleColumn<string>(_getAutonumberKeySql(), new { table = TableName(tableName) });
                 return res.FirstOr(null);
             }           
         }
 
-        public ICollection<string> GetFields(string tableName)
+        public Dictionary<string, SqlColumnType> GetFieldTypes(string tablename)
         {
-            return _getFields(tableName);
+            return _getFieldTypes(tablename);
         }
 
-        protected ICollection<string> _getFieldsFromDB(string tableName)
+        public ICollection<string> GetFields(string tableName)
+        {
+            return GetFieldTypes(tableName).Keys;
+        }
+
+        protected Dictionary<string, SqlColumnType> _getFieldTypesFromDB(string tableName)
         {
             using (var conn = new SqlConnection(_connectionString))
-            {
-                return conn.ExecuteSingleColumn<string>(_getFieldsSql(), new { table = _tableOnly(tableName) });
-            }
+                return _convertTypes(conn.Execute(_getFieldTypeSql(), new { table = TableName(tableName) }));
+        }
+
+        protected Dictionary<string, SqlColumnType> _convertTypes(ICollection<Dictionary<string, object>> sysobjectsInfos)
+        {
+            return sysobjectsInfos.ToDictionary(
+                row => row["COLUMN_NAME"].ToString(),
+                row => _determineType(row));
+        }
+
+        protected SqlColumnType _determineType(Dictionary<string, object> sysobjectInfo)
+        {
+            return new SqlColumnType(
+                SqlTypeConversion.ParseDbType(sysobjectInfo["DATA_TYPE"].ConvertTo<string>()),
+                sysobjectInfo["IS_NULLABLE"].ConvertTo<bool>(),
+                sysobjectInfo["CHARACTER_MAXIMUM_LENGTH"].ConvertTo<int?>());
         }
 
         public bool TableExists(string tablename)
@@ -107,21 +207,36 @@ namespace Lasy
         {
             using (var conn = new SqlConnection(_connectionString))
             {
-                var table = _tableOnly(tablename);
-                var schema = _schemaOnly(tablename);
+                var table = TableName(tablename);
+                var schema = SchemaName(tablename);
                 var sql = _getTableExistsSql(schema, table);
                 var paras = new { table = table, schema = schema };
                 return conn.ExecuteSingleValueOr<bool>(false, sql, paras);
             }
         }
 
-        protected string _tableOnly(string tablename)
+        public bool SchemaExists(string schema)
+        {
+            return _schemaExists(schema);
+        }
+
+        protected bool _schemaExistsFromDb(string schema)
+        {
+            var paras = new { schema = schema };
+            var sql = _getSchemaExistsSql();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                return conn.ExecuteSingleValueOr(false, sql, paras);
+            }
+        }
+
+        public string TableName(string tablename)
         {
             var res = tablename.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Last().ChopEnd("]").ChopStart("[");
             return res;
         }
 
-        protected string _schemaOnly(string tablename)
+        public string SchemaName(string tablename)
         {
             var parts = tablename.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(s => s.ChopEnd("]").ChopStart("["));
