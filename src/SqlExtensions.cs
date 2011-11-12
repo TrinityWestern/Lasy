@@ -23,7 +23,8 @@ namespace Lasy
         public static void AddParameter(this SqlCommand comm, string name, object value)
         {
             var realizedValue = value.Realize();
-            var para = new SqlParameter(name, SqlTypeConversion.InferSqlType(realizedValue));
+            var sqlType = SqlTypeConversion.GetSqlType(realizedValue);
+            var para = new SqlParameter(name, sqlType.Type);
             para.Value = SqlTypeConversion.ConvertToSqlValue(realizedValue);
             comm.Parameters.Add(para);
         }

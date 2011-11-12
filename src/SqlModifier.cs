@@ -60,9 +60,24 @@ namespace Lasy
         /// </summary>
         /// <param name="schema"></param>
         /// <param name="table"></param>
-        /// <param name="fields">A mapping of the fieldname to .NET type of the fields</param>
+        /// <param name="fieldTypes">A mapping of the fieldname to .NET type of the fields</param>
         /// <returns></returns>
-        protected abstract string _getCreateTableSql(string schema, string table, Dictionary<string, object> fields);
+        protected virtual string _getCreateTableSql(string schema, string table, Dictionary<string, SqlColumnType> fieldTypes)
+        {
+            // Strip off the primary key if it was supplied in fields - we'll make it ourselves
+            var datafields = fieldTypes.Except(table + "Id");
+            var fieldList = _fieldDefinitions(datafields);
+
+            var sql = String.Format(@"CREATE TABLE {0}.{1}
+            (
+                {1}Id int NOT NULL IDENTITY (1,1) PRIMARY KEY,
+                {2}
+            ) ON [PRIMARY]",
+               schema, table, fieldList);
+
+            return sql;
+        }
+
         protected abstract string _getSchemaExistsSql();
         protected abstract string _getCreateSchemaSql(string schema);
 
@@ -92,22 +107,26 @@ namespace Lasy
         public event Action<string> SchemaDropped;
         public event Action<string> TableDropped;
 
-        public void CreateTable(string tablename, Dictionary<string, object> fields)
+        public void CreateTable(string tablename, Dictionary<string, SqlColumnType> fieldTypes)
         {
             var table = _tableOnly(tablename);
             var schema = _schemaOnly(tablename);
-            var sql = _getCreateTableSql(schema, table, fields);
+            var sql = _getCreateTableSql(schema, table, fieldTypes);
             var paras = new { table = table, schema = schema };
 
             if (!SchemaExists(schema))
                 CreateSchema(schema);
 
             using (var conn = new SqlConnection(_connectionString))
-            {
                 conn.Execute(sql, paras);
-            }
-            if(TableCreated != null)
+            if (TableCreated != null)
                 TableCreated(tablename);
+        }
+
+        public void CreateTable(string tablename, Dictionary<string, object> fields)
+        {
+            var fieldTypes = fields.SelectVals(v => SqlTypeConversion.GetSqlType(v));
+            CreateTable(tablename, fieldTypes);
         }
 
         public void DropTable(string tablename)
@@ -179,16 +198,10 @@ namespace Lasy
             return type.ToString().ToLower();
         }
 
-        protected string _fieldDefinitions(Dictionary<string, object> fields)
+        protected string _fieldDefinitions(Dictionary<string, SqlColumnType> fieldTypes)
         {
-            var nullFields = fields.WhereValues(o => o == null || o == DBNull.Value).Keys;
-            var fieldTypes = fields.SelectVals(v => SqlTypeConversion.InferSqlType(v));
-            var fieldTypeStrs = fields.Keys.MapIndex(f => _typename(fieldTypes[f], fields[f]));
-
-            var fieldDefs = fieldTypeStrs.ToList(
-                (f,type) => f + " " + type + " " + (nullFields.Contains(f) ? "NULL" : "NOT NULL"));
-
-            return fieldDefs.Join(",");
+            var res = fieldTypes.Select(kv => kv.Key + " " + kv.Value.ToString()).Join(", ");
+            return res;
         }
 
         public void KillSchema(string schema)

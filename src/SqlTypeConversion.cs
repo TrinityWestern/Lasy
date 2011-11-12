@@ -49,29 +49,24 @@ namespace Lasy
 
         public static SqlColumnType GetSqlType(Type dotNetType)
         {
+            if (dotNetType == null)
+                return new SqlColumnType(SqlDbType.NVarChar, true, 100);
+            
             if (!_toSqlMappings.ContainsKey(dotNetType))
                 throw new NotImplementedException("Don't know how to map type '" + dotNetType.Name + "' to a sql type");
 
             return _toSqlMappings[dotNetType];
         }
 
-        /// <summary>
-        /// Figure out what the SQL type of the supplied object would be
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public static SqlDbType InferSqlType(object obj)
+        public static SqlColumnType GetSqlType(object val)
         {
-            if (obj == null)
-                return SqlDbType.VarChar;
-            if (obj == DBNull.Value)
-                return SqlDbType.VarChar;
-            return InferSqlMetaData(obj).SqlDbType;
-        }
-
-        public static SqlMetaData InferSqlMetaData(object obj, string name = "")
-        {
-            return Microsoft.SqlServer.Server.SqlMetaData.InferFromValue(obj, name);
+            if (val == null)
+                return new SqlColumnType(SqlDbType.NVarChar, true, 100);
+            if (val == DBNull.Value)
+                return new SqlColumnType(SqlDbType.NVarChar, true, 100);
+            
+            var type = val.GetType();
+            return GetSqlType(type);
         }
 
         /// <summary>

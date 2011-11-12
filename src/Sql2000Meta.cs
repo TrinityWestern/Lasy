@@ -74,30 +74,6 @@ namespace Lasy
             order by isc.ORDINAL_POSITION";
         }
 
-        protected override string _getCreateTableSql(string schema, string table, Dictionary<string, object> fields)
-        {
-            // TODO: Actually test this - I've just stolen it verbatim from the 2005 implementation
-            // I think it will work, but don't have a Sql 2000 db to test against
-
-            // Strip off the primary key if it was supplied in fields - we'll make it ourselves
-            var datafields = fields.Except(table + "Id");
-            var fieldList = _fieldDefinitions(datafields);
-
-            var sql = String.Format(@"CREATE TABLE @1.@2
-            (
-                @2Id int NOT NULL IDENTITY (1,1),
-                @3
-            ) ON [PRIMARY]
-            GO
-            ALTER TABLE @1.@2 ADD CONSTRAINT
-            PK_@2 PRIMARY KEY CLUSTERED
-            ( @2Id ) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-            GO",
-               schema, table, fieldList);
-
-            return sql;
-        }
-
         protected override string _getTableExistsSql(string schema, string table)
         {
             return @"SELECT 1 FROM sysobjects tbl 

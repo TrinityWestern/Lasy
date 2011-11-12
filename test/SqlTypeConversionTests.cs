@@ -16,7 +16,7 @@ namespace LasyTests
         [Test(Description = "Check if we can pass null values into InferSqlType")]
         public void InferNull()
         {
-            Assert.IsNotNull(SqlTypeConversion.InferSqlType(null));
+            Assert.IsNotNull(SqlTypeConversion.GetSqlType(null));
         }
 
         private void isSqlType<T>(SqlDbType sqlType, bool isNullable = false, int? length = null)
