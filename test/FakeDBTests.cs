@@ -50,7 +50,7 @@ namespace LasyTests
         public void ReadAllFromNewTable()
         {
             var db = new FakeDB();
-            Assert.AreEqual("()", db.RawReadAll("foosums").Print());
+            Assert.AreEqual("()", db.ReadAll("foosums").Print());
         }
 
         [Test(Description = "Does it work to Read from a table that we've never mentioned before? - It should return nothing")]

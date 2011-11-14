@@ -21,17 +21,6 @@ namespace Lasy
 
     public static class IReadableExtensions
     {
-        [Obsolete("Use RawRead instead")]
-        public static IEnumerable<Dictionary<string, object>> RawReadCustomFields(this IReadable reader, string tableName, IEnumerable<string> fields, object id)
-        {
-            return reader.RawRead(tableName, id as Dictionary<string, object> ?? id._AsDictionary(), fields);
-        }
-
-        public static IEnumerable<Dictionary<string, object>> RawRead(this IReadable reader, string tableName, Dictionary<string, object> id)
-        {
-            return reader.RawRead(tableName, id as Dictionary<string, object> ?? id._AsDictionary());
-        }
-
         public static Dictionary<string, object> ReadPK(this IReadable reader, string tablename, int primaryKey)
         {
             var keys = new Dictionary<string, object>();
@@ -74,17 +63,22 @@ namespace Lasy
             return results.Select(x => new T()._SetFrom(x));
         }
 
+        public static IEnumerable<Dictionary<string, object>> ReadAll(this IReadable reader, string tableName, IEnumerable<string> fields = null)
+        {
+            return reader.RawRead(tableName, new Dictionary<string,object>(), fields);
+        }
+
         /// <summary>
         /// Reads values from a table
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="tableName">The name of the table</param>
-        /// <param name="values">An object with values that are the "where" clause in sql. Example: new {col1 = 6, col2 = 'myString'}</param>
+        /// <param name="values">An object with values that are the "where" clause in sql. Example: new {col1 = 6, col2 = 'myString'}. You can also pass a dictionarys</param>
         /// <param name="trans">A SQL transaction that can be passed in if this Read is to be part of a greater transaction</param>
         /// <returns></returns>
-        public static IEnumerable<Dictionary<string, object>> Read(this IReadable reader, string tableName, object values)
+        public static IEnumerable<Dictionary<string, object>> Read(this IReadable reader, string tableName, object values, IEnumerable<string> fields = null)
         {
-            return reader.RawRead(tableName, values as Dictionary<string, object> ?? values._AsDictionary());
+            return reader.RawRead(tableName, values as Dictionary<string, object> ?? values._AsDictionary(), fields);
         }
 
         public static IEnumerable<T> Read<T>(this IReadable reader, string tableName, object values) where T : class, new()
@@ -97,16 +91,6 @@ namespace Lasy
             var res = Read(reader, tableName, values);
             ObjectReader<T> converter = new ObjectReader<T>();
             return converter.ReadAll(res);
-        }
-
-        public static IEnumerable<Dictionary<string, object>> RawReadAll(this IReadable reader, string tableName)
-        {
-            return reader.RawRead(tableName, new Dictionary<string, object>());
-        }
-
-        public static IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(this IReadable reader, string tableName, IEnumerable<string> fields)
-        {
-            return reader.RawReadCustomFields(tableName, fields, new Dictionary<string, object>());
         }
     }
 }

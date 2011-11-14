@@ -8,7 +8,7 @@ using System;
 using Nvelope;
 using Nvelope.Configuration;
 
-namespace LasyTests
+namespace LasyTests.Sql
 {
     [TestFixture]
     public class SqlDBTests
@@ -44,7 +44,7 @@ namespace LasyTests
 
             var desiredColumns = new List<string>(){ "PersonId", "FirstName" };
 
-            var results = db.RawReadAllCustomFields("Person", desiredColumns);
+            var results = db.ReadAll("Person", desiredColumns);
 
             int actualCount = int.MinValue;
             using (var conn = new SqlConnection(connString))
@@ -91,6 +91,12 @@ namespace LasyTests
             db.Delete("Person", dataKeys);
         }
 
+        [Test]
+        public void ReadsFromView()
+        {
+            var db = ConnectTo.Sql2005(connString);
+            Assert.AreNotEqual(0, db.ReadAll("ID_NUMView"));
+        }
 
         /// <summary>
         /// If someone else is using the database at the same time, this could fail

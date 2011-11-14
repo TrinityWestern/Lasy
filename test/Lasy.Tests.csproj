@@ -46,7 +46,8 @@
   <ItemGroup>
     <Compile Include="AbstractTableTests.cs" />
     <Compile Include="EventTests.cs" />
-    <Compile Include="TableCreationTests.cs" />
+    <Compile Include="Sql\SqlAnalyzerTests.cs" />
+    <Compile Include="Sql\TableCreationTests.cs" />
     <Compile Include="TransactionTests.cs" />
     <Compile Include="LockBoxTests.cs" />
     <Compile Include="ReadConsistencyTests.cs" />
@@ -56,7 +57,7 @@
     <Compile Include="IReadWriteExtensionTests.cs" />
     <Compile Include="Organization.cs" />
     <Compile Include="Person.cs" />
-    <Compile Include="SqlDBTests.cs" />
+    <Compile Include="Sql\SqlDBTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlTypeConversionTests.cs" />
   </ItemGroup>

@@ -113,7 +113,7 @@ namespace Lasy
 
         protected internal virtual string _getTableExistsSql(string schema, string table)
         {
-            return "select 1 from sys.tables where name = @table";
+            return "select 1 from sys.tables where name = @table union all select 1 from sys.views where name = @table";
         }
 
         protected internal virtual string _getFieldTypeSql()
@@ -130,7 +130,7 @@ namespace Lasy
                     on k.table_name = tbl.name and objectproperty(object_id(constraint_name), 'IsPrimaryKey') = 1
                         and k.column_name = c.name
                 WHERE 
-                    tbl.xtype = 'U'
+                    tbl.xtype in ('U','V')
                     and tbl.name = @table
                 order by isc.ORDINAL_POSITION";
         }

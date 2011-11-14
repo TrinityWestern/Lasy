@@ -54,10 +54,10 @@ namespace LasyTests
             var db = _newRw();
             var row = new { A = 1, B = 2 };
             var id = db.Insert("Tbl", row);
-            var fromDb = db.RawReadAll("Tbl").Single();
+            var fromDb = db.ReadAll("Tbl").Single();
             // This shouldn't change the value in the DB
             fromDb["A"] = 7;
-            Assert.AreEqual(1, db.RawReadAll("Tbl").Single()["A"]);
+            Assert.AreEqual(1, db.ReadAll("Tbl").Single()["A"]);
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace LasyTests
             // To test this, we'll modify the row before we attempt to look
             // at what we got back from the DB - it should still be the version we were
             // created the first insert, not the updated version
-            var fromDb = db.RawReadAll("Tbl").Single();
+            var fromDb = db.ReadAll("Tbl").Single();
             db.Update("Tbl", new { A = 7 }, id);
             Assert.AreEqual(1, fromDb["A"]);
         }

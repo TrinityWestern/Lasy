@@ -9,7 +9,7 @@ using Nvelope.Reflection;
 using Lasy;
 using System.Data.SqlClient;
 
-namespace LasyTests
+namespace LasyTests.Sql
 {
     [TestFixture]
     public class TableCreationTests
@@ -99,7 +99,7 @@ namespace LasyTests
             moddb.Modifier.CreateTable("dbo.Unicorn", fredTheUnicorn);
             var db = ConnectTo.Sql2005(connStr);
             db.Insert("dbo.Unicorn", fredTheUnicorn);
-            var fromDb = db.RawReadAll("dbo.Unicorn");
+            var fromDb = db.ReadAll("dbo.Unicorn");
             Assert.AreEqual(1, fromDb.Count());
             Assert.AreEqual(fredTheUnicorn._Inspect(), fromDb.First().Except("UnicornId").Print());
         }
@@ -123,7 +123,7 @@ namespace LasyTests
 
             var db = ConnectTo.Sql2005(connStr);
             db.Insert("TestSchema.Pegasus", fredTheUnicorn);
-            var fromDb = db.RawReadAll("TestSchema.Pegasus");
+            var fromDb = db.ReadAll("TestSchema.Pegasus");
             Assert.AreEqual(1, fromDb.Count());
             Assert.AreEqual(fredTheUnicorn._Inspect(), fromDb.First().Except("PegasusId").Print());
         }
@@ -137,7 +137,7 @@ namespace LasyTests
             Assert.False(db.Analyzer.TableExists("TestSchema.Pegasus"));
             db.Insert("TestSchema.Pegasus", fredTheUnicorn);
             Assert.True(db.Analyzer.TableExists("TestSchema.Pegasus"));
-            var fromDb = db.RawReadAll("TestSchema.Pegasus");
+            var fromDb = db.ReadAll("TestSchema.Pegasus");
             Assert.AreEqual(1, fromDb.Count());
             Assert.AreEqual(fredTheUnicorn._Inspect(), fromDb.First().Except("PegasusId").Print());
         }
@@ -157,7 +157,7 @@ namespace LasyTests
         {
             var db = ConnectTo.Sql2005(connStr);
             Assert.False(db.Analyzer.TableExists("dbo.Unicorn"));
-            Assert.Throws<NotATableException>(() => db.RawReadAll("dbo.Unicorn"));
+            Assert.Throws<NotATableException>(() => db.ReadAll("dbo.Unicorn"));
         }
 
         [Test(Description = "If we ask for the PKs for a table that doesn't exist, then create the table, " +
