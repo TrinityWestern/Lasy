@@ -62,6 +62,11 @@ namespace Lasy
             return string.Format("drop table {0}", tablename);
         }
 
+        protected virtual string _getDropViewSql(string viewname)
+        {
+            return string.Format("drop view {0}", viewname);
+        }
+
         public void CreateTable(string tablename, Dictionary<string, SqlColumnType> fieldTypes)
         {
             var table = SqlAnalyzer.TableName(tablename);
@@ -92,6 +97,14 @@ namespace Lasy
             SqlAnalyzer.InvalidateTableCache(tablename);
         }
 
+        public void DropView(string viewname)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+                conn.Execute(_getDropViewSql(viewname));
+
+            SqlAnalyzer.InvalidateTableCache(viewname);
+        }
+
         public void DropSchema(string schema)
         {
             using (var conn = new SqlConnection(_connectionString))
@@ -119,6 +132,12 @@ namespace Lasy
         {
             if (SqlAnalyzer.SchemaExists(schema))
                 DropSchema(schema);
+        }
+
+        public void KillView(string viewname)
+        {
+            if (SqlAnalyzer.TableExists(viewname))
+                DropView(viewname);
         }
     }
 }
