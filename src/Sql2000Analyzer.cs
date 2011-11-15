@@ -60,5 +60,10 @@ namespace Lasy
             // The only schema is dbo
             return "select @schema = 'dbo'";
         }
+
+        public override string SchemaName(string tablename)
+        {
+            return "dbo";
+        }
     }
 }

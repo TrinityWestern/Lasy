@@ -22,12 +22,23 @@ namespace Lasy
         protected abstract int? sqlInsert(string sql, Dictionary<string, object> values);
         protected abstract void sqlUpdate(string sql, Dictionary<string, object> values);
 
+        public virtual string QualifiedTable(string tablename)
+        {
+            var schema = SqlAnalyzer.SchemaName(tablename);
+            var table = SqlAnalyzer.TableName(tablename);
+
+            if (schema.IsNullOrEmpty())
+                return "[" + tablename + "]";
+            else
+                return "[" + schema + "].[" + table + "]";
+        }
+
         /// <summary>
         /// If true, throw an exception when referencing tables that don't exist.
         /// If false, do something intelligent instead - Reads return nothing, updates and 
         /// deletes do nothing, but inserts still throw exceptions
         /// </summary>
-        public bool StrictTables;
+        public virtual bool StrictTables { get; set; }
       
         public virtual string MakeWhereClause(Dictionary<string, object> keyFields, string paramPrefix = "")
         {
@@ -58,7 +69,7 @@ namespace Lasy
 
             var whereClause = MakeWhereClause(keyFields);
 
-            var sql = "SELECT " + fieldClause + " FROM " + tableName + whereClause;
+            var sql = "SELECT " + fieldClause + " FROM " + QualifiedTable(tableName) + whereClause;
 
             return sql;
         }
@@ -75,7 +86,8 @@ namespace Lasy
             var fieldNames = row.Keys.Except(autoNumberKeyName)
                 .Intersect(dbFields);
 
-            var sql = "INSERT INTO " + tableName + " (" + fieldNames.Join(", ") + ") VALUES (" + fieldNames.Select(x => "@" + x).Join(", ") + ")\n";
+            var sql = "INSERT INTO " + QualifiedTable(tableName) + " (" + fieldNames.Join(", ") + ") " + 
+                "VALUES (" + fieldNames.Select(x => "@" + x).Join(", ") + ")\n";
             sql += "SELECT SCOPE_IDENTITY()";
 
             return sql;
@@ -93,20 +105,24 @@ namespace Lasy
 
             var whereClause = MakeWhereClause(keyFields, "key");
 
-            var sql = "UPDATE " + tableName + " SET " + setFields.Select(x => x + " = @data" + x).Join(", ") + "\n" + whereClause;
+            var sql = "UPDATE " + QualifiedTable(tableName) + " SET " + setFields.Select(x => x + " = @data" + x).Join(", ") + "\n" + whereClause;
             return sql;
         }
 
         public virtual string MakeDeleteSql(string tableName, Dictionary<string, object> keyFields)
         {
             var whereClause = MakeWhereClause(keyFields);
-            return "DELETE FROM " + tableName + whereClause;
+            return "DELETE FROM " + QualifiedTable(tableName) + whereClause;
         }
 
         public virtual IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields = null)
         {
-            if (StrictTables && !Analyzer.TableExists(tableName))
-                throw new NotATableException(tableName);
+            // If the table doesn't exist, we probably don't want to run any sql
+            if (!Analyzer.TableExists(tableName))
+                if (StrictTables)
+                    throw new NotATableException(tableName);
+                else
+                    return new List<Dictionary<string, object>>();
 
             var sql = MakeReadSql(tableName, keyFields, fields);
             return sqlRead(sql, keyFields);

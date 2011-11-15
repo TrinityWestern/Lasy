@@ -98,6 +98,23 @@ namespace LasyTests.Sql
             Assert.AreNotEqual(0, db.ReadAll("ID_NUMView"));
         }
 
+        [Test]
+        public void ReadFromNonExistantTable()
+        {
+            var db = ConnectTo.Sql2005(connString);
+            
+            var table = "foobartable";
+            Assert.False(db.Analyzer.TableExists(table), "Ooops, our test table actually existed - we need to test against a table that doesn't exist");
+
+            db.StrictTables = false;
+            Assert.AreEqual("()", db.Read(table, null).Print(),
+                "We had StrictTables set to false, so we should have just got back an empty list");
+
+            db.StrictTables = true;
+            Assert.Throws<NotATableException>(() => db.Read(table, null),
+                "We had StrictTables set to true, so we should have throw an exception");
+        }
+
         /// <summary>
         /// If someone else is using the database at the same time, this could fail
         /// </summary>

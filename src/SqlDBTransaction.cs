@@ -13,7 +13,7 @@ namespace Lasy
         protected SqlTransaction _transaction;
 
         public SqlDBTransaction(SqlDB db)
-            : base(db.ConnectionString, db.SqlAnalyzer)
+            : base(db.ConnectionString, db.SqlAnalyzer, true)
         {
             UnderlyingDB = db;
             _conn = new SqlConnection(db.ConnectionString);

@@ -230,13 +230,13 @@ namespace Lasy
             }
         }
 
-        public string TableName(string tablename)
+        public virtual string TableName(string tablename)
         {
             var res = tablename.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Last().ChopEnd("]").ChopStart("[");
             return res;
         }
 
-        public string SchemaName(string tablename)
+        public virtual string SchemaName(string tablename)
         {
             var parts = tablename.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(s => s.ChopEnd("]").ChopStart("["));

@@ -9,7 +9,7 @@ namespace Lasy
     public class KeyNotSetException : Exception
     {
         public KeyNotSetException(string tableName, IEnumerable<string> keys) 
-            : base("Could not save " + tableName + " because the following fields are null: " + keys.Print())
+            : base("Could not get the keys for the table '" + tableName + "' because the following fields are null: " + keys.Print())
         { }
     }
 

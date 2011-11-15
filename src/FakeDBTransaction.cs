@@ -112,7 +112,7 @@ namespace Lasy
             var underlying = _db.Table(table);
             var opsForTable = _operations.Where(o => o.Table == table);
             // Apply each of the operations to the table in sequence to get the output
-            var res = opsForTable.Aggregate(underlying, (source,op) => op.Apply(source));
+            var res = opsForTable.Aggregate(underlying, (source, op) => op.Apply(source));
 
             return res;
         }
@@ -134,7 +134,7 @@ namespace Lasy
 
             var autoKeys = _db.NewAutokey(tableName);
             var inserted = row.ScrubNulls().Union(autoKeys);
-            
+
             var pks = _db.ExtractKeys(tableName, inserted);
             _operations.Add(new InsertOp(tableName, inserted));
             return pks;

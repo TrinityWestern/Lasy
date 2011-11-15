@@ -37,7 +37,7 @@ namespace Lasy
             var datafields = fieldTypes.Except(table + "Id");
             var fieldList = _fieldDefinitions(datafields);
 
-            var sql = String.Format(@"CREATE TABLE {0}.{1}
+            var sql = String.Format(@"CREATE TABLE [{0}].[{1}]
             (
                 {1}Id int NOT NULL IDENTITY (1,1) PRIMARY KEY,
                 {2}
@@ -54,17 +54,17 @@ namespace Lasy
 
         protected virtual string _getDropSchemaSql(string schema)
         {
-            return string.Format("drop schema {0}", schema);
+            return string.Format("drop schema [{0}]", schema);
         }
 
-        protected virtual string _getDropTableSql(string tablename)
+        protected virtual string _getDropTableSql(string schema, string table)
         {
-            return string.Format("drop table {0}", tablename);
+            return string.Format("drop table [{0}].[{1}]", schema, table);
         }
 
-        protected virtual string _getDropViewSql(string viewname)
+        protected virtual string _getDropViewSql(string schema, string view)
         {
-            return string.Format("drop view {0}", viewname);
+            return string.Format("drop view [{0}].[{1}]", schema, view);
         }
 
         public void CreateTable(string tablename, Dictionary<string, SqlColumnType> fieldTypes)
@@ -91,16 +91,22 @@ namespace Lasy
 
         public void DropTable(string tablename)
         {
+            var table = SqlAnalyzer.TableName(tablename);
+            var schema = SqlAnalyzer.SchemaName(tablename);
+
             using (var conn = new SqlConnection(_connectionString))
-                conn.Execute(_getDropTableSql(tablename));
+                conn.Execute(_getDropTableSql(schema, table));
 
             SqlAnalyzer.InvalidateTableCache(tablename);
         }
 
         public void DropView(string viewname)
         {
+            var view = SqlAnalyzer.TableName(viewname);
+            var schema = SqlAnalyzer.SchemaName(viewname);
+
             using (var conn = new SqlConnection(_connectionString))
-                conn.Execute(_getDropViewSql(viewname));
+                conn.Execute(_getDropViewSql(schema, view));
 
             SqlAnalyzer.InvalidateTableCache(viewname);
         }
@@ -132,6 +138,12 @@ namespace Lasy
         {
             if (SqlAnalyzer.SchemaExists(schema))
                 DropSchema(schema);
+        }
+
+        public void EnsureSchema(string schema)
+        {
+            if (!SqlAnalyzer.SchemaExists(schema))
+                CreateSchema(schema);
         }
 
         public void KillView(string viewname)
