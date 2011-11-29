@@ -156,16 +156,22 @@ namespace Lasy
 
         public virtual void Delete(string tableName, Dictionary<string, object> keyFields)
         {
-            if (StrictTables && !Analyzer.TableExists(tableName))
-                throw new NotATableException(tableName);
+            if (!Analyzer.TableExists(tableName))
+                if (StrictTables)
+                    throw new NotATableException(tableName);
+                else
+                    return;
 
             sqlUpdate(MakeDeleteSql(tableName, keyFields), keyFields);
         }
 
         public virtual void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
         {
-            if (StrictTables && !Analyzer.TableExists(tableName))
-                throw new NotATableException(tableName);
+            if (!Analyzer.TableExists(tableName))
+                if (StrictTables)
+                    throw new NotATableException(tableName);
+                else
+                    return;
 
             var sql = MakeUpdateSql(tableName, dataFields, keyFields);
 
