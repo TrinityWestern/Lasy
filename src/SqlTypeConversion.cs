@@ -47,6 +47,8 @@ namespace Lasy
         private static Dictionary<Type, SqlColumnType> _toSqlMappings = new Dictionary<Type, SqlColumnType>();
         private static Dictionary<SqlColumnType, Type> _toCMappings = new Dictionary<SqlColumnType, Type>();
 
+        private const int MAX_STRING_LENGTH = 4000;
+
         public static SqlColumnType GetSqlType(Type dotNetType)
         {
             if (dotNetType == null)
@@ -66,7 +68,26 @@ namespace Lasy
                 return new SqlColumnType(SqlDbType.NVarChar, true, 100);
             
             var type = val.GetType();
-            return GetSqlType(type);
+            var res = GetSqlType(type);
+            var length = GetAppropriateLength(val) ?? res.Length;
+
+            return new SqlColumnType(res.Type, res.IsNullable, length);
+        }
+
+        public static int? GetAppropriateLength(object val)
+        {
+            // Hack - if this is a string type, we have to figure out how long a column to make
+            // This is largely guesswork
+            if (val is string)
+            {
+                var strLen = (val as string).Length;
+                if (strLen > 30)
+                    return MAX_STRING_LENGTH;
+                else
+                    return 100;
+            }
+
+            return null;
         }
 
         /// <summary>
