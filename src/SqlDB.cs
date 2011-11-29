@@ -49,7 +49,7 @@ namespace Lasy
             }
         }
 
-        public ITransaction BeginTransaction()
+        public virtual ITransaction BeginTransaction()
         {
             return new SqlDBTransaction(this);
         }

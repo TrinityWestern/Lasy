@@ -30,5 +30,10 @@ namespace Lasy
 
             return base.Insert(tableName, row);
         }
+
+        public override ITransaction BeginTransaction()
+        {
+            return new ModifiableSqlDbTransaction(this);
+        }
     }
 }
