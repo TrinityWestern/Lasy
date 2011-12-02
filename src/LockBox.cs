@@ -136,6 +136,23 @@ namespace Lasy
         }
     }
 
+    public class EmptyLockBox<T> : LockBox<T> where T: class, new()
+    {
+        public EmptyLockBox()
+            : base(null, "", null, null)
+        { }
+
+        public override IEnumerable<T> Unlock()
+        {
+            yield break;
+        }
+
+        protected override IEnumerable<T> _lockRead(object criteria, DateTime? lockDate = null)
+        {
+            yield break;
+        }
+    }
+
     /// <summary>
     /// Provides a disposable wrapper for locking rows in a database. When the object is 
     /// disposed, the rows are unlocked. Note: Assumes a LockId and LockDate field on 
