@@ -67,7 +67,7 @@ namespace Lasy
         /// ie  {Processed = false}</param>
         /// <param name="lockDate"></param>
         /// <returns></returns>
-        protected IEnumerable<T> _lockRead(object criteria, DateTime? lockDate = null)
+        protected virtual IEnumerable<T> _lockRead(object criteria, DateTime? lockDate = null)
         {
             lockDate = lockDate ?? DateTime.Now;
 
@@ -104,7 +104,7 @@ namespace Lasy
         /// Clears the lock
         /// </summary>
         /// <remarks>The list of items that the box had locked</remarks>
-        public IEnumerable<T> Unlock()
+        public virtual IEnumerable<T> Unlock()
         {
             var res = _contents;
 
@@ -160,6 +160,23 @@ namespace Lasy
         protected override IEnumerable<Dictionary<string, object>> _readLockedRows(IReadWrite db, string tablename, Dictionary<string, object> lockCriteria)
         {
             return db.Read(tablename, lockCriteria);
+        }
+    }
+
+    public class EmptyLockBox : LockBox
+    {
+        public EmptyLockBox()
+            : base(null, "", null, null)
+        { }
+
+        public override IEnumerable<Dictionary<string, object>> Unlock()
+        {
+            yield break;
+        }
+
+        protected override IEnumerable<Dictionary<string, object>> _lockRead(object criteria, DateTime? lockDate = null)
+        {
+            yield break;
         }
     }
 }
