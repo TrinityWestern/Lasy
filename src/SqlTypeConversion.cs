@@ -19,19 +19,19 @@ namespace Lasy
         {
             _toSqlMappings.Add(typeof(bool?), new SqlColumnType(SqlDbType.Bit, true));
             _toSqlMappings.Add(typeof(bool), new SqlColumnType(SqlDbType.Bit));
-            _toSqlMappings.Add(typeof(char?), new SqlColumnType(SqlDbType.Char, true, 1));
-            _toSqlMappings.Add(typeof(char), new SqlColumnType(SqlDbType.Char, false, 1));
+            _toSqlMappings.Add(typeof(char?), new SqlColumnType(SqlDbType.Char, true, length: 1));
+            _toSqlMappings.Add(typeof(char), new SqlColumnType(SqlDbType.Char, false, length: 1));
             _toSqlMappings.Add(typeof(int?), new SqlColumnType(SqlDbType.Int, true));
             _toSqlMappings.Add(typeof(int), new SqlColumnType(SqlDbType.Int));
             _toSqlMappings.Add(typeof(float?), new SqlColumnType(SqlDbType.Real, true));
             _toSqlMappings.Add(typeof(float), new SqlColumnType(SqlDbType.Real));
             _toSqlMappings.Add(typeof(double?), new SqlColumnType(SqlDbType.Float, true));
             _toSqlMappings.Add(typeof(double), new SqlColumnType(SqlDbType.Float));
-            _toSqlMappings.Add(typeof(decimal?), new SqlColumnType(SqlDbType.Decimal, true));
-            _toSqlMappings.Add(typeof(decimal), new SqlColumnType(SqlDbType.Decimal));
+            _toSqlMappings.Add(typeof(decimal?), new SqlColumnType(SqlDbType.Decimal, true, precision: 36, scale: 12));
+            _toSqlMappings.Add(typeof(decimal), new SqlColumnType(SqlDbType.Decimal, precision: 36, scale: 12));
             _toSqlMappings.Add(typeof(DateTime?), new SqlColumnType(SqlDbType.DateTime, true));
             _toSqlMappings.Add(typeof(DateTime), new SqlColumnType(SqlDbType.DateTime));
-            _toSqlMappings.Add(typeof(string), new SqlColumnType(SqlDbType.NVarChar, true, 100));
+            _toSqlMappings.Add(typeof(string), new SqlColumnType(SqlDbType.NVarChar, true, length: 100));
             _toSqlMappings.Add(typeof(XmlDocument), new SqlColumnType(SqlDbType.Xml, true));
             _toSqlMappings.Add(typeof(Guid?), new SqlColumnType(SqlDbType.UniqueIdentifier, true));
             _toSqlMappings.Add(typeof(Guid), new SqlColumnType(SqlDbType.UniqueIdentifier));
@@ -70,8 +70,10 @@ namespace Lasy
             var type = val.GetType();
             var res = GetSqlType(type);
             var length = GetAppropriateLength(val) ?? res.Length;
+            var precision = GetAppropriatePrecision(val) ?? res.Precision;
+            var scale = GetAppropriateScale(val) ?? res.Scale;
 
-            return new SqlColumnType(res.Type, res.IsNullable, length);
+            return new SqlColumnType(res.Type, res.IsNullable, length, precision, scale);
         }
 
         public static int? GetAppropriateLength(object val)
@@ -87,6 +89,23 @@ namespace Lasy
                     return 100;
             }
 
+            return null;
+        }
+
+        public static int? GetAppropriateScale(object val)
+        {
+            // TODO: Something intelligent here, rather than just assuming 12 is enough
+            if (val is decimal)
+                return 12;
+
+            return null;
+        }
+
+        public static int? GetAppropriatePrecision(object val)
+        {
+            // TODO: Something intelligent here, rather than just assuming 36 is enough
+            if (val is decimal)
+                return 36;
             return null;
         }
 
@@ -107,6 +126,9 @@ namespace Lasy
         /// <returns></returns>
         public static SqlDbType ParseDbType(string sqlTypeName)
         {
+            // Hack because microsoft doesn't correctly take this into consideration
+            if (sqlTypeName == "numeric")
+                sqlTypeName = "decimal";
             return (SqlDbType)Enum.Parse(typeof(SqlDbType), sqlTypeName, true);
         }
 

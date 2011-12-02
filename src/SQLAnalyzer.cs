@@ -195,7 +195,9 @@ namespace Lasy
             return new SqlColumnType(
                 SqlTypeConversion.ParseDbType(sysobjectInfo["DATA_TYPE"].ConvertTo<string>()),
                 sysobjectInfo["IS_NULLABLE"].ConvertTo<bool>(),
-                sysobjectInfo["CHARACTER_MAXIMUM_LENGTH"].ConvertTo<int?>());
+                sysobjectInfo["CHARACTER_MAXIMUM_LENGTH"].ConvertTo<int?>(),
+                sysobjectInfo["NUMERIC_PRECISION"].ConvertTo<int?>(),
+                sysobjectInfo["NUMERIC_SCALE"].ConvertTo<int?>());
         }
 
         public bool TableExists(string tablename)

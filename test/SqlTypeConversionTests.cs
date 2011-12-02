@@ -78,5 +78,11 @@ namespace LasyTests
             isNetType<XmlDocument>(SqlDbType.Xml);
             isNetType<XmlDocument>(SqlDbType.Xml, true);
         }
+
+        [Test]
+        public void HandlesNumeric()
+        {
+            Assert.AreEqual(SqlDbType.Decimal, SqlTypeConversion.ParseDbType("numeric"));
+        }
     }
 }

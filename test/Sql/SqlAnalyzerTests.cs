@@ -43,11 +43,29 @@ namespace LasyTests.Sql
         }
 
         [Test]
-        public void GetFieldsFromTable()
+        public void GetFieldsFromView()
         {
             var ana = new SqlAnalyzer(connStr);
             var fields = ana.GetFields("ID_NUMView");
             Assert.AreEqual("(ID_NUM,PersonId,FirstName,LastName,Age)", fields.Print());
+        }
+
+        [Test]
+        public void GetFieldTypes()
+        {
+            var ana = new SqlAnalyzer(connStr);
+            var fields = ana.GetFieldTypes("Person");
+            Assert.AreEqual("([Age,int NULL],[FirstName,nvarchar(50) NULL],[LastName,nvarchar(50) NULL],[PersonId,int NOT NULL])", 
+                fields.Print());
+        }
+
+        [Test]
+        public void GetFieldTypesFromView()
+        {
+            var ana = new SqlAnalyzer(connStr);
+            var fields = ana.GetFieldTypes("ID_NUMView");
+            Assert.AreEqual("([Age,int NULL],[FirstName,nvarchar(50) NULL],[ID_NUM,int NOT NULL],[LastName,nvarchar(50) NULL],[PersonId,int NOT NULL])", 
+                fields.Print());
         }
 
     }
