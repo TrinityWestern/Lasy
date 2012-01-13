@@ -34,13 +34,27 @@ namespace Lasy
         }
 
         /// <summary>
+        /// Warning: You should greatly prefer using SQL parameters instead of using literals.
+        /// Literals are vulnerable to SQL injection attacks
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        public static string SqlLiteral(object o)
+        {
+            if (o is string || o is DateTime)
+                return "'" + o.ToString().Replace("'", "''") + "'";
+            else
+                return o.ToString();
+        }
+
+        /// <summary>
         /// If true, throw an exception when referencing tables that don't exist.
         /// If false, do something intelligent instead - Reads return nothing, updates and 
         /// deletes do nothing, but inserts still throw exceptions
         /// </summary>
         public virtual bool StrictTables { get; set; }
       
-        public virtual string MakeWhereClause(Dictionary<string, object> keyFields, string paramPrefix = "")
+        public virtual string MakeWhereClause(Dictionary<string, object> keyFields, string paramPrefix = "", bool useParameters = true)
         {
             keyFields = keyFields ?? new Dictionary<string, object>();
 
@@ -50,7 +64,10 @@ namespace Lasy
             var nullFieldParts = nullFields.Select(x => x + " is null");
 
             var nonNullFields = keyFields.Except(nullFields).Keys;
-            var nonNullFieldParts = nonNullFields.Select(x => x + " = @" + paramPrefix + x);
+            var nonNullFieldParts =
+                useParameters ?
+                    nonNullFields.Select(x => x + " = @" + paramPrefix + x) :
+                    nonNullFields.Select(x => x + " = " + SqlLiteral(keyFields[x]));
 
             var whereClause = "";
             if (keyFields.Any())
@@ -59,7 +76,7 @@ namespace Lasy
             return whereClause;
         }
 
-        public virtual string MakeReadSql(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields = null)
+        public virtual string MakeReadSql(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields = null, bool useParameters = true)
         {   
             fields = fields ?? new string[]{};
 
@@ -67,14 +84,14 @@ namespace Lasy
             if (fields.Any())
                 fieldClause = fields.Join(", ");
 
-            var whereClause = MakeWhereClause(keyFields);
+            var whereClause = MakeWhereClause(keyFields, "", useParameters);
 
             var sql = "SELECT " + fieldClause + " FROM " + QualifiedTable(tableName) + whereClause;
 
             return sql;
         }
 
-        public virtual string MakeInsertSql(string tableName, Dictionary<string, object> row)
+        public virtual string MakeInsertSql(string tableName, Dictionary<string, object> row, bool useParameters = true)
         {
             //Retrieve the AutoNumbered key name if there is one
             var autoNumberKeyName = Analyzer.GetAutoNumberKey(tableName);
@@ -86,14 +103,18 @@ namespace Lasy
             var fieldNames = row.Keys.Except(autoNumberKeyName)
                 .Intersect(dbFields);
 
+            var valList = useParameters ?
+                fieldNames.Select(x => "@" + x) :
+                fieldNames.Select(x => SqlLiteral(row[x]));
+
             var sql = "INSERT INTO " + QualifiedTable(tableName) + " (" + fieldNames.Join(", ") + ") " + 
-                "VALUES (" + fieldNames.Select(x => "@" + x).Join(", ") + ")\n";
+                "VALUES (" + valList.Join(", ") + ")\n";
             sql += "SELECT SCOPE_IDENTITY()";
 
             return sql;
         }
 
-        public virtual string MakeUpdateSql(string tableName, Dictionary<string,object> dataFields, Dictionary<string,object> keyFields)
+        public virtual string MakeUpdateSql(string tableName, Dictionary<string,object> dataFields, Dictionary<string,object> keyFields, bool useParameters = true)
         {
             var autoKey = Analyzer.GetAutoNumberKey(tableName);
 
@@ -103,15 +124,20 @@ namespace Lasy
             if (dbFields.Any()) // If we don't get anything back, that means we don't know what the DB fields are
                 setFields = setFields.Intersect(dbFields);
 
-            var whereClause = MakeWhereClause(keyFields, "key");
+            var whereClause = MakeWhereClause(keyFields, "key", useParameters);
 
-            var sql = "UPDATE " + QualifiedTable(tableName) + " SET " + setFields.Select(x => x + " = @data" + x).Join(", ") + "\n" + whereClause;
+            var valFields =
+                useParameters ?
+                    setFields.Select(x => x + " = @data" + x) :
+                    setFields.Select(x => x + " = " + SqlLiteral(dataFields[x]));
+
+            var sql = "UPDATE " + QualifiedTable(tableName) + " SET " + valFields.Join(", ") + "\n" + whereClause;
             return sql;
         }
 
-        public virtual string MakeDeleteSql(string tableName, Dictionary<string, object> keyFields)
+        public virtual string MakeDeleteSql(string tableName, Dictionary<string, object> keyFields, bool useParameters = true)
         {
-            var whereClause = MakeWhereClause(keyFields);
+            var whereClause = MakeWhereClause(keyFields, "", useParameters);
             return "DELETE FROM " + QualifiedTable(tableName) + whereClause;
         }
 
