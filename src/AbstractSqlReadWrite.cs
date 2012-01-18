@@ -41,6 +41,8 @@ namespace Lasy
         /// <returns></returns>
         public static string SqlLiteral(object o)
         {
+            if (o == null || o == DBNull.Value)
+                return "null";
             if (o is string || o is DateTime)
                 return "'" + o.ToString().Replace("'", "''") + "'";
             else
@@ -91,7 +93,7 @@ namespace Lasy
             return sql;
         }
 
-        public virtual string MakeInsertSql(string tableName, Dictionary<string, object> row, bool useParameters = true)
+        public virtual string MakeInsertSql(string tableName, Dictionary<string, object> row, bool useParameters = true, bool selectIdentity = true)
         {
             //Retrieve the AutoNumbered key name if there is one
             var autoNumberKeyName = Analyzer.GetAutoNumberKey(tableName);
@@ -109,7 +111,8 @@ namespace Lasy
 
             var sql = "INSERT INTO " + QualifiedTable(tableName) + " (" + fieldNames.Join(", ") + ") " + 
                 "VALUES (" + valList.Join(", ") + ")\n";
-            sql += "SELECT SCOPE_IDENTITY()";
+            if(selectIdentity)
+                sql += "SELECT SCOPE_IDENTITY()";
 
             return sql;
         }
