@@ -14,13 +14,15 @@ namespace Lasy
 {
     public class SqlModifier : IDBModifier
     {
-        public SqlModifier(string connectionString, SqlAnalyzer analyzer)
+        public SqlModifier(string connectionString, SqlAnalyzer analyzer, ITypedDBAnalyzer taxonomy = null)
         {
             SqlAnalyzer = analyzer;
             _connectionString = connectionString;
+            Taxonomy = taxonomy;
         }
 
         protected string _connectionString;
+        public ITypedDBAnalyzer Taxonomy { get; set; }
         public SqlAnalyzer SqlAnalyzer { get; protected set; }
         public IDBAnalyzer Analyzer { get { return SqlAnalyzer; } }
 
@@ -85,7 +87,15 @@ namespace Lasy
 
         public void CreateTable(string tablename, Dictionary<string, object> fields)
         {
-            var fieldTypes = fields.SelectVals(v => SqlTypeConversion.GetSqlType(v));
+            var taxonomyTypes = Taxonomy == null ? 
+                new Dictionary<string, SqlColumnType>() : 
+                Taxonomy.GetFieldTypes(tablename, fields);
+
+            var missingTypes = fields.Except(taxonomyTypes.Keys)
+                .SelectVals(v => SqlTypeConversion.GetSqlType(v));
+
+            var fieldTypes = missingTypes.Union(taxonomyTypes);
+
             CreateTable(tablename, fieldTypes);
         }
 

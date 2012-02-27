@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Nvelope;
+using Nvelope.Reflection;
 
 namespace Lasy
 {
@@ -17,6 +19,13 @@ namespace Lasy
         {
             SqlModifier = modifier;
         }
+
+        /// <summary>
+        /// If true, this allows new tables to be created in the DB with no type information. This may lead
+        /// to tables being created with unintended types. If false, throw an exception when we try to 
+        /// create a table with no type information.
+        /// </summary>
+        bool AllowInferedTableStructure = false;
 
         public SqlModifier SqlModifier { get; protected set; }
 

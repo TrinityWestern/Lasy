@@ -8,6 +8,11 @@ namespace Lasy
 {
     public interface IDBModifier : IAnalyzable
     {
+        /// <summary>
+        /// This analyzer should be able to tell the DBModifier about the structure
+        /// of any table that needs to be created
+        /// </summary>
+        ITypedDBAnalyzer Taxonomy { get; set; }
         void CreateTable(string tablename, Dictionary<string, object> fields);
         void DropTable(string tablename);
     }

@@ -20,17 +20,17 @@ namespace Lasy
             return new SqlDB(connString, new SqlAnalyzer(connString), strictTables);
         }
 
-        public static ModifiableSqlDB ModifiableSql2000(string connString)
+        public static ModifiableSqlDB ModifiableSql2000(string connString, ITypedDBAnalyzer taxonomy = null)
         {
             var analyzer = new Sql2000Analyzer(connString);
-            var modifier = new SqlModifier(connString, analyzer);
+            var modifier = new SqlModifier(connString, analyzer, taxonomy);
             return new ModifiableSqlDB(connString, modifier);
         }
 
-        public static ModifiableSqlDB ModifiableSql2005(string connString)
+        public static ModifiableSqlDB ModifiableSql2005(string connString, ITypedDBAnalyzer taxonomy = null)
         {
             var analyzer = new SqlAnalyzer(connString);
-            var modifier = new SqlModifier(connString, analyzer);
+            var modifier = new SqlModifier(connString, analyzer, taxonomy);
             return new ModifiableSqlDB(connString, modifier);
         }
 

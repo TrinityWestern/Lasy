@@ -10,7 +10,7 @@ using System.Reactive.Linq;
 
 namespace Lasy
 {
-    public class SqlAnalyzer : IDBAnalyzer
+    public class SqlAnalyzer : ITypedDBAnalyzer
     {
         public SqlAnalyzer(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
         {
@@ -167,9 +167,14 @@ namespace Lasy
             }           
         }
 
-        public Dictionary<string, SqlColumnType> GetFieldTypes(string tablename)
+        public Dictionary<string, SqlColumnType> GetFieldTypes(string tablename, Dictionary<string,object> example = null)
         {
-            return _getFieldTypes(tablename);
+            example = example ?? new Dictionary<string, object>();
+
+            var exampleFields = example.SelectVals(v => SqlTypeConversion.GetSqlType(v));
+            var sqlFields = _getFieldTypes(tablename);
+            var res = exampleFields.Union(sqlFields);
+            return res;
         }
 
         public ICollection<string> GetFields(string tableName)
