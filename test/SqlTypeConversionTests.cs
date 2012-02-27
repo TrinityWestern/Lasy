@@ -19,9 +19,9 @@ namespace LasyTests
             Assert.IsNotNull(SqlTypeConversion.GetSqlType(null));
         }
 
-        private void isSqlType<T>(SqlDbType sqlType, bool isNullable = false, int? length = null)
+        private void isSqlType<T>(SqlDbType sqlType, bool isNullable = false, int? length = null, int? precision = null, int? scale = null)
         {
-            var expected = new SqlColumnType(sqlType, isNullable, length);
+            var expected = new SqlColumnType(sqlType, isNullable, length, precision, scale);
             Assert.AreEqual(expected.Print(), SqlTypeConversion.GetSqlType(typeof(T)).Print());
         }
 
@@ -41,8 +41,8 @@ namespace LasyTests
             isSqlType<float?>(SqlDbType.Real, true);
             isSqlType<int>(SqlDbType.Int);
             isSqlType<int?>(SqlDbType.Int, true);
-            isSqlType<decimal>(SqlDbType.Decimal);
-            isSqlType<decimal?>(SqlDbType.Decimal, true);
+            isSqlType<decimal>(SqlDbType.Decimal, precision: 36, scale: 12);
+            isSqlType<decimal?>(SqlDbType.Decimal, true, precision: 36, scale: 12);
             isSqlType<Guid>(SqlDbType.UniqueIdentifier);
             isSqlType<Guid?>(SqlDbType.UniqueIdentifier, true);
             isSqlType<XmlDocument>(SqlDbType.Xml, true);
