@@ -92,35 +92,7 @@ namespace Lasy
 
         private Dictionary<string, object> convertRow(Dictionary<string, string> row)
         {
-            return row.SelectVals(val => Infervert(val));
-        }
-
-        /// <summary>
-        /// Used by Infervert, this is how we guess what type data is supposed to be
-        /// </summary>
-        private static Dictionary<Regex,Type> _infervertConversions = new Dictionary<Regex,Type>()
-        {
-            {new Regex("^[0-9]+$", RegexOptions.Compiled), typeof(int)},
-            {new Regex("^[0-9]+\\.[0-9]+$", RegexOptions.Compiled), typeof(decimal)},
-            {new Regex("^[tT]rue|[Ff]alse$", RegexOptions.Compiled), typeof(bool)},
-            {new Regex("^[0-9]{4}\\-[0-9]{2}\\-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}$", 
-                RegexOptions.Compiled), typeof(DateTime)},
-            {new Regex(".*", RegexOptions.Compiled), typeof(string)}
-        };
-
-        /// <summary>
-        /// Based on a string representation, try to convert the value to the "appropriate" type
-        /// Largely guesswork
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public object Infervert(string value)
-        {
-            if (value == "NULL")
-                return null;
-
-            var outputType = _infervertConversions.First(kv => kv.Key.IsMatch(value)).Value;
-            return value.ConvertTo(outputType);
+            return row.SelectVals(val => Nvelope.Reading.TypeConversion.Infervert(val));
         }
 
         public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields)

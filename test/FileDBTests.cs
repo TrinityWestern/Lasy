@@ -84,7 +84,7 @@ namespace LasyTests
             };
 
             var db = new FileDB("");
-            Action<string,Type> fn = (str, type) => Assert.AreEqual(type, db.Infervert(str).GetType());
+            Action<string,Type> fn = (str, type) => Assert.AreEqual(type, Nvelope.Reading.TypeConversion.Infervert(str).GetType());
 
             var time = fn.Benchmark(testVals.Repeat(5000));
             // We should be able to do this in under 200ms (arbitrary number)

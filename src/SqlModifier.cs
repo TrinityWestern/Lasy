@@ -91,6 +91,8 @@ namespace Lasy
                 new Dictionary<string, SqlColumnType>() : 
                 Taxonomy.GetFieldTypes(tablename, fields);
 
+            taxonomyTypes = taxonomyTypes ?? new Dictionary<string, SqlColumnType>();
+
             var missingTypes = fields.Except(taxonomyTypes.Keys)
                 .SelectVals(v => SqlTypeConversion.GetSqlType(v));
 
