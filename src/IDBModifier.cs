@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Nvelope.Reflection;
+using Nvelope;
 
 namespace Lasy
 {
@@ -13,21 +14,37 @@ namespace Lasy
         /// of any table that needs to be created
         /// </summary>
         ITypedDBAnalyzer Taxonomy { get; set; }
-        void CreateTable(string tablename, Dictionary<string, object> fields);
+        void CreateTable(string tablename, Dictionary<string, SqlColumnType> fields);
         void DropTable(string tablename);
     }
 
     public static class IDBModifierExtensions
     {
-        public static void CreateTable(this IDBModifier meta, string tablename, object paramObject)
+        public static void CreateTable(this IDBModifier meta, string tablename, Dictionary<string, object> instance)
         {
-            meta.CreateTable(tablename, paramObject._AsDictionary());
+            var taxonomyTypes = meta.Taxonomy == null ?
+                new Dictionary<string, SqlColumnType>() :
+                meta.Taxonomy.GetFieldTypes(tablename, instance);
+
+            taxonomyTypes = taxonomyTypes ?? new Dictionary<string, SqlColumnType>();
+
+            var missingTypes = instance.Except(taxonomyTypes.Keys)
+                .SelectVals(v => SqlTypeConversion.GetSqlType(v));
+
+            var fieldTypes = missingTypes.Union(taxonomyTypes);
+
+            meta.CreateTable(tablename, fieldTypes);
+        }
+
+        public static void CreateTable(this IDBModifier meta, string tablename, object instance)
+        {
+            CreateTable(meta, tablename, instance._AsDictionary());
         }
 
         public static void EnsureTable(this IDBModifier meta, string tablename, Dictionary<string, object> instance)
         {
             if (!meta.Analyzer.TableExists(tablename))
-                meta.CreateTable(tablename, instance);
+                CreateTable(meta, tablename, instance);
         }
 
         public static void EnsureTable(this IDBModifier meta, string tablename, object instance)
