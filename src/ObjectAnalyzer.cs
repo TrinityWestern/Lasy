@@ -22,7 +22,7 @@ namespace Lasy
 
         public void Add(string name, object obj)
         {
-            var types = obj._FieldTypes().SelectVals(v => SqlTypeConversion.GetSqlType(v));
+            var types = obj._SqlFieldTypes();
             _items.Add(new ObjAnalyzerItem() { Name = name, Types = types });
         }
 

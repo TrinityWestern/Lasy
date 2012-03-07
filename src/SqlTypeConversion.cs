@@ -6,7 +6,8 @@ using System.Data;
 using System.Xml;
 using Microsoft.SqlServer.Server;
 using Nvelope;
-
+using Nvelope.Reflection;
+using System.Reflection;
 
 namespace Lasy
 {
@@ -144,6 +145,37 @@ namespace Lasy
                 throw new NotImplementedException("Don't know how to convert SqlColumnType '" + ct.Print() + "' to a .Net type");
 
             return mapped.First().Value;
+        }
+    }
+
+    public static class SqlTypeExtensions
+    {
+        public static Dictionary<string, SqlColumnType> _SqlFieldTypes(this object obj)
+        {
+            var props = obj._GetMembers();
+            var res = props.ToDictionary(m => m.Name, _getSqlType);
+
+            return res;
+        }
+
+        private static SqlColumnType _getSqlType(MemberInfo mi)
+        {
+            // See if there's any SqlTypeAttribute on the mi
+            // If so, pull the info from there.
+            var att = mi.GetCustomAttributes(typeof(SqlTypeAttribute), true)
+                .FirstOr(new SqlTypeAttribute()) as SqlTypeAttribute;
+
+            var baseType = SqlTypeConversion.GetSqlType(mi.ReturnType());
+
+            // For anything that's missing, get the assumed type info
+            var res = new SqlColumnType(
+                att.Type ?? baseType.Type,
+                att.IsNullable ?? baseType.IsNullable,
+                att.Length ?? baseType.Length,
+                att.Precision ?? baseType.Precision,
+                att.Scale ?? baseType.Scale);
+
+            return res;
         }
     }
 }

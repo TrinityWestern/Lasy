@@ -76,6 +76,7 @@
     <Compile Include="SqlDBTransaction.cs" />
     <Compile Include="SqlAnalyzer.cs" />
     <Compile Include="SqlExtensions.cs" />
+    <Compile Include="SqlTypeAttribute.cs" />
     <Compile Include="SqlTypeConversion.cs" />
     <Compile Include="UnreliableDb.cs" />
   </ItemGroup>

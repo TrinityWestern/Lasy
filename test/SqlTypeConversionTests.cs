@@ -84,5 +84,20 @@ namespace LasyTests
         {
             Assert.AreEqual(SqlDbType.Decimal, SqlTypeConversion.ParseDbType("numeric"));
         }
+
+        [Test]
+        public void DetectsLongStrings()
+        {
+            var types = new TestObj()._SqlFieldTypes();
+            Assert.AreEqual(1, types.Count());
+            Assert.AreEqual("([StrVal,nvarchar(4000) NOT NULL])", types.Print());
+
+        }
+
+        public class TestObj
+        {
+            [SqlType(false, 4000)]
+            public string StrVal;
+        }
     }
 }
