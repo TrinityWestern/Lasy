@@ -33,7 +33,7 @@ namespace Lasy
         /// <param name="table"></param>
         /// <param name="fieldTypes">A mapping of the fieldname to .NET type of the fields</param>
         /// <returns></returns>
-        protected virtual string _getCreateTableSql(string schema, string table, Dictionary<string, SqlColumnType> fieldTypes)
+        public virtual string _getCreateTableSql(string schema, string table, Dictionary<string, SqlColumnType> fieldTypes)
         {
             // Strip off the primary key if it was supplied in fields - we'll make it ourselves
             var datafields = fieldTypes.Except(table + "Id");
@@ -49,22 +49,22 @@ namespace Lasy
             return sql;
         }
 
-        protected virtual string _getCreateSchemaSql(string schema)
+        public virtual string _getCreateSchemaSql(string schema)
         {
             return string.Format("CREATE SCHEMA [{0}] AUTHORIZATION [dbo]", schema);
         }
 
-        protected virtual string _getDropSchemaSql(string schema)
+        public virtual string _getDropSchemaSql(string schema)
         {
             return string.Format("drop schema [{0}]", schema);
         }
 
-        protected virtual string _getDropTableSql(string schema, string table)
+        public virtual string _getDropTableSql(string schema, string table)
         {
             return string.Format("drop table [{0}].[{1}]", schema, table);
         }
 
-        protected virtual string _getDropViewSql(string schema, string view)
+        public virtual string _getDropViewSql(string schema, string view)
         {
             return string.Format("drop view [{0}].[{1}]", schema, view);
         }
@@ -83,22 +83,6 @@ namespace Lasy
                 conn.Execute(sql, paras);
 
             SqlAnalyzer.InvalidateTableCache(tablename);
-        }
-
-        public void CreateTable(string tablename, Dictionary<string, object> fields)
-        {
-            var taxonomyTypes = Taxonomy == null ? 
-                new Dictionary<string, SqlColumnType>() : 
-                Taxonomy.GetFieldTypes(tablename, fields);
-
-            taxonomyTypes = taxonomyTypes ?? new Dictionary<string, SqlColumnType>();
-
-            var missingTypes = fields.Except(taxonomyTypes.Keys)
-                .SelectVals(v => SqlTypeConversion.GetSqlType(v));
-
-            var fieldTypes = missingTypes.Union(taxonomyTypes);
-
-            CreateTable(tablename, fieldTypes);
         }
 
         public void DropTable(string tablename)
