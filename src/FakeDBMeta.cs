@@ -12,6 +12,8 @@ namespace Lasy
 
         public Dictionary<string, string> AutoNumberKeys = new Dictionary<string, string>();
 
+        public Dictionary<string, ICollection<string>> Fields = new Dictionary<string, ICollection<string>>();
+
         /// <summary>
         /// If true, the analyzer will assume that there's a single autonumber PK for every table,
         /// that has the name [tableName]Id. Any additions to PrimaryKeys or AutoNumberKeys will override this
@@ -47,6 +49,10 @@ namespace Lasy
 
         public ICollection<string> GetFields(string tableName)
         {
+            // If we've been explicitly told the structure, use that
+            if (Fields.ContainsKey(tableName))
+                return Fields[tableName];
+
             // We don't know what the actual structure is, so send back an empty
             // list to indicate that we don't actually know
             return new ReadOnlyCollection<string>(new List<string> { });
