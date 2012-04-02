@@ -30,7 +30,7 @@ namespace LasyTests
         public string Inserts(string initialContents)
         {
             TextFile.Spit(_file, initialContents);
-            var subject = new JSonDB(_file);
+            var subject = new JsonDB(_file);
             subject.Insert("foobar", _foobar);
             return TextFile.Slurp(_file).TrimEnd();
         }
@@ -41,7 +41,7 @@ namespace LasyTests
         public string Deletes(string initialContents, string keys)
         {
             TextFile.Spit(_file, initialContents);
-            var subject = new JSonDB(_file);
+            var subject = new JsonDB(_file);
 
             var keyDict = Read.Dict(keys).SelectVals(TypeConversion.Infervert);
 
@@ -61,7 +61,7 @@ namespace LasyTests
         public string Updates(string initialContents, string data, string keys)
         {
             TextFile.Spit(_file, initialContents);
-            var subject = new JSonDB(_file);
+            var subject = new JsonDB(_file);
 
             var keyDict = Read.Dict(keys).SelectVals(TypeConversion.Infervert);
             var dataDict = Read.Dict(data).SelectVals(TypeConversion.Infervert);
@@ -78,7 +78,7 @@ namespace LasyTests
         public string Reads(string initialContents, string keys, string fieldsToUse)
         {
             TextFile.Spit(_file, initialContents);
-            var subject = new JSonDB(_file);
+            var subject = new JsonDB(_file);
 
             var keyDict = Read.Dict(keys).SelectVals(TypeConversion.Infervert);
             var fields = Read.List(fieldsToUse);

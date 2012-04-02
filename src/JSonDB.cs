@@ -9,9 +9,9 @@ using Nvelope.Reading;
 
 namespace Lasy
 {
-    public class JSonDB : IReadWrite
+    public class JsonDB : IReadWrite
     {
-        public JSonDB(string filename, IDBAnalyzer analyzer = null)
+        public JsonDB(string filename, IDBAnalyzer analyzer = null)
         {
             Filename = filename;
             Analyzer = analyzer ?? new FakeDBMeta();
