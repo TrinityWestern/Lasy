@@ -4,3 +4,4 @@
 *.swp
 *.csproj.user
 *.nupkg
+*.VisualState.xml
