@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Nvelope, Version=1.0.1.0, Culture=neutral, PublicKeyToken=6713b367eb0b228d, processorArchitecture=MSIL">
       <HintPath>..\packages\Nvelope.1.0.1.0\lib\net40\Nvelope.dll</HintPath>
     </Reference>
@@ -59,6 +62,7 @@
     <Compile Include="IDBModifier.cs" />
     <Compile Include="IModifiable.cs" />
     <Compile Include="IRWEvented.cs" />
+    <Compile Include="JSonDB.cs" />
     <Compile Include="ModifiableSqlDB.cs" />
     <Compile Include="ModifiableSqlDbTransaction.cs" />
     <Compile Include="ObjectAnalyzer.cs" />
