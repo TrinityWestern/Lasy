@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Nvelope, Version=1.0.1.0, Culture=neutral, PublicKeyToken=6713b367eb0b228d, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nvelope.1.0.1.0\lib\net40\Nvelope.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive">
@@ -81,17 +84,13 @@
     <Compile Include="UnreliableDb.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Nvelope\src\Nvelope.Reactive\Nvelope.Reactive.csproj">
       <Project>{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}</Project>
       <Name>Nvelope.Reactive</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Nvelope\src\Nvelope\Nvelope.csproj">
-      <Project>{AC4A93B6-DDB6-4FE1-B528-665DE101052B}</Project>
-      <Name>Nvelope</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

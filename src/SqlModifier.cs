@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
 using Nvelope;
-using Nvelope.Reactive;
 using Nvelope.Reflection;
 using System.Reactive.Linq;
 using System.Reactive;

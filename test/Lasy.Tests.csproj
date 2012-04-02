@@ -32,7 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework, Version=2.6.0.12051, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\..\TyndaleSync\packages\NUnit.2.6.0.12054\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.2.6.0.12054\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Nvelope, Version=1.0.1.0, Culture=neutral, PublicKeyToken=6713b367eb0b228d, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nvelope.1.0.1.0\lib\net40\Nvelope.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,10 +64,6 @@
     <Compile Include="SqlTypeConversionTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Nvelope\src\Nvelope\Nvelope.csproj">
-      <Project>{AC4A93B6-DDB6-4FE1-B528-665DE101052B}</Project>
-      <Name>Nvelope</Name>
-    </ProjectReference>
     <ProjectReference Include="..\src\Lasy.csproj">
       <Project>{99A415F9-8D5A-4977-AC8B-86EA82C891D3}</Project>
       <Name>Lasy</Name>

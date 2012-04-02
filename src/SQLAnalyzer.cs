@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
 using Nvelope;
-using Nvelope.Reactive;
 using System.Data;
 using System.Reactive.Linq;
+using Nvelope.Reactive;
 
 namespace Lasy
 {
