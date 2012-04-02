@@ -3,3 +3,4 @@
 *.suo
 *.swp
 *.csproj.user
+*.nupkg
