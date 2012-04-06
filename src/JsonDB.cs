@@ -107,7 +107,7 @@ namespace Lasy
             var allLines = _getAllLines();
             var tableStart = allLines.SkipWhile(l => l.Trim() != tablename)
                 .SkipWhile(l => l.Trim() == tablename);
-            var tableLines = tableStart.TakeUntil(_isTablename);
+            var tableLines = tableStart.TakeWhile(_isNotTablename);
             var rows = tableLines.Select(_toDict).ToList();
             return rows;
         }
@@ -134,6 +134,11 @@ namespace Lasy
         protected bool _isTablename(string line)
         {
             return !line.Trim().StartsWith("{");
+        }
+
+        protected bool _isNotTablename(string line)
+        {
+            return !_isTablename(line);
         }
     }
 }

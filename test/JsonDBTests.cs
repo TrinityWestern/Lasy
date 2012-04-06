@@ -10,8 +10,7 @@ using System.IO;
 using Nvelope.Reading;
 
 namespace LasyTests
-{
-    
+{   
     public class JsonDBTests
     {
         protected object _foobar
@@ -84,6 +83,30 @@ namespace LasyTests
             var fields = Read.List(fieldsToUse);
 
             var res = subject.Read("foobar", keyDict, fields);
+            return res.Print();
+        }
+
+        [TestCase("table1\r\n{\"A\":1}\r\n{\"A\":2}\r\ntable2\r\n{\"B\":42}", "notTable", Result = "()")]
+        [TestCase("table1\r\n{\"A\":1}\r\n{\"A\":2}\r\ntable2\r\n{\"B\":42}", "table1", Result="(([A,1]),([A,2]))")]
+        [TestCase("table1\r\n{\"A\":1}\r\n{\"A\":2}\r\ntable2\r\n{\"B\":42}", "table2", Result = "(([B,42]))")]
+        public string Reads_MultipleTables(string initialContents, string table)
+        {
+            TextFile.Spit(_file, initialContents);
+            var subject = new JsonDB(_file);
+
+            var res = subject.ReadAll(table);
+            return res.Print();
+        }
+
+        [TestCase("table1\r\n\r\n{\"A\":1}\r\n\r\n{\"A\":2}\r\ntable2\r\n\r\n{\"B\":42}", "notTable", Result = "()")]
+        [TestCase("table1\r\n\r\n{\"A\":1}\r\n\r\n{\"A\":2}\r\ntable2\r\n\r\n{\"B\":42}", "table1", Result = "(([A,1]),([A,2]))")]
+        [TestCase("table1\r\n\r\n{\"A\":1}\r\n\r\n{\"A\":2}\r\ntable2\r\n\r\n{\"B\":42}", "table2", Result = "(([B,42]))")]
+        public string Reads_WithWhitespace(string initialContents, string table)
+        {
+            TextFile.Spit(_file, initialContents);
+            var subject = new JsonDB(_file);
+
+            var res = subject.ReadAll(table);
             return res.Print();
         }
     }
