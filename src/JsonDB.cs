@@ -121,7 +121,7 @@ namespace Lasy
 
         protected IEnumerable<string> _getAllLines()
         {
-            var lines = TextFile.Slurp(Filename).Split(Environment.NewLine).Where(s => !s.IsNullOrEmpty());
+            var lines = TextFile.Slurp(Filename).Split(Environment.NewLine).Where(s => !s.Trim().IsNullOrEmpty());
             return lines;
 
         }
