@@ -24,7 +24,7 @@ namespace Lasy
             fields = fields ?? new string[] { };
 
             var rows = _getTable(tableName);
-            var filtered = rows.Where(r => keyFields.IsSameAs(r));
+            var filtered = rows.Where(r => r.IsSameAs(keyFields, keyFields.Keys.Intersect(r.Keys), ObjectExtensions.LazyEq));
             var selected = fields.Any() ?
                 filtered.Select(r => r.Only(fields)) :
                 filtered;
@@ -47,7 +47,7 @@ namespace Lasy
         public void Delete(string tableName, Dictionary<string, object> keyFields)
         {
             var allRows = _getTable(tableName);
-            var victims = allRows.Where(r => keyFields.IsSameAs(r)).ToList();
+            var victims = allRows.Where(r => r.IsSameAs(keyFields, keyFields.Keys.Intersect(r.Keys), ObjectExtensions.LazyEq)).ToList();
             var toWrite = allRows.Except(victims);
             _writeTable(tableName, toWrite);
         }
@@ -55,7 +55,7 @@ namespace Lasy
         public void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
         {
             var allRows = _getTable(tableName);
-            var victims = allRows.Where(r => keyFields.IsSameAs(keyFields)).ToList();
+            var victims = allRows.Where(r => r.IsSameAs(keyFields, keyFields.Keys.Intersect(r.Keys), ObjectExtensions.LazyEq)).ToList();
             var updated = victims.Select(r => r.Union(dataFields)).ToList();
             var toWrite = allRows.Except(victims).And(updated);
             _writeTable(tableName, toWrite);
@@ -68,7 +68,7 @@ namespace Lasy
             if (autoKey == null)
                 return new Dictionary<string, object>();
 
-            var existingKeys = existingRows.Select(r => r[autoKey].ConvertTo<int?>() ?? 0);
+            var existingKeys = existingRows.Select(r => r.Val(autoKey, null).ConvertTo<int?>() ?? 0);
             var nextKey = existingKeys.Any() ? existingKeys.Max() + 1 : 1;
             return new Dictionary<string, object>() { { autoKey, nextKey } };
         }

@@ -119,7 +119,7 @@ namespace Lasy
             dataFields = dataFields.ScrubNulls();
             keyFields = keyFields.ScrubNulls();
 
-            var victims = DataStore[tableName].Where(r => r.IsSameAs(keyFields, keyFields.Keys));
+            var victims = DataStore[tableName].Where(r => r.IsSameAs(keyFields, keyFields.Keys, null));
             foreach (var vic in victims)
                 foreach (var key in dataFields.Keys)
                     vic[key] = dataFields[key];                

@@ -109,5 +109,19 @@ namespace LasyTests
             var res = subject.ReadAll(table);
             return res.Print();
         }
+
+        [TestCase("table1\r\n\r\n{\"A\":1,\"B\":3}\r\n\r\n{\"A\":2,\"B\":3}", "([X,2])", "([A,1])",
+            Result = "(([A,2],[B,3]),([A,1],[B,3],[X,2]))")]
+        public string EnsureOnlyUpdatesOneRow(string initialContents, string data, string keys)
+        {
+            TextFile.Spit(_file, initialContents);
+            var subject = new JsonDB(_file);
+
+            var ddata = Read.Dict<string,object>(data);
+            var dkeys = Read.Dict<string,object>(keys);
+
+            subject.Ensure("table1", ddata, dkeys);
+            return subject.ReadAll("table1").Print();
+        }
     }
 }
