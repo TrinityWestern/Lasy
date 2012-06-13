@@ -52,9 +52,9 @@ namespace LasyTests
         [TestCase("foobar\r\n{\"A\":1,\"B\":\"str\"}", "([B,QQQ])", "([A,1])",
             Result = "foobar\r\n{\"A\":1,\"B\":\"QQQ\"}")]
         [TestCase("foobar\r\n{\"A\":1,\"B\":\"str\"}", "([B,QQQ])", "([A,2])", 
-            Result = "foobar\r\n{\"A\":1,\"B\":\"QQQ\"}")]
+            Result = "foobar\r\n{\"A\":1,\"B\":\"str\"}")]
         [TestCase("foobar\r\n{\"A\":1,\"B\":\"str\"}\r\n{\"A\":2,\"B\":\"str\"}", "([B,QQQ])", "([A,1])",
-            Result = "foobar\r\n{\"A\":1,\"B\":\"QQQ\"}\r\n{\"A\":2,\"B\":\"QQQ\"}")]
+            Result = "foobar\r\n{\"A\":2,\"B\":\"str\"}\r\n{\"A\":1,\"B\":\"QQQ\"}")]
         [TestCase("foobar\r\n{\"A\":1,\"B\":\"str\"}\r\n{\"A\":2,\"B\":\"str\"}", "([B,QQQ])", "([B,str])", 
             Result = "foobar\r\n{\"A\":1,\"B\":\"QQQ\"}\r\n{\"A\":2,\"B\":\"QQQ\"}")]
         public string Updates(string initialContents, string data, string keys)

@@ -36,9 +36,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.1\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Nvelope, Version=1.0.1.4, Culture=neutral, PublicKeyToken=6713b367eb0b228d, processorArchitecture=MSIL">
+    <Reference Include="Nvelope, Version=1.0.1.8, Culture=neutral, PublicKeyToken=6713b367eb0b228d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Nvelope.1.0.1.4\lib\net40\Nvelope.dll</HintPath>
+      <HintPath>..\packages\Nvelope.1.0.1.8\lib\net40\Nvelope.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
