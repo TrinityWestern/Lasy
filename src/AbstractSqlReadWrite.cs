@@ -92,6 +92,11 @@ namespace Lasy
             return sql;
         }
 
+        public virtual string GetInsertedAutonumber()
+        {
+            return "SELECT SCOPE_IDENTITY()";
+        }
+
         public virtual string MakeInsertSql(string tableName, Dictionary<string, object> row, bool useParameters = true, bool selectIdentity = true)
         {
             //Retrieve the AutoNumbered key name if there is one
@@ -110,8 +115,8 @@ namespace Lasy
 
             var sql = "INSERT INTO " + QualifiedTable(tableName) + " (" + fieldNames.Join(", ") + ") " + 
                 "VALUES (" + valList.Join(", ") + ")\n";
-            if(selectIdentity)
-                sql += "SELECT SCOPE_IDENTITY()";
+            if (selectIdentity)
+                sql += GetInsertedAutonumber();
 
             return sql;
         }

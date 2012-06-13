@@ -29,5 +29,10 @@ namespace Lasy
             else
                 return schema + "." + table;
         }
+
+        public override string GetInsertedAutonumber()
+        {
+            return "; SELECT LAST_INSERT_ID();";
+        }
     }
 }

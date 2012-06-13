@@ -165,7 +165,7 @@ namespace Lasy
 
         protected string _getAutonumberKeyFromDB(string tableName)
         {
-            using (var conn = new System.Data.SqlClient.SqlConnection(_connectionString))
+            using (var conn = _getConnection(_connectionString))
             {
                 var res = conn.ExecuteSingleColumn<string>(_getAutonumberKeySql(), new { table = TableName(tableName) });
                 return res.FirstOr(null);
