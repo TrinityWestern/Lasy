@@ -22,8 +22,7 @@ namespace Lasy
 
         public static SqlDB MySql(string connString, bool strictTables = true)
         {
-            return null;
-            //return new MySql.Data.MySqlClient.MySqlConnection(connString)
+            return new MySqlDB(connString, new MySqlAnalyzer(connString), strictTables);
         }
 
         public static ModifiableSqlDB ModifiableSql2000(string connString, ITypedDBAnalyzer taxonomy = null)

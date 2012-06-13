@@ -13,7 +13,7 @@ namespace LasyTests.Sql
         [Test]
         public void ConnectstoMySQL()
         {
-            var db = ConnectTo.MySql("Server=localhost:3306;Database=lasytest;Uid=lasy;Pwd=abc123;");
+            var db = ConnectTo.MySql("Server=localhost;Database=lasytest;Uid=lasy;Pwd=abc123;");
             var res = db.ReadAll("House");
             Assert.True(res.Any());
         }
