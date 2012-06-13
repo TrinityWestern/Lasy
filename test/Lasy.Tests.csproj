@@ -52,6 +52,7 @@
     <Compile Include="AbstractTableTests.cs" />
     <Compile Include="EventTests.cs" />
     <Compile Include="JsonDBTests.cs" />
+    <Compile Include="Sql\MySqlTests.cs" />
     <Compile Include="Sql\SqlAnalyzerTests.cs" />
     <Compile Include="Sql\TableCreationTests.cs" />
     <Compile Include="TransactionTests.cs" />

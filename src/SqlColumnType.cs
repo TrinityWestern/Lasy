@@ -14,14 +14,21 @@ namespace Lasy
     {
         public SqlColumnType(SqlDbType type, bool isNullable = false, int? length = null, int? precision = null, int? scale = null)
         {
-            Type = type;
+            SqlType = type;
             IsNullable = isNullable;
             Length = length;
             Precision = precision;
             Scale = scale;
         }
 
-        public SqlDbType Type;
+        public SqlDbType SqlType;
+        public DbType DbType
+        {
+            get
+            {
+                return SqlTypeConversion.GetDbType(SqlType);
+            }
+        }
         public bool IsNullable;
         public int? Length;
         public int? Precision;
@@ -34,11 +41,11 @@ namespace Lasy
             // Only decimal types have precisions, so don't print it, even if it's 
             // set for other types
             var precisionStr = "";
-            if(Type == SqlDbType.Decimal && Precision.HasValue)
+            if(SqlType == SqlDbType.Decimal && Precision.HasValue)
                 precisionStr = "(" + Precision.Value + 
                     (Scale.HasValue ? "," + Scale.Value : "") + ")";
 
-            return Type.ToString().ToLower() + 
+            return SqlType.ToString().ToLower() + 
                 lengthStr + precisionStr 
                 + " " + (IsNullable ? "NULL" : "NOT NULL");
         }

@@ -43,10 +43,45 @@ namespace Lasy
             _toCMappings.Add(new SqlColumnType(SqlDbType.VarChar, true), typeof(string));
             _toCMappings.Add(new SqlColumnType(SqlDbType.VarChar), typeof(string));
             _toCMappings.Add(new SqlColumnType(SqlDbType.Xml), typeof(XmlDocument));
+
+            // _toDbMappings contain mappings of SqlDbTypes to DbTypes
+            // DbTypes are used for database-agnostic mapping, while SqlDbTypes are SQL-server specific
+            _toDbMappings.Add(SqlDbType.BigInt, DbType.Int64);
+            _toDbMappings.Add(SqlDbType.Binary, DbType.Binary);
+            _toDbMappings.Add(SqlDbType.Bit, DbType.Boolean);
+            _toDbMappings.Add(SqlDbType.Char, DbType.Byte);
+            _toDbMappings.Add(SqlDbType.Date, DbType.Date);
+            _toDbMappings.Add(SqlDbType.DateTime, DbType.DateTime);
+            _toDbMappings.Add(SqlDbType.DateTime2, DbType.DateTime2);
+            _toDbMappings.Add(SqlDbType.DateTimeOffset, DbType.DateTimeOffset);
+            _toDbMappings.Add(SqlDbType.Decimal, DbType.Decimal);
+            _toDbMappings.Add(SqlDbType.Float, DbType.Single);
+            _toDbMappings.Add(SqlDbType.Image, DbType.Binary);
+            _toDbMappings.Add(SqlDbType.Int, DbType.Int32);
+            _toDbMappings.Add(SqlDbType.Money, DbType.Currency);
+            _toDbMappings.Add(SqlDbType.NChar, DbType.String);
+            // NText
+            _toDbMappings.Add(SqlDbType.NVarChar, DbType.String);
+            _toDbMappings.Add(SqlDbType.Real, DbType.Double);
+            _toDbMappings.Add(SqlDbType.SmallDateTime, DbType.DateTime);
+            _toDbMappings.Add(SqlDbType.SmallInt, DbType.Int16);
+            _toDbMappings.Add(SqlDbType.SmallMoney, DbType.Currency);
+            //SqlDbType.Structured
+            //SqlDbType.Text
+            _toDbMappings.Add(SqlDbType.Time, DbType.Time);
+            // SqlDbType.Timestamp
+            _toDbMappings.Add(SqlDbType.TinyInt, DbType.SByte);
+            //SqlDbType.Udt
+            _toDbMappings.Add(SqlDbType.UniqueIdentifier, DbType.Guid);
+            _toDbMappings.Add(SqlDbType.VarBinary, DbType.Binary);
+            _toDbMappings.Add(SqlDbType.VarChar, DbType.AnsiString);
+            //SqlDbType.Variant
+            _toDbMappings.Add(SqlDbType.Xml, DbType.Xml);
         }
 
         private static Dictionary<Type, SqlColumnType> _toSqlMappings = new Dictionary<Type, SqlColumnType>();
         private static Dictionary<SqlColumnType, Type> _toCMappings = new Dictionary<SqlColumnType, Type>();
+        private static Dictionary<SqlDbType, DbType> _toDbMappings = new Dictionary<SqlDbType, DbType>();
 
         private const int MAX_STRING_LENGTH = 4000;
 
@@ -74,7 +109,14 @@ namespace Lasy
             var precision = GetAppropriatePrecision(val) ?? res.Precision;
             var scale = GetAppropriateScale(val) ?? res.Scale;
 
-            return new SqlColumnType(res.Type, res.IsNullable, length, precision, scale);
+            return new SqlColumnType(res.SqlType, res.IsNullable, length, precision, scale);
+        }
+
+        public static DbType GetDbType(SqlDbType sqlDbType)
+        {
+            if (!_toDbMappings.ContainsKey(sqlDbType))
+                throw new NotImplementedException("Don't know how to map SqlDbType '" + sqlDbType + "' to a DbType");
+            return _toDbMappings[sqlDbType];
         }
 
         public static int? GetAppropriateLength(object val)
@@ -140,7 +182,7 @@ namespace Lasy
         /// <returns></returns>
         public static Type GetDotNetType(SqlColumnType ct)
         {
-            var mapped = _toCMappings.Where(kv => kv.Key.Type == ct.Type && kv.Key.IsNullable == ct.IsNullable);
+            var mapped = _toCMappings.Where(kv => kv.Key.SqlType == ct.SqlType && kv.Key.IsNullable == ct.IsNullable);
             if (!mapped.Any())
                 throw new NotImplementedException("Don't know how to convert SqlColumnType '" + ct.Print() + "' to a .Net type");
 
@@ -169,7 +211,7 @@ namespace Lasy
 
             // For anything that's missing, get the assumed type info
             var res = new SqlColumnType(
-                att.Type ?? baseType.Type,
+                att.Type ?? baseType.SqlType,
                 att.IsNullable ?? baseType.IsNullable,
                 att.Length ?? baseType.Length,
                 att.Precision ?? baseType.Precision,

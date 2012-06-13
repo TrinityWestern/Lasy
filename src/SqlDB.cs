@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Data.SqlClient;
 using Nvelope;
+using System.Data;
 
 namespace Lasy
 {
@@ -16,12 +16,17 @@ namespace Lasy
             : base(connectionString, analyzer, strictTables)
         { }
 
+        protected internal virtual IDbConnection _getConnection(string connectionString)
+        {
+            return new System.Data.SqlClient.SqlConnection(connectionString);
+        }
+
         protected override IEnumerable<Dictionary<string, object>> sqlRead(string sql, Dictionary<string, object> values = null)
         {
             if (values == null)
                 values = new Dictionary<string, object>();
 
-            using (var conn = new SqlConnection(ConnectionString))
+            using (var conn = _getConnection(ConnectionString))
             {
                 return conn.Execute(sql, values);
             }
@@ -32,7 +37,7 @@ namespace Lasy
             if (values == null)
                 values = new Dictionary<string, object>();
 
-            using (var conn = new SqlConnection(ConnectionString))
+            using (var conn = _getConnection(ConnectionString))
             {
                 return conn.ExecuteSingleValue<int?>(sql, values);
             }
@@ -43,7 +48,7 @@ namespace Lasy
             if (values == null)
                 values = new Dictionary<string, object>();
 
-            using (var conn = new SqlConnection(ConnectionString))
+            using (var conn = _getConnection(ConnectionString))
             {
                 conn.Execute(sql, values);
             }

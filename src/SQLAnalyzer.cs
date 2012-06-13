@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Data.SqlClient;
 using Nvelope;
 using System.Data;
 using System.Reactive.Linq;
 using Nvelope.Reactive;
+using System.Data.Common;
 
 namespace Lasy
 {
@@ -81,6 +81,11 @@ namespace Lasy
                 OnInvalidateSchemaCache(schema);
         }
 
+        protected internal virtual IDbConnection _getConnection(string connectionString)
+        {
+            return new System.Data.SqlClient.SqlConnection(connectionString);
+        }
+
         protected internal virtual string _getPrimaryKeySql()
         {
             return @"select isc.Column_name
@@ -147,7 +152,7 @@ namespace Lasy
 
         protected ICollection<string> _getPrimaryKeysFromDB(string tableName)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = _getConnection(_connectionString))
             {
                 return conn.ExecuteSingleColumn<string>(_getPrimaryKeySql(), new { table = TableName(tableName) });
             }
@@ -160,7 +165,7 @@ namespace Lasy
 
         protected string _getAutonumberKeyFromDB(string tableName)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new System.Data.SqlClient.SqlConnection(_connectionString))
             {
                 var res = conn.ExecuteSingleColumn<string>(_getAutonumberKeySql(), new { table = TableName(tableName) });
                 return res.FirstOr(null);
@@ -184,7 +189,7 @@ namespace Lasy
 
         protected Dictionary<string, SqlColumnType> _getFieldTypesFromDB(string tableName)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = _getConnection(_connectionString))
                 return _convertTypes(conn.Execute(_getFieldTypeSql(), new { table = TableName(tableName) }));
         }
 
@@ -212,7 +217,7 @@ namespace Lasy
 
         protected bool _tableExistsFromDB(string tablename)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = _getConnection(_connectionString))
             {
                 var table = TableName(tablename);
                 var schema = SchemaName(tablename);
@@ -231,7 +236,7 @@ namespace Lasy
         {
             var paras = new { schema = schema };
             var sql = _getSchemaExistsSql();
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = _getConnection(_connectionString))
             {
                 return conn.ExecuteSingleValueOr(false, sql, paras);
             }
