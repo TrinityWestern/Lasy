@@ -27,7 +27,7 @@ namespace Lasy
             if (schema.IsNullOrEmpty())
                 return tablename;
             else
-                return schema + "." + table;
+                return "`" + schema + "`.`" + table + "`";
         }
 
         public override string GetInsertedAutonumber()

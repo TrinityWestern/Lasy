@@ -5,6 +5,7 @@ using System.Text;
 using System.Data;
 using MySql.Data.MySqlClient;
 using System.Text.RegularExpressions;
+using Nvelope;
 
 namespace Lasy
 {
@@ -61,6 +62,11 @@ namespace Lasy
         {
             return @"select * from information_schema.columns 
                     where table_name = @table and table_schema = Database()";
+        }
+
+        public override bool SchemaExists(string schema)
+        {
+            return schema.IsNullOrEmpty() || schema == SchemaName("");
         }
     }
 }

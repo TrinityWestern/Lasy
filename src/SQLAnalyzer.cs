@@ -227,7 +227,7 @@ namespace Lasy
             }
         }
 
-        public bool SchemaExists(string schema)
+        public virtual bool SchemaExists(string schema)
         {
             return _schemaExists(schema);
         }

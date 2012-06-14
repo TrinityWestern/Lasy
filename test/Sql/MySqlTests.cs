@@ -6,13 +6,20 @@ using NUnit.Framework;
 using Lasy;
 using Nvelope;
 using Nvelope.Reflection;
+using Nvelope.Configuration;
 
 namespace LasyTests.Sql
 {
     [TestFixture]
     public class MySqlTests
     {
-        protected string _connStr = "Server=localhost;Database=lasytest;Uid=lasy;Pwd=abc123;";
+        protected string _connStr
+        {
+            get
+            {
+                 return Config.ConnectionString("mysqldb");
+            }
+        }
 
         [Test]
         public void Read()

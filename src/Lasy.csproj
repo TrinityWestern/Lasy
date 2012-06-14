@@ -74,6 +74,7 @@
     <Compile Include="ModifiableSqlDbTransaction.cs" />
     <Compile Include="MySqlAnalyzer.cs" />
     <Compile Include="MySqlDB.cs" />
+    <Compile Include="MySqlModifier.cs" />
     <Compile Include="ObjectAnalyzer.cs" />
     <Compile Include="Sql2000Analyzer.cs" />
     <Compile Include="SqlColumnType.cs">

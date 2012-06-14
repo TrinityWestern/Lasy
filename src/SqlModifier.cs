@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Data.SqlClient;
 using Nvelope;
 using Nvelope.Reflection;
 using System.Reactive.Linq;
@@ -24,6 +23,11 @@ namespace Lasy
         public ITypedDBAnalyzer Taxonomy { get; set; }
         public SqlAnalyzer SqlAnalyzer { get; protected set; }
         public IDBAnalyzer Analyzer { get { return SqlAnalyzer; } }
+
+        protected internal virtual IDbConnection _getConnection(string connectionString)
+        {
+            return new System.Data.SqlClient.SqlConnection(connectionString);
+        }
 
         /// <summary>
         /// 
@@ -78,7 +82,7 @@ namespace Lasy
             if (!SqlAnalyzer.SchemaExists(schema))
                 CreateSchema(schema);
 
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = _getConnection(_connectionString))
                 conn.Execute(sql, paras);
 
             SqlAnalyzer.InvalidateTableCache(tablename);
@@ -89,7 +93,7 @@ namespace Lasy
             var table = SqlAnalyzer.TableName(tablename);
             var schema = SqlAnalyzer.SchemaName(tablename);
 
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = _getConnection(_connectionString))
                 conn.Execute(_getDropTableSql(schema, table));
 
             SqlAnalyzer.InvalidateTableCache(tablename);
@@ -100,7 +104,7 @@ namespace Lasy
             var view = SqlAnalyzer.TableName(viewname);
             var schema = SqlAnalyzer.SchemaName(viewname);
 
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = _getConnection(_connectionString))
                 conn.Execute(_getDropViewSql(schema, view));
 
             SqlAnalyzer.InvalidateTableCache(viewname);
@@ -108,7 +112,7 @@ namespace Lasy
 
         public void DropSchema(string schema)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = _getConnection(_connectionString))
                 conn.Execute(_getDropSchemaSql(schema));
             SqlAnalyzer.InvalidateSchemaCache(schema);
         }
@@ -116,7 +120,7 @@ namespace Lasy
         public void CreateSchema(string schema)
         {
             var sql = _getCreateSchemaSql(schema);
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = _getConnection(_connectionString))
             {
                 conn.Execute(sql);
             }
