@@ -24,6 +24,8 @@ namespace Lasy
             _toSqlMappings.Add(typeof(char), new SqlColumnType(SqlDbType.Char, false, length: 1));
             _toSqlMappings.Add(typeof(int?), new SqlColumnType(SqlDbType.Int, true));
             _toSqlMappings.Add(typeof(int), new SqlColumnType(SqlDbType.Int));
+            _toSqlMappings.Add(typeof(Nullable<Int64>), new SqlColumnType(SqlDbType.BigInt, true));
+            _toSqlMappings.Add(typeof(Int64), new SqlColumnType(SqlDbType.BigInt));
             _toSqlMappings.Add(typeof(float?), new SqlColumnType(SqlDbType.Real, true));
             _toSqlMappings.Add(typeof(float), new SqlColumnType(SqlDbType.Real));
             _toSqlMappings.Add(typeof(double?), new SqlColumnType(SqlDbType.Float, true));

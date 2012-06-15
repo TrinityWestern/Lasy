@@ -16,9 +16,9 @@ namespace Lasy
             : base(connectionString, analyzer, strictTables)
         { }
 
-        protected internal virtual IDbConnection _getConnection(string connectionString)
+        protected internal virtual IDbConnection _getConnection()
         {
-            return new System.Data.SqlClient.SqlConnection(connectionString);
+            return new System.Data.SqlClient.SqlConnection(ConnectionString);
         }
 
         protected override IEnumerable<Dictionary<string, object>> sqlRead(string sql, Dictionary<string, object> values = null)
@@ -26,7 +26,7 @@ namespace Lasy
             if (values == null)
                 values = new Dictionary<string, object>();
 
-            using (var conn = _getConnection(ConnectionString))
+            using (var conn = _getConnection())
             {
                 return conn.Execute(sql, values);
             }
@@ -37,7 +37,7 @@ namespace Lasy
             if (values == null)
                 values = new Dictionary<string, object>();
 
-            using (var conn = _getConnection(ConnectionString))
+            using (var conn = _getConnection())
             {
                 return conn.ExecuteSingleValue<int?>(sql, values);
             }
@@ -48,7 +48,7 @@ namespace Lasy
             if (values == null)
                 values = new Dictionary<string, object>();
 
-            using (var conn = _getConnection(ConnectionString))
+            using (var conn = _getConnection())
             {
                 conn.Execute(sql, values);
             }

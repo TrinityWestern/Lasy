@@ -3,20 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
+using System.Data;
 
 namespace Lasy
 {
     public class SqlDBTransaction : AbstractSqlReadWrite, ITransaction
-    {
-        public SqlDB UnderlyingDB;
-        protected SqlConnection _conn;
-        protected SqlTransaction _transaction;
+    {   
+        protected IDbConnection _conn;
+        protected IDbTransaction _transaction;
 
         public SqlDBTransaction(SqlDB db)
             : base(db.ConnectionString, db.SqlAnalyzer, db.StrictTables)
         {
-            UnderlyingDB = db;
-            _conn = new SqlConnection(db.ConnectionString);
+            _conn = db._getConnection();
             _conn.Open();
             _transaction = _conn.BeginTransaction();
         }
@@ -31,14 +30,21 @@ namespace Lasy
             _transaction.Rollback();
         }
 
+        protected IDbCommand _getCommand(string sql)
+        {
+            var command = _conn.CreateCommand();
+            command.CommandText = sql;
+            command.Transaction = _transaction;
+            return command;
+        }
+
         protected override IEnumerable<Dictionary<string, object>> sqlRead(string sql, Dictionary<string, object> values = null)
         {
             if (values == null)
                 values = new Dictionary<string, object>();
 
-            var command = new SqlCommand(sql, _conn, _transaction);
+            var command = _getCommand(sql);
             return command.Execute(sql, values);
-
         }
 
         protected override int? sqlInsert(string sql, Dictionary<string, object> values = null)
@@ -46,7 +52,7 @@ namespace Lasy
             if (values == null)
                 values = new Dictionary<string, object>();
 
-            var command = new SqlCommand(sql, _conn, _transaction);
+            var command = _getCommand(sql);
             return command.ExecuteSingleValue<int?>(sql, values);
         }
 
@@ -55,7 +61,7 @@ namespace Lasy
             if (values == null)
                 values = new Dictionary<string, object>();
 
-            var command = new SqlCommand(sql, _conn, _transaction);
+            var command = _getCommand(sql);
             command.Execute(sql, values);
            
         }

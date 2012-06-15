@@ -14,9 +14,9 @@ namespace Lasy
             : base(connectionString, analyzer, strictTables)
         { }
 
-        protected internal override System.Data.IDbConnection _getConnection(string connectionString)
+        protected internal override System.Data.IDbConnection _getConnection()
         {
-            return new MySqlConnection(connectionString);
+            return new MySqlConnection(ConnectionString);
         }
 
         public override string QualifiedTable(string tablename)
