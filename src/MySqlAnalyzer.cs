@@ -36,8 +36,9 @@ namespace Lasy
 
         protected internal override string _getTableExistsSql(string schema, string table)
         {
-            return @"select 1 from information_schema.tables where table_name = @table and table_schema = @schema union all 
-                    select 1 from information_schema.views where table_name = @table and table_schema = @schema";
+            // In MySQL, both tables and views show up in information_schema.tables, so we 
+            // don't need to look at information_schema.views
+            return @"select 1 from information_schema.tables where table_name = @table and table_schema = @schema";
         }
 
         protected internal override string _getPrimaryKeySql()
