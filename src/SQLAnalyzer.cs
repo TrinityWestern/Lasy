@@ -202,10 +202,16 @@ namespace Lasy
 
         protected SqlColumnType _determineType(Dictionary<string, object> sysobjectInfo)
         {
+            // Hack - Sql throws a hissy fit if you try to specify a length beyond 8000, but some field types
+            // (ie, ntext, return a massive value from the system tables
+            var length  = sysobjectInfo["CHARACTER_MAXIMUM_LENGTH"].ConvertTo<int?>();
+            if (length > 8000)
+                length = null;
+
             return new SqlColumnType(
                 SqlTypeConversion.ParseDbType(sysobjectInfo["DATA_TYPE"].ConvertTo<string>()),
                 sysobjectInfo["IS_NULLABLE"].ConvertTo<bool>(),
-                sysobjectInfo["CHARACTER_MAXIMUM_LENGTH"].ConvertTo<int?>(),
+                length,
                 sysobjectInfo["NUMERIC_PRECISION"].ConvertTo<int?>(),
                 sysobjectInfo["NUMERIC_SCALE"].ConvertTo<int?>());
         }
