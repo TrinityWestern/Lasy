@@ -38,6 +38,12 @@ namespace Lasy
         {
             var lengthStr = Length.HasValue ? "(" + Length.Value + ")" : "";
 
+            // Hack - special case:
+            // n?varchar(max) columns are represented as having length -1 in the system
+            // tables. Therefore, if we've got something like that, return the appropriate value
+            if (SqlType.In(SqlDbType.NVarChar, SqlDbType.VarChar) && Length == -1)
+                lengthStr = "(max)";
+
             // Only decimal types have precisions, so don't print it, even if it's 
             // set for other types
             var precisionStr = "";
