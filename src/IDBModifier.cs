@@ -52,6 +52,12 @@ namespace Lasy
             EnsureTable(meta, tablename, instance._AsDictionary());
         }
 
+        public static void EnsureTable(this IDBModifier meta, string tablename, Dictionary<string, SqlColumnType> fields)
+        {
+            if (!meta.Analyzer.TableExists(tablename))
+                meta.CreateTable(tablename, fields);
+        }
+
         /// <summary>
         /// Drops the table if it exists, else does nothing
         /// </summary>

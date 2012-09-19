@@ -8,7 +8,7 @@ namespace Lasy
     public class Sql2000Analyzer : SqlAnalyzer
     {
         public Sql2000Analyzer(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
-            : base(connectionString, cacheDuration)
+            : base(connectionString, new Sql2000NameQualifier(), cacheDuration)
         { }
 
         protected internal override string _getPrimaryKeySql()
@@ -59,11 +59,6 @@ namespace Lasy
             // Do nothing - SQL 2000 doesn't support schemas
             // The only schema is dbo
             return "select @schema = 'dbo'";
-        }
-
-        public override string SchemaName(string tablename)
-        {
-            return "dbo";
         }
     }
 }

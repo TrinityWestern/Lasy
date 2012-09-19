@@ -12,12 +12,15 @@ namespace Lasy
 {
     public class SqlAnalyzer : ITypedDBAnalyzer
     {
-        public SqlAnalyzer(string connectionString, TimeSpan cacheDuration = default(TimeSpan))
+        public SqlAnalyzer(string connectionString, INameQualifier nameQualifier = null, TimeSpan cacheDuration = default(TimeSpan))
         {
+            nameQualifier = nameQualifier ?? new SqlNameQualifier();
+
             if(cacheDuration == default(TimeSpan))
                 cacheDuration = _defaultCacheDuration();
 
             _connectionString = connectionString;
+            NameQualifier = nameQualifier;
 
             // We use function references instead of directly exposing the functions so 
             // that we can build in caching without much work.
@@ -59,6 +62,7 @@ namespace Lasy
         protected Func<string, bool> _tableExists;
         protected Func<string, bool> _schemaExists;
         protected string _connectionString;
+        public INameQualifier NameQualifier { get; private set; }
 
         protected event Action<string> OnInvalidateTableCache;
         protected event Action<string> OnInvalidateSchemaCache;
@@ -248,20 +252,14 @@ namespace Lasy
             }
         }
 
-        public virtual string TableName(string tablename)
+        public string TableName(string tablename)
         {
-            var res = tablename.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Last().ChopEnd("]").ChopStart("[");
-            return res;
+            return NameQualifier.TableName(tablename);
         }
 
-        public virtual string SchemaName(string tablename)
+        public string SchemaName(string tablename)
         {
-            var parts = tablename.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(s => s.ChopEnd("]").ChopStart("["));
-            if (parts.Count() > 1)
-                return parts.First();
-            else
-                return "";
+            return NameQualifier.SchemaName(tablename);
         }
     }
 }
