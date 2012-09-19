@@ -20,10 +20,21 @@ namespace Lasy
 
         protected List<ObjAnalyzerItem> _items = new List<ObjAnalyzerItem>();
 
+        public void Add(string name, Dictionary<string, SqlColumnType> fieldTypes)
+        {
+            _items.Add(new ObjAnalyzerItem() { Name = name, Types = fieldTypes });
+        }
+
         public void Add(string name, object obj)
         {
             var types = obj._SqlFieldTypes();
-            _items.Add(new ObjAnalyzerItem() { Name = name, Types = types });
+            Add(name, types);
+        }
+
+        public void Add(string name, Type type)
+        {
+            var types = type._SqlFieldTypes();
+            Add(name, types);
         }
 
         public Dictionary<string, SqlColumnType> GetFieldTypes(string tablename, Dictionary<string, object> example)

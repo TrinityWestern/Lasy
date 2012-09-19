@@ -91,6 +91,10 @@ namespace Lasy
         {
             if (dotNetType == null)
                 return new SqlColumnType(SqlDbType.NVarChar, true, 100);
+
+            // For enumerations, map to ints
+            if (dotNetType.IsEnum)
+                return new SqlColumnType(SqlDbType.Int);
             
             if (!_toSqlMappings.ContainsKey(dotNetType))
                 throw new NotImplementedException("Don't know how to map type '" + dotNetType.Name + "' to a sql type");
@@ -196,7 +200,16 @@ namespace Lasy
     {
         public static Dictionary<string, SqlColumnType> _SqlFieldTypes(this object obj)
         {
-            var props = obj._GetMembers();
+            var type = obj.GetType();
+            return _SqlFieldTypes(type);
+        }
+
+        public static Dictionary<string, SqlColumnType> _SqlFieldTypes(this Type type)
+        {
+            MemberTypes types = MemberTypes.Property | MemberTypes.Field;
+            BindingFlags bind = BindingFlags.Instance | BindingFlags.Public;
+
+            var props = type.GetMembers(bind).Where(m => types.HasFlag(m.MemberType));
             var res = props.ToDictionary(m => m.Name, _getSqlType);
 
             return res;
