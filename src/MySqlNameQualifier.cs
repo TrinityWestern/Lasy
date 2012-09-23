@@ -10,7 +10,7 @@ namespace Lasy
     {
         public static MySqlNameQualifier FromDbname(string schema)
         {
-            var res = new MySqlNameQualifier("Database=" + schema);
+            var res = new MySqlNameQualifier("Database=" + schema + ";");
             return res;
         }
 
