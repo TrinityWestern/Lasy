@@ -8,6 +8,12 @@ namespace Lasy
 {
     public class MySqlNameQualifier : SqlNameQualifier
     {
+        public static MySqlNameQualifier FromDbname(string schema)
+        {
+            var res = new MySqlNameQualifier("Database=" + schema);
+            return res;
+        }
+
         public MySqlNameQualifier(string connectionString)
         {
             // Extract the database name from the connection string,
