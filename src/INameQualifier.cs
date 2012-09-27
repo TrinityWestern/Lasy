@@ -9,5 +9,6 @@ namespace Lasy
     {
         string TableName(string rawTablename);
         string SchemaName(string rawTablename);
+        bool SupportsSchemas { get; }
     }
 }

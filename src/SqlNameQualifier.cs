@@ -23,5 +23,10 @@ namespace Lasy
             else
                 return "";
         }
+
+        public virtual bool SupportsSchemas
+        {
+            get { return true; }
+        }
     }
 }

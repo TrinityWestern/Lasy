@@ -32,6 +32,7 @@ namespace Lasy
             this.OnDelete += (a, b) => _failCheck();
             this.OnInsert += (a, b) => _failCheck();
             this.OnUpdate += (a, b, c) => _failCheck();
+            this.OnRead += (a, b) => _failCheck();
         }
 
         public bool FailOnNextOp = false;

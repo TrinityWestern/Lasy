@@ -39,6 +39,13 @@ namespace Lasy
             return new ModifiableSqlDB(connString, modifier);
         }
 
+        public static ModifiableSqlDB ModifiableMySql(string connString, ITypedDBAnalyzer taxonomy = null)
+        {
+            var analyzer = new MySqlAnalyzer(connString);
+            var modifier = new MySqlModifier(connString, analyzer, taxonomy);
+            return new ModifiableSqlDB(connString, modifier);
+        }
+
         public static FileDB File(string directory, string fileExtension = ".rpt")
         {
             return new FileDB(directory, fileExtension);

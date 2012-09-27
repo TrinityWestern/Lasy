@@ -32,7 +32,15 @@ namespace Lasy
 
         public override string SchemaName(string tablename)
         {
-            return _schema;
+            return "";
+        }
+
+        public override bool SupportsSchemas
+        {
+            get
+            {
+                return false;
+            }
         }
     }
 }

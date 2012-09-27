@@ -7,9 +7,6 @@ namespace Lasy
 {
     public class Sql2000NameQualifier : SqlNameQualifier
     {
-        public override string SchemaName(string tablename)
-        {
-            return "dbo";
-        }
+        
     }
 }
