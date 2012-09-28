@@ -6,3 +6,4 @@
 *.nupkg
 *.VisualState.xml
 packages/
+test/TestResult.xml
