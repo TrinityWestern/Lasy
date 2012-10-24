@@ -2,3 +2,8 @@
 **/obj
 *.suo
 *.swp
+*.csproj.user
+*.nupkg
+*.VisualState.xml
+packages/
+test/TestResult.xml

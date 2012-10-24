@@ -4,27 +4,27 @@ using System.Linq;
 using Nvelope.Reflection;
 using Lasy;
 using NUnit.Framework;
+using System;
+using Nvelope;
+using Nvelope.Configuration;
 
-namespace LasyTests
+namespace LasyTests.Sql
 {
     [TestFixture]
-    [Ignore("These tests depend on having a configured MS SQL Server, which you're probably not gonna have")]
-    public class RealDBTests
+    public class SqlDBTests
     {
-        private const string connString = "Data Source=db3.twu.dev; Initial Catalog=Lasy; User Id=jbabbitt; Password=superCupcake$$;";
-
-        [Test]
-        public void CanConnectToDB()
+        private string connString
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
-
-            Assert.IsNull(db.ReadPK("Person", -1));
+            get
+            {
+                return Config.ConnectionString("testdb");
+            }
         }
 
         [Test]
         public void ReadAll()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = ConnectTo.Sql2005(connString);
 
             var results = db.ReadAll<Person>();
 
@@ -40,11 +40,11 @@ namespace LasyTests
         [Test (Description = "If we want to select only certain columns from an entire table, rather than entire rows")]
         public void ReadAllCustomFields()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = ConnectTo.Sql2005(connString);
 
             var desiredColumns = new List<string>(){ "PersonId", "FirstName" };
 
-            var results = db.RawReadAllCustomFields("Person", desiredColumns);
+            var results = db.ReadAll("Person", desiredColumns);
 
             int actualCount = int.MinValue;
             using (var conn = new SqlConnection(connString))
@@ -59,13 +59,69 @@ namespace LasyTests
             Assert.AreEqual(results.First().Keys.ToList(), desiredColumns);
         }
 
+        [Test]
+        public void ReadFilterByNullField()
+        {
+            var db = ConnectTo.Sql2005(connString);
+            var data = new Person() { FirstName = "test", LastName = "person", Age = null };
+            var dataKeys = db.Insert("Person", data);
+
+            // Read where Age is null
+            var fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", DBNull.Value } });
+            Assert.True(fromDb.Any());
+            fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", null } });
+            Assert.True(fromDb.Any());
+
+            db.Delete("Person", dataKeys);
+        }
+
+        [Test]
+        public void ReadFilterByMultipleNullField()
+        {
+            var db = ConnectTo.Sql2005(connString);
+            var data = new Person() { FirstName = "test", LastName = "person", Age = null };
+            var dataKeys = db.Insert("Person", data);
+
+            // Read where Age is null and PersonId = X
+            var fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", DBNull.Value } }.Union(dataKeys)); ;
+            Assert.True(fromDb.Any());
+            fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", null } }.Union(dataKeys));
+            Assert.True(fromDb.Any());
+
+            db.Delete("Person", dataKeys);
+        }
+
+        [Test]
+        public void ReadsFromView()
+        {
+            var db = ConnectTo.Sql2005(connString);
+            Assert.AreNotEqual(0, db.ReadAll("ID_NUMView"));
+        }
+
+        [Test]
+        public void ReadFromNonExistantTable()
+        {
+            var db = ConnectTo.Sql2005(connString);
+            
+            var table = "foobartable";
+            Assert.False(db.Analyzer.TableExists(table), "Ooops, our test table actually existed - we need to test against a table that doesn't exist");
+
+            db.StrictTables = false;
+            Assert.AreEqual("()", db.Read(table, null).Print(),
+                "We had StrictTables set to false, so we should have just got back an empty list");
+
+            db.StrictTables = true;
+            Assert.Throws<NotATableException>(() => db.Read(table, null),
+                "We had StrictTables set to true, so we should have throw an exception");
+        }
+
         /// <summary>
         /// If someone else is using the database at the same time, this could fail
         /// </summary>
         [Test]
         public void Insert()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = ConnectTo.Sql2005(connString);
 
             var contents = db.ReadAll<Person>();
 
@@ -81,7 +137,7 @@ namespace LasyTests
         [Test]
         public void Update()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = ConnectTo.Sql2005(connString);
 
             var person = new Person();
             person.FirstName = "test";
@@ -104,38 +160,10 @@ namespace LasyTests
             Assert.AreEqual(person.LastName, retrieved["LastName"]);
         }
 
-        [Test]
-        public void RealUpdate()
-        {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
-
-            var person = new Person();
-            person.FirstName = "test";
-            person.LastName = "person";
-
-            var keys = db.Insert("Person", person._AsDictionary());
-
-            //Retrieve the saved person so we can verify it saved with our intended data
-            var retrieved = db.RawRead("Person", keys).First();
-            Assert.AreEqual(person.FirstName, retrieved["FirstName"]);
-            Assert.AreEqual(person.LastName, retrieved["LastName"]);
-
-            person.FirstName = "newFirst";
-            person.LastName = "newLastName";
-
-            //Update and retrieve the person again so we can verify that the Update worked
-            var data = person._AsDictionary().Where(kv => !keys.Keys.Contains(kv.Key))
-                .ToDictionary(i => i.Key, i => i.Value);
-            db.RealUpdate("Person", data, keys);
-            retrieved = db.RawRead("Person", keys).First();
-            Assert.AreEqual(person.FirstName, retrieved["FirstName"]);
-            Assert.AreEqual(person.LastName, retrieved["LastName"]);
-        }
-
         [Test(Description = "Verify that a record has been deleted")]
         public void Delete()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = ConnectTo.Sql2005(connString);
 
             var person = new Person();
             person.FirstName = "bob";
@@ -150,7 +178,7 @@ namespace LasyTests
         [Test(Description = "We need to make sure we can pass in null values to inserts")]
         public void AllowNullInsert()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = ConnectTo.Sql2005(connString);
 
             var org = new Organization();
             org.Name = "My Organization";
@@ -164,14 +192,14 @@ namespace LasyTests
         [Test(Description = "If a transaction is rolled back we should not see any results in our connection or any other connections")]
         public void TransactionRollback()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = ConnectTo.Sql2005(connString);
             var transaction = db.BeginTransaction();
 
             var person = new Person();
             person.FirstName = "test";
             person.LastName = "person";
 
-            var keys = db.Insert("Person", person._AsDictionary(), transaction);
+            var keys = transaction.Insert("Person", person._AsDictionary());
 
             transaction.Rollback();
 
@@ -183,32 +211,32 @@ namespace LasyTests
         {
             var keys = new Dictionary<string, object>();
 
-            using (var db = new RealDB(connString, new SQL2005DBAnalyzer(connString)))
-            {
-                var transaction = db.BeginTransaction();
+            var db = ConnectTo.Sql2005(connString);
 
+            using(var transaction = db.BeginTransaction())
+            {
                 var person = new Person();
                 person.FirstName = "test";
                 person.LastName = "person";
 
-                keys = db.Insert("Person", person._AsDictionary(), transaction);
+                keys = transaction.Insert("Person", person._AsDictionary());
             }
 
-            var conn = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var conn = ConnectTo.Sql2005(connString);
             Assert.AreEqual(0, conn.RawRead("Person", keys).Count());
         }
 
         [Test(Description = "Results should be present on a successful, committed transaction")]
         public void TransactionSuccessful()
         {
-            var db = new RealDB(connString, new SQL2005DBAnalyzer(connString));
+            var db = ConnectTo.Sql2005(connString);
             var transaction = db.BeginTransaction();
 
             var person = new Person();
             person.FirstName = "test";
             person.LastName = "person";
 
-            var keys = db.Insert("Person", person._AsDictionary(), transaction);
+            var keys = transaction.Insert("Person", person._AsDictionary());
 
             transaction.Commit();
 

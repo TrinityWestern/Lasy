@@ -92,70 +92,28 @@ namespace Lasy
 
         private Dictionary<string, object> convertRow(Dictionary<string, string> row)
         {
-            return row.SelectVals(val => Infervert(val));
+            return row.SelectVals(val => Nvelope.Reading.TypeConversion.Infervert(val));
         }
 
-        /// <summary>
-        /// Used by Infervert, this is how we guess what type data is supposed to be
-        /// </summary>
-        private static Dictionary<Regex,Type> _infervertConversions = new Dictionary<Regex,Type>()
+        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields)
         {
-            {new Regex("^[0-9]+$", RegexOptions.Compiled), typeof(int)},
-            {new Regex("^[0-9]+\\.[0-9]+$", RegexOptions.Compiled), typeof(decimal)},
-            {new Regex("^[tT]rue|[Ff]alse$", RegexOptions.Compiled), typeof(bool)},
-            {new Regex("^[0-9]{4}\\-[0-9]{2}\\-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}$", 
-                RegexOptions.Compiled), typeof(DateTime)},
-            {new Regex(".*", RegexOptions.Compiled), typeof(string)}
-        };
+            fields = fields ?? new string[] { };
+            keyFields = keyFields ?? new Dictionary<string, object>();
 
-        /// <summary>
-        /// Based on a string representation, try to convert the value to the "appropriate" type
-        /// Largely guesswork
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public object Infervert(string value)
-        {
-            if (value == "NULL")
-                return null;
+            var table = getTable(tableName);
+            var rows = table.Select(d => convertRow(d));
+            if(keyFields.Any())
+                rows = rows.Where(r => keyFields.IsSameAs(r));
 
-            var outputType = _infervertConversions.First(kv => kv.Key.IsMatch(value)).Value;
-            return value.ConvertTo(outputType);
-        }
-
-        #region IReadable Members
-
-        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id, ITransaction transaction = null)
-        {
-            var table = RawReadAll(tableName, transaction);
-            var results = table.Where(row => row.IsSameAs(id, id.Keys));
-            return results;
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null)
-        {
-            var res = RawRead(tableName, id, transaction);
-            return res.Select(r => r.WhereKeys(f => fields.Contains(f)));
+            if (fields.Any())
+                return rows.Select(r => r.Only(fields)).ToList();
+            else
+                return rows.ToList(); ;
         }
 
         public IDBAnalyzer Analyzer
         {
             get { throw new NotImplementedException(); }
         }
-
-        public IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null)
-        {
-            var raw = getTable(tableName);
-            var table = raw.Select(d => convertRow(d));
-            return table;
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields, ITransaction transaction = null)
-        {
-            var res = RawReadAll(tableName, transaction);
-            return res.Select(r => r.WhereKeys(f => fields.Contains(f)));
-        }
-
-        #endregion
     }
 }

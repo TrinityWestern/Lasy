@@ -7,8 +7,17 @@ using Nvelope;
 
 namespace Lasy
 {
-    public class FakeDB : IReadable, IWriteable, IReadWrite
+    public class FakeDB : ITransactable, IRWEvented
     {
+        public FakeDB()
+            : this(new FakeDBMeta())
+        { }
+
+        public FakeDB(IDBAnalyzer analyzer)
+        {
+            Analyzer = analyzer;
+        }
+
         public Dictionary<string, FakeDBTable> DataStore = new Dictionary<string, FakeDBTable>();
 
         public FakeDBTable Table(string tableName)
@@ -19,33 +28,22 @@ namespace Lasy
                 return new FakeDBTable();
         }
 
-        public IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> id, ITransaction transaction = null)
+        public virtual void Wipe()
         {
+            DataStore = new Dictionary<string, FakeDBTable>();
+        }
+
+        public virtual IEnumerable<Dictionary<string, object>> RawRead(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields = null)
+        {
+            FireOnRead(tableName, keyFields);
+            
             if (!DataStore.ContainsKey(tableName))
                 return new List<Dictionary<string, object>>();
 
-            return DataStore[tableName].FindByFieldValues(id);
+            return DataStore[tableName].Read(keyFields, fields);
         }
 
-        public IEnumerable<Dictionary<string, object>> RawReadCustomFields(string tableName, IEnumerable<string> fields, Dictionary<string, object> id, ITransaction transaction = null)
-        {
-            return DataStore[tableName].FindByFieldValues(id).Select(row => row.WhereKeys(key => fields.Contains(key)));
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadAll(string tableName, ITransaction transaction = null)
-        {
-            if (!DataStore.ContainsKey(tableName))
-                return new List<Dictionary<string, object>>();
-
-            return DataStore[tableName];
-        }
-
-        public IEnumerable<Dictionary<string, object>> RawReadAllCustomFields(string tableName, IEnumerable<string> fields, ITransaction transaction = null)
-        {
-            return DataStore[tableName].Select(row => row.WhereKeys(key => fields.Contains(key)));
-        }
-
-        private IDBAnalyzer _analyzer = new FakeDBAnalyzer();
+        private IDBAnalyzer _analyzer = new FakeDBMeta();
 
         public IDBAnalyzer Analyzer
         {
@@ -53,63 +51,123 @@ namespace Lasy
             set { _analyzer = value; }
         }
 
-        public Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row, ITransaction transaction = null)
+        public Dictionary<string, object> NewAutokey(string tableName)
         {
             if (!DataStore.ContainsKey(tableName))
                 DataStore.Add(tableName, new FakeDBTable());
 
             var table = DataStore[tableName];
 
-            var dictToUse = row.Copy();
-            //var id = DataStore[tableName].Count + 1;
-            var primaryKeys = Analyzer.GetPrimaryKeys(tableName);
             var autoKey = Analyzer.GetAutoNumberKey(tableName);
-
-            if (autoKey != null)
-            {
-                if (!dictToUse.ContainsKey(autoKey))
-                    dictToUse.Add(autoKey, table.NextAutoKey++);
-                else
-                    dictToUse[autoKey] = table.NextAutoKey++;
-            }
-
-            var invalid = primaryKeys.Where(key => dictToUse[key] == null);
-            if (invalid.Any())
-                throw new KeyNotSetException(tableName, invalid);
-
-            table.Add(dictToUse);
-            return dictToUse.WhereKeys(key => primaryKeys.Contains(key));
+            if (autoKey == null)
+                return new Dictionary<string, object>();
+            else
+                return new Dictionary<string, object>() { { autoKey, table.NextAutoKey++ } };
         }
 
-        public void Delete(string tableName, Dictionary<string, object> fieldValues, ITransaction transaction = null)
+        public bool CheckKeys(string tableName, Dictionary<string, object> row)
         {
+            try
+            {
+                var res = this.ExtractKeys(tableName, row);
+                return true;
+            }
+            catch (KeyNotSetException)
+            {
+                return false;
+            }
+        }
+
+        public virtual Dictionary<string, object> Insert(string tableName, Dictionary<string, object> row)
+        {
+            FireOnInsert(tableName, row);
+
+            if (!DataStore.ContainsKey(tableName))
+                DataStore.Add(tableName, new FakeDBTable());
+            
+            var table = DataStore[tableName];
+
+            row = row.ScrubNulls();
+
+            var autoKeys = NewAutokey(tableName);
+            var dictToUse = row.Union(autoKeys);
+            CheckKeys(tableName, dictToUse);
+            table.Add(dictToUse);
+
+            return this.ExtractKeys(tableName, dictToUse);
+        }
+
+        public virtual void Delete(string tableName, Dictionary<string, object> fieldValues)
+        {
+            FireOnDelete(tableName, fieldValues);
+
             if (DataStore.ContainsKey(tableName))
             {
+                fieldValues = fieldValues.ScrubNulls();
                 var victims = DataStore[tableName].FindByFieldValues(fieldValues).ToList();
                 victims.ForEach(x => DataStore[tableName].Remove(x));
             }
         }
 
-        public void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields, ITransaction transaction = null)
+        public virtual void Update(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
         {
+            FireOnUpdate(tableName, dataFields, keyFields);
+
             if(!DataStore.ContainsKey(tableName))
                 return;
 
-            var victims = DataStore[tableName].Where(r => r.IsSameAs(keyFields, keyFields.Keys))
-                .Where(r => r != dataFields && r != keyFields); // Don't update if we've passed in the object itself,
-                // because at that point the change has already been made by a sneaky back-door reference change,
-                // and if we try to modify it here, we'll modify the collection while iterating over it, causing an exception
-                // The non-hacky fix would be to return copies of the rows from the Read methods. That way, the user couldn't
-                // make sneaky back-door changes. However, this would be a substantial performance penalty. Grr, I want
-                // Clojure's persistent collections here...
+            dataFields = dataFields.ScrubNulls();
+            keyFields = keyFields.ScrubNulls();
+
+            var victims = DataStore[tableName].Where(r => r.IsSameAs(keyFields, keyFields.Keys, null));
             foreach (var vic in victims)
                 foreach (var key in dataFields.Keys)
                     vic[key] = dataFields[key];                
         }
 
-        public ITransaction BeginTransaction()
+        public virtual  ITransaction BeginTransaction()
         {
-            return new FakeDBTransaction();
+            return new FakeDBTransaction(this);
         }
+
+        public void FireOnInsert(string tableName, Dictionary<string, object> keyFields)
+        {
+            if (OnInsert != null)
+                OnInsert(tableName, keyFields);
+            if (OnWrite != null)
+                OnWrite(tableName, keyFields);
+        }
+
+        public void FireOnDelete(string tableName, Dictionary<string, object> fieldValues)
+        {
+            if (OnDelete != null)
+                OnDelete(tableName, fieldValues);
+            if (OnWrite != null)
+                OnWrite(tableName, fieldValues);
+        }
+
+        public void FireOnUpdate(string tableName, Dictionary<string, object> dataFields, Dictionary<string, object> keyFields)
+        {
+            if (OnUpdate != null)
+                OnUpdate(tableName, dataFields, keyFields);
+            if (OnWrite != null)
+                OnWrite(tableName, dataFields.Union(keyFields));
+        }
+
+        public void FireOnRead(string tableName, Dictionary<string, object> keyFields)
+        {
+            if (OnRead != null)
+                OnRead(tableName, keyFields);
+        }
+
+        public event Action<string, Dictionary<string, object>> OnInsert;
+
+        public event Action<string, Dictionary<string, object>> OnDelete;
+
+        public event Action<string, Dictionary<string, object>, Dictionary<string, object>> OnUpdate;
+
+        public event Action<string, Dictionary<string, object>> OnWrite;
+
+        public event Action<string, Dictionary<string, object>> OnRead;
     }
 }

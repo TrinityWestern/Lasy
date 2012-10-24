@@ -15,6 +15,16 @@ namespace Lasy
         /// <param name="tableName"></param>
         /// <returns></returns>
         ICollection<string> GetFields(string tableName);
+        bool TableExists(string tableName);
+    }
 
+    public interface ITypedDBAnalyzer : IDBAnalyzer
+    {
+        /// <summary>
+        /// Gets the types of the fields for the given table
+        /// </summary>
+        /// <param name="tablename"></param>
+        /// <returns></returns>
+        Dictionary<string, SqlColumnType> GetFieldTypes(string tablename, Dictionary<string, object> example);
     }
 }

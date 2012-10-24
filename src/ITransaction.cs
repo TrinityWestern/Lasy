@@ -5,7 +5,10 @@ using System.Text;
 
 namespace Lasy
 {
-    public interface ITransaction
+    /// <summary>
+    /// Indicates that something is a transaction.
+    /// </summary>
+    public interface ITransaction : IReadWrite, IDisposable
     {
         void Commit();
 
