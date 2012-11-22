@@ -23,7 +23,7 @@ namespace LasyTests
         [Test]
         public void ReadsData()
         {
-            var vals = _db.RawReadAll("Simple");
+            var vals = _db.ReadAll("Simple");
             Assert.AreEqual(
                 "(([Deprecated,False],[ID,1],[Name,Foo],[Value,Val]),([Deprecated,True],[ID,2],[Name,Bar],[Value,Bal]))", 
                 vals.Print());
@@ -32,7 +32,7 @@ namespace LasyTests
         [Test]
         public void VariableWidthColumns()
         {
-            var vals = _db.RawReadAll("VariableWidth");
+            var vals = _db.ReadAll("VariableWidth");
             Assert.AreEqual(
                 "(([Deprecated,False],[ID,1],[Name,Foobar],[Value,Foovalue]),([Deprecated,True],[ID,2],[Name,Bar],[Value,Bal]))",
                 vals.Print());
@@ -41,7 +41,7 @@ namespace LasyTests
         [Test]
         public void ConvertsNulls()
         {
-            var vals = _db.RawReadAll("WithNull");
+            var vals = _db.ReadAll("WithNull");
             Assert.AreEqual(
                 "(([Deprecated,],[ID,1],[Name,Foo],[Value,Val]),([Deprecated,True],[ID,2],[Name,Bar],[Value,]))",
                 vals.Print());
@@ -53,21 +53,21 @@ namespace LasyTests
         [Test]
         public void ReadCustomFields()
         {
-            var vals = _db.RawReadCustomFields("Simple", "ID".And("Name"), new { ID = 1 }._AsDictionary());
+            var vals = _db.Read("Simple", new { ID = 1 }._AsDictionary(), "ID".And("Name"));
             Assert.AreEqual("(([ID,1],[Name,Foo]))", vals.Print());
         }
 
         [Test]
         public void Read()
         {
-            var vals = _db.RawRead("Simple", new { ID = 1 }._AsDictionary());
+            var vals = _db.Read("Simple", new { ID = 1 }._AsDictionary());
             Assert.AreEqual("(([Deprecated,False],[ID,1],[Name,Foo],[Value,Val]))", vals.Print());
         }
 
         [Test]
         public void ReadAllCustomFields()
         {
-            var vals = _db.RawReadAllCustomFields("Simple", "ID".And("Name"));
+            var vals = _db.RawRead("Simple", null, "ID".And("Name"));
             Assert.AreEqual("(([ID,1],[Name,Foo]),([ID,2],[Name,Bar]))", vals.Print());
         }
 
@@ -84,7 +84,7 @@ namespace LasyTests
             };
 
             var db = new FileDB("");
-            Action<string,Type> fn = (str, type) => Assert.AreEqual(type, db.Infervert(str).GetType());
+            Action<string,Type> fn = (str, type) => Assert.AreEqual(type, Nvelope.Reading.TypeConversion.Infervert(str).GetType());
 
             var time = fn.Benchmark(testVals.Repeat(5000));
             // We should be able to do this in under 200ms (arbitrary number)

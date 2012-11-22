@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
+using Nvelope;
 using Nvelope.Data;
 using Nvelope.Reflection;
 
@@ -19,10 +19,13 @@ namespace Lasy
         /// <param name="coll"></param>
         /// <param name="name"></param>
         /// <param name="value"></param>
-        public static void AddParameter(this SqlCommand comm, string name, object value)
+        public static void AddParameter(this IDbCommand comm, string name, object value)
         {
             var realizedValue = value.Realize();
-            var para = new SqlParameter(name, SqlTypeConversion.InferSqlType(realizedValue));
+            var sqlType = SqlTypeConversion.GetSqlType(realizedValue);
+            var para = comm.CreateParameter();
+            para.ParameterName = name;
+            para.DbType = sqlType.DbType;
             para.Value = SqlTypeConversion.ConvertToSqlValue(realizedValue);
             comm.Parameters.Add(para);
         }
@@ -34,7 +37,7 @@ namespace Lasy
         /// Func{object} - this will call Realize on the values</remarks>
         /// <param name="coll"></param>
         /// <param name="paras"></param>
-        public static void AddParameters(this SqlCommand comm, Dictionary<string, object> paras)
+        public static void AddParameters(this IDbCommand comm, Dictionary<string, object> paras)
         {
             foreach (var kv in paras)
                 comm.AddParameter(kv.Key, kv.Value);
@@ -46,12 +49,12 @@ namespace Lasy
         /// <param name="conn"></param>
         /// <param name="sql"></param>
         /// <returns></returns>
-        public static ICollection<Dictionary<string, object>> Execute(this SqlConnection conn, string sql)
+        public static ICollection<Dictionary<string, object>> Execute(this IDbConnection conn, string sql)
         {
             return Execute(conn, sql, new Dictionary<string, object>());
         }
 
-        public static ICollection<Dictionary<string, object>> Execute(this SqlCommand comm, string sql)
+        public static ICollection<Dictionary<string, object>> Execute(this IDbCommand comm, string sql)
         {
             return Execute(comm, sql, new Dictionary<string, object>());
         }
@@ -64,12 +67,12 @@ namespace Lasy
         /// <param name="conn"></param>
         /// <param name="sql"></param>
         /// <returns></returns>
-        public static IEnumerable<T> Execute<T>(this SqlConnection conn, string sql) where T : class, new()
+        public static IEnumerable<T> Execute<T>(this IDbConnection conn, string sql) where T : class, new()
         {
             return Execute<T>(conn, sql, new Dictionary<string, object>());
         }
 
-        public static IEnumerable<T> Execute<T>(this SqlCommand comm, string sql) where T : class, new()
+        public static IEnumerable<T> Execute<T>(this IDbCommand comm, string sql) where T : class, new()
         {
             return Execute<T>(comm, sql, new Dictionary<string, object>());
         }
@@ -83,7 +86,7 @@ namespace Lasy
         /// <param name="sql"></param>
         /// <param name="paras"></param>
         /// <returns></returns>
-        public static ICollection<Dictionary<string, object>> Execute(this SqlConnection conn, string sql,
+        public static ICollection<Dictionary<string, object>> Execute(this IDbConnection conn, string sql,
             Dictionary<string, object> paras)
         {
             ICollection<Dictionary<string, object>> res = null;
@@ -91,7 +94,7 @@ namespace Lasy
             return res;
         }
 
-        public static ICollection<Dictionary<string, object>> Execute(this SqlCommand comm, string sql,
+        public static ICollection<Dictionary<string, object>> Execute(this IDbCommand comm, string sql,
             Dictionary<string, object> paras)
         {
             ICollection<Dictionary<string, object>> res = null;
@@ -111,7 +114,7 @@ namespace Lasy
         /// <param name="sql"></param>
         /// <param name="paras"></param>
         /// <returns></returns>
-        public static IEnumerable<T> Execute<T>(this SqlConnection conn, string sql, 
+        public static IEnumerable<T> Execute<T>(this IDbConnection conn, string sql, 
             Dictionary<string, object> paras) where T: class, new()
         {
             IEnumerable<T> res = null;
@@ -119,7 +122,7 @@ namespace Lasy
             return res;
         }
 
-        public static IEnumerable<T> Execute<T>(this SqlCommand comm, string sql,
+        public static IEnumerable<T> Execute<T>(this IDbCommand comm, string sql,
             Dictionary<string, object> paras) where T : class, new()
         {
             IEnumerable<T> res = null;
@@ -135,13 +138,13 @@ namespace Lasy
         /// <param name="parameterObject">Converted into a dictionary of field-value pairs, which are
         /// are used as the parameters of the query</param>
         /// <returns></returns>
-        public static ICollection<Dictionary<string, object>> Execute(this SqlConnection conn, string sql, object parameterObject)
+        public static ICollection<Dictionary<string, object>> Execute(this IDbConnection conn, string sql, object parameterObject)
         {
             var dict = parameterObject as Dictionary<string, object>;
             return Execute(conn, sql, dict ?? parameterObject._AsDictionary());
         }
 
-        public static ICollection<Dictionary<string, object>> Execute(this SqlCommand comm, string sql, object parameterObject)
+        public static ICollection<Dictionary<string, object>> Execute(this IDbCommand comm, string sql, object parameterObject)
         {
             var dict = parameterObject as Dictionary<string, object>;
             return Execute(comm, sql, dict ?? parameterObject._AsDictionary());
@@ -157,12 +160,12 @@ namespace Lasy
         /// <param name="parameterObject">Converted into a dictionary of field-value pairs, which are
         /// are used as the parameters of the query</param>
         /// <returns></returns>
-        public static IEnumerable<T> Execute<T>(this SqlConnection conn, string sql, object parameterObject) where T: class, new()
+        public static IEnumerable<T> Execute<T>(this IDbConnection conn, string sql, object parameterObject) where T: class, new()
         {
             var dict = parameterObject as Dictionary<string, object>;
             return Execute<T>(conn, sql, dict ?? parameterObject._AsDictionary());
         }
-        public static IEnumerable<T> Execute<T>(this SqlCommand comm, string sql, object parameterObject) where T : class, new()
+        public static IEnumerable<T> Execute<T>(this IDbCommand comm, string sql, object parameterObject) where T : class, new()
         {
             var dict = parameterObject as Dictionary<string, object>;
             return Execute<T>(comm, sql, dict ?? parameterObject._AsDictionary());
@@ -176,12 +179,12 @@ namespace Lasy
         /// <param name="conn"></param>
         /// <param name="sql"></param>
         /// <returns></returns>
-        public static T ExecuteSingleValue<T>(this SqlConnection conn, string sql)
+        public static T ExecuteSingleValue<T>(this IDbConnection conn, string sql)
         {
             return ExecuteSingleValue<T>(conn, sql, new Dictionary<string, object>());
         }
 
-        public static T ExecuteSingleValue<T>(this SqlCommand comm, string sql)
+        public static T ExecuteSingleValue<T>(this IDbCommand comm, string sql)
         {
             return ExecuteSingleValue<T>(comm, sql, new Dictionary<string, object>());
         }
@@ -194,16 +197,34 @@ namespace Lasy
         /// <param name="sql"></param>
         /// <param name="parameterObject"></param>
         /// <returns></returns>
-        public static T ExecuteSingleValue<T>(this SqlConnection conn, string sql, object parameterObject)
+        public static T ExecuteSingleValue<T>(this IDbConnection conn, string sql, object parameterObject)
         {
-            var dict = parameterObject as Dictionary<string, object>;
-            return ExecuteSingleValue<T>(conn, sql, dict ?? parameterObject._AsDictionary());
+            return ExecuteSingleValue<T>(conn, sql, parameterObject._AsDictionary());
         }
 
-        public static T ExecuteSingleValue<T>(this SqlCommand comm, string sql, object parameterObject)
+        public static T ExecuteSingleValue<T>(this IDbCommand comm, string sql, object parameterObject)
         {
-            var dict = parameterObject as Dictionary<string, object>;
-            return ExecuteSingleValue<T>(comm, sql, dict ?? parameterObject._AsDictionary());
+            return ExecuteSingleValue<T>(comm, sql, parameterObject._AsDictionary());
+        }
+
+        /// <summary>
+        /// Executes the query and returns the single value returned. If no value is returned from the db,
+        /// return defaultVal
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="conn"></param>
+        /// <param name="defaultVal"></param>
+        /// <param name="sql"></param>
+        /// <param name="parameterObject"></param>
+        /// <returns></returns>
+        public static T ExecuteSingleValueOr<T>(this IDbConnection conn, T defaultVal, string sql, object parameterObject)
+        {
+            return ExecuteSingleValueOr<T>(conn, defaultVal, sql, parameterObject._AsDictionary());
+        }
+
+        public static T ExecuteSingleValueOr<T>(this IDbConnection conn, T defaultVal, string sql, Dictionary<string, object> parameters)
+        {
+            return ExecuteSingleColumn<T>(conn, sql, parameters).SingleOr(defaultVal);
         }
 
         /// <summary>
@@ -214,12 +235,12 @@ namespace Lasy
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public static T ExecuteSingleValue<T>(this SqlConnection conn, string sql, Dictionary<string, object> parameters)
+        public static T ExecuteSingleValue<T>(this IDbConnection conn, string sql, Dictionary<string, object> parameters)
         {
             return ExecuteSingleColumn<T>(conn, sql, parameters).Single();
         }
 
-        public static T ExecuteSingleValue<T>(this SqlCommand comm, string sql, Dictionary<string, object> parameters)
+        public static T ExecuteSingleValue<T>(this IDbCommand comm, string sql, Dictionary<string, object> parameters)
         {
             return ExecuteSingleColumn<T>(comm, sql, parameters).Single();
         }
@@ -231,12 +252,12 @@ namespace Lasy
         /// <param name="conn"></param>
         /// <param name="sql"></param>
         /// <returns></returns>
-        public static ICollection<T> ExecuteSingleColumn<T>(this SqlConnection conn, string sql)
+        public static ICollection<T> ExecuteSingleColumn<T>(this IDbConnection conn, string sql)
         {
             return ExecuteSingleColumn<T>(conn, sql, new Dictionary<string, object>());
         }
 
-        public static ICollection<T> ExecuteSingleColumn<T>(this SqlCommand comm, string sql)
+        public static ICollection<T> ExecuteSingleColumn<T>(this IDbCommand comm, string sql)
         {
             return ExecuteSingleColumn<T>(comm, sql, new Dictionary<string, object>());
         }
@@ -249,13 +270,13 @@ namespace Lasy
         /// <param name="sql"></param>
         /// <param name="parameterObject"></param>
         /// <returns></returns>
-        public static ICollection<T> ExecuteSingleColumn<T>(this SqlConnection conn, string sql, object parameterObject)
+        public static ICollection<T> ExecuteSingleColumn<T>(this IDbConnection conn, string sql, object parameterObject)
         {
             var dict = parameterObject as Dictionary<string, object>;
             return ExecuteSingleColumn<T>(conn, sql, dict ?? parameterObject._AsDictionary());
         }
 
-        public static ICollection<T> ExecuteSingleColumn<T>(this SqlCommand comm, string sql, object parameterObject)
+        public static ICollection<T> ExecuteSingleColumn<T>(this IDbCommand comm, string sql, object parameterObject)
         {
             var dict = parameterObject as Dictionary<string, object>;
             return ExecuteSingleColumn<T>(comm, sql, dict ?? parameterObject._AsDictionary());
@@ -269,14 +290,14 @@ namespace Lasy
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public static ICollection<T> ExecuteSingleColumn<T>(this SqlConnection conn, string sql, Dictionary<string, object> parameters)
+        public static ICollection<T> ExecuteSingleColumn<T>(this IDbConnection conn, string sql, Dictionary<string, object> parameters)
         {
             var data = new List<T>();
             Execute(conn, sql, parameters, reader => data = reader.SingleColumn<T>().ToList());
             return new ReadOnlyCollection<T>(data);
         }
 
-        public static ICollection<T> ExecuteSingleColumn<T>(this SqlCommand comm, string sql, Dictionary<string, object> parameters)
+        public static ICollection<T> ExecuteSingleColumn<T>(this IDbCommand comm, string sql, Dictionary<string, object> parameters)
         {
             var data = new List<T>();
             Execute(comm, sql, parameters, reader => data = reader.SingleColumn<T>().ToList());
@@ -290,19 +311,20 @@ namespace Lasy
         /// <param name="sql"></param>
         /// <param name="paras"></param>
         /// <param name="callback"></param>
-        public static void Execute(this SqlConnection conn, string sql,
+        public static void Execute(this IDbConnection conn, string sql,
             Dictionary<string, object> paras, Action<IDataReader> callback)
         {
             if (conn.State == ConnectionState.Closed)
                 conn.Open();
 
-            using (var comm = new SqlCommand(sql, conn))
+            using (var comm = conn.CreateCommand())
             {
+                comm.CommandText = sql;
                 comm.Execute(sql, paras, callback);
             }
         }
 
-        public static void Execute(this SqlCommand comm, string sql,
+        public static void Execute(this IDbCommand comm, string sql,
             Dictionary<string, object> paras, Action<IDataReader> callback)
         {            
             comm.CommandType = CommandType.Text;
@@ -320,12 +342,12 @@ namespace Lasy
         /// <param name="conn"></param>
         /// <param name="sql"></param>
         /// <param name="callback"></param>
-        public static void Execute(this SqlConnection conn, string sql, Action<IDataReader> callback)
+        public static void Execute(this IDbConnection conn, string sql, Action<IDataReader> callback)
         {
             Execute(conn, sql, new Dictionary<string, object>(), callback);
         }
 
-        public static void Execute(this SqlCommand comm, string sql, Action<IDataReader> callback)
+        public static void Execute(this IDbCommand comm, string sql, Action<IDataReader> callback)
         {
             Execute(comm, sql, new Dictionary<string, object>(), callback);
         }
@@ -337,13 +359,13 @@ namespace Lasy
         /// <param name="sql"></param>
         /// <param name="parameterObject"></param>
         /// <param name="callback"></param>
-        public static void Execute(this SqlConnection conn, string sql, object parameterObject, Action<IDataReader> callback)
+        public static void Execute(this IDbConnection conn, string sql, object parameterObject, Action<IDataReader> callback)
         {
             var dict = parameterObject as Dictionary<string, object>;
             Execute(conn, sql, dict ?? parameterObject._AsDictionary(), callback);
         }
 
-        public static void Execute(this SqlCommand comm, string sql, object parameterObject, Action<IDataReader> callback)
+        public static void Execute(this IDbCommand comm, string sql, object parameterObject, Action<IDataReader> callback)
         {
             var dict = parameterObject as Dictionary<string, object>;
             Execute(comm, sql, dict ?? parameterObject._AsDictionary(), callback);

@@ -10,5 +10,6 @@ namespace LasyTests
         public int PersonId;
         public string FirstName;
         public string LastName;
+        public int? Age;
     }
 }

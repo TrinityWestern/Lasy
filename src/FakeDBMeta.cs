@@ -6,19 +6,19 @@ using Nvelope;
 
 namespace Lasy
 {
-    public class FakeDBAnalyzer : IDBAnalyzer
+    public class FakeDBMeta : IDBAnalyzer
     {
         public Dictionary<string, ICollection<string>> PrimaryKeys = new Dictionary<string, ICollection<string>>();
 
         public Dictionary<string, string> AutoNumberKeys = new Dictionary<string, string>();
+
+        public Dictionary<string, ICollection<string>> Fields = new Dictionary<string, ICollection<string>>();
 
         /// <summary>
         /// If true, the analyzer will assume that there's a single autonumber PK for every table,
         /// that has the name [tableName]Id. Any additions to PrimaryKeys or AutoNumberKeys will override this
         /// </summary>
         public bool AssumeStandardKeys = true;
-
-        #region IDBAnalyzer Members
 
         public ICollection<string> GetPrimaryKeys(string tableName)
         {
@@ -38,7 +38,7 @@ namespace Lasy
             else if (AssumeStandardKeys)
                 return _unschemadTablename(tableName) + "Id";
             else
-                throw new NotImplementedException("Dont know what the autonumbers for " + tableName + " would be. Either add that table's autonumbers to the AutoNumberKeys collection, or set AssumeStandardKeys to true for the default autonumber behavior");
+                return null;
         }
 
         private string _unschemadTablename(string tablename)
@@ -49,11 +49,18 @@ namespace Lasy
 
         public ICollection<string> GetFields(string tableName)
         {
+            // If we've been explicitly told the structure, use that
+            if (Fields.ContainsKey(tableName))
+                return Fields[tableName];
+
             // We don't know what the actual structure is, so send back an empty
             // list to indicate that we don't actually know
             return new ReadOnlyCollection<string>(new List<string> { });
         }
 
-        #endregion
+        public bool TableExists(string tableName)
+        {
+            return true;
+        }
     }
 }
