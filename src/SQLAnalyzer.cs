@@ -122,7 +122,18 @@ namespace Lasy
 
         protected internal virtual string _getTableExistsSql(string schema, string table)
         {
-            return "select 1 from sys.tables where name = @table union all select 1 from sys.views where name = @table";
+            //return "select 1 from sys.tables where name = @table union all select 1 from sys.views where name = @table";
+            return @"SELECT 1
+                    FROM sys.tables 
+	                    LEFT JOIN sys.schemas ON tables.schema_id = schemas.schema_id
+                    WHERE tables.name = @table 
+	                    AND schemas.name = @schema
+                    UNION ALL 
+                    SELECT 1 
+                    FROM sys.views 
+	                    LEFT JOIN sys.schemas ON views.schema_id = schemas.schema_id
+                    WHERE views.name = @table
+	                    AND schemas.name = @schema";
         }
 
         protected internal virtual string _getFieldTypeSql()
