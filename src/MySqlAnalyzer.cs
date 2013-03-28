@@ -70,5 +70,12 @@ namespace Lasy
         {
             return schema.IsNullOrEmpty() || schema == SchemaName("");
         }
+
+        public override string SchemaName(string tablename)
+        {
+            // MySql doesn't have schemas. The things it calls schemas
+            // are really databases
+            return "";
+        }
     }
 }

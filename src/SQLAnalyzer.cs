@@ -268,9 +268,13 @@ namespace Lasy
             return NameQualifier.TableName(tablename);
         }
 
-        public string SchemaName(string tablename)
+        public virtual string SchemaName(string tablename)
         {
-            return NameQualifier.SchemaName(tablename);
+            var res = NameQualifier.SchemaName(tablename);
+            if (res == "")
+                res = "dbo"; // If we don't specify a schema, use dbo
+
+            return res;
         }
     }
 }
