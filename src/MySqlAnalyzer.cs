@@ -20,11 +20,26 @@ namespace Lasy
             return new MySqlConnection(connectionString);
         }
 
+        protected string _dbName
+        {
+            get
+            {
+                var match = Regex.Match(_connectionString, "[dD]atabase=([^;]+);");
+                if (match.Success)
+                    return match.Groups[1].Value;
+                else
+                    throw new ApplicationException("Couldn't extract the database name from the connection string!");
+            }
+        }
+
         protected internal override string _getTableExistsSql(string schema, string table)
         {
             // In MySQL, both tables and views show up in information_schema.tables, so we 
             // don't need to look at information_schema.views
-            return @"select 1 from information_schema.tables where table_name = @table and table_schema = @schema";
+            // Note that "schema" in mySql means "database" in MS-SQL. They don't have schemas, so 
+            // we just always use "" as the schema. HOWEVER, where it asks for schema here, we
+            // should be passing in the database name
+            return @"select 1 from information_schema.tables where table_name = @table and table_schema = '" + _dbName + "'";
         }
 
         protected internal override string _getPrimaryKeySql()
