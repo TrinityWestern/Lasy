@@ -33,7 +33,7 @@ namespace Lasy
             var datafields = fieldTypes.Except(table + "Id");
             var fieldList = _fieldDefinitions(datafields);
 
-            var sql = String.Format(@"CREATE TABLE `{0}`.`{1}`
+            var sql = String.Format(@"CREATE TABLE `{1}`
             (
                 {1}Id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 {2}
@@ -45,12 +45,12 @@ namespace Lasy
 
         public override string _getDropTableSql(string schema, string table)
         {
-            return string.Format("drop table `{0}`.`{1}`", schema, table);
+            return string.Format("drop table `{1}`", schema, table);
         }
 
         public override string _getDropViewSql(string schema, string view)
         {
-            return string.Format("drop view `{0}`.`{1}`", schema, view);
+            return string.Format("drop view `{1}`", schema, view);
         }
     }
 }
