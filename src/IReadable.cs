@@ -88,9 +88,8 @@ namespace Lasy
 
         public static IEnumerable<T> Read<T>(this IReadable reader, string tableName, Dictionary<string, object> values) where T : class, new()
         {
-            var res = Read(reader, tableName, values);
-            ObjectReader<T> converter = new ObjectReader<T>();
-            return converter.ReadAll(res);
+            var results = Read(reader, tableName, values);
+            return results.Select(x => new T()._SetFrom(x));
         }
     }
 }
