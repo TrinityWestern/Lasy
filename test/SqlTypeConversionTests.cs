@@ -94,10 +94,24 @@ namespace LasyTests
 
         }
 
+        [Test]
+        public void DetectsXLongStrings()
+        {
+            var types = new XLTestObj()._SqlFieldTypes();
+            Assert.AreEqual(1, types.Count());
+            Assert.AreEqual("([XLongStrVal,nvarchar(8000) NOT NULL])", types.Print());
+        }
+
         public class TestObj
         {
             [SqlType(false, 4000)]
             public string StrVal;
+        }
+
+        public class XLTestObj
+        {
+            [SqlType(false, 8000)]
+            public string XLongStrVal;
         }
     }
 }
