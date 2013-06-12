@@ -3,6 +3,6 @@ obj
 *.suo
 *.swp
 *.csproj.user
-*.nupkg
+/src/*.nupkg
 *.VisualState.xml
 test/TestResult.xml
