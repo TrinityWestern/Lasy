@@ -13,6 +13,6 @@
     <tags></tags>
   </metadata>
 <files>
-	<file src="..\..\Nvelope\src\Nvelope.Reactive\bin\Release\Nvelope.Reactive.dll" target="lib\net40" />
+	<file src="..\lib\Nvelope.Reactive\bin\Release\Nvelope.Reactive.dll" target="lib\net40" />
 </files>
 </package>
