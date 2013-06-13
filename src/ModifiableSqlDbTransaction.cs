@@ -11,7 +11,7 @@ namespace Lasy
     {
         public ModifiableSqlDB ModifiableDb;
         public ModifiableSqlDbTransaction(ModifiableSqlDB db)
-            : base(db)
+            : base(db.DB)
         {
             ModifiableDb = db;
         }

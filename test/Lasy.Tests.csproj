@@ -53,6 +53,7 @@
     <Compile Include="EventTests.cs" />
     <Compile Include="JsonDBTests.cs" />
     <Compile Include="DictBasedTestObject.cs" />
+    <Compile Include="Sql\ModifyableMySqlTests.cs" />
     <Compile Include="Sql\MySqlModifierTests.cs" />
     <Compile Include="Sql\MySqlTests.cs" />
     <Compile Include="Sql\SqlAnalyzerTests.cs" />

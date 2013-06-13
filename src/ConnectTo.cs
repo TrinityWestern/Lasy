@@ -29,21 +29,24 @@ namespace Lasy
         {
             var analyzer = new Sql2000Analyzer(connString);
             var modifier = new SqlModifier(connString, analyzer, taxonomy);
-            return new ModifiableSqlDB(connString, modifier);
+            var db = new SqlDB(connString, analyzer, false);
+            return new ModifiableSqlDB(db, modifier);
         }
 
         public static ModifiableSqlDB ModifiableSql2005(string connString, ITypedDBAnalyzer taxonomy = null)
         {
             var analyzer = new SqlAnalyzer(connString);
             var modifier = new SqlModifier(connString, analyzer, taxonomy);
-            return new ModifiableSqlDB(connString, modifier);
+            var db = new SqlDB(connString, analyzer, false);
+            return new ModifiableSqlDB(db, modifier);
         }
 
         public static ModifiableSqlDB ModifiableMySql(string connString, ITypedDBAnalyzer taxonomy = null)
         {
             var analyzer = new MySqlAnalyzer(connString);
             var modifier = new MySqlModifier(connString, analyzer, taxonomy);
-            return new ModifiableSqlDB(connString, modifier);
+            var db = new MySqlDB(connString, analyzer, false);
+            return new ModifiableSqlDB(db, modifier);
         }
 
         public static FileDB File(string directory, string fileExtension = ".rpt")
