@@ -6,3 +6,4 @@ obj
 /src/*.nupkg
 *.VisualState.xml
 test/TestResult.xml
+/packages/

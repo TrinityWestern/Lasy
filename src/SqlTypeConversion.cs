@@ -76,7 +76,7 @@ namespace Lasy
             //SqlDbType.Udt
             _toDbMappings.Add(SqlDbType.UniqueIdentifier, DbType.Guid);
             _toDbMappings.Add(SqlDbType.VarBinary, DbType.Binary);
-            _toDbMappings.Add(SqlDbType.VarChar, DbType.AnsiString);
+            _toDbMappings.Add(SqlDbType.VarChar, DbType.String);
             //SqlDbType.Variant
             _toDbMappings.Add(SqlDbType.Xml, DbType.Xml);
         }
@@ -178,6 +178,10 @@ namespace Lasy
             // Hack because microsoft doesn't correctly take this into consideration
             if (sqlTypeName == "numeric")
                 sqlTypeName = "decimal";
+            // MySql has a longtext type, which we'll convert to nvarchar
+            if (sqlTypeName == "longtext")
+                sqlTypeName = "nvarchar";
+
             return (SqlDbType)Enum.Parse(typeof(SqlDbType), sqlTypeName, true);
         }
 

@@ -217,9 +217,13 @@ namespace Lasy
 
         protected SqlColumnType _determineType(Dictionary<string, object> sysobjectInfo)
         {
+            // Fun fact - for longtext fields, MySql returns a ludicrously large value here.
+            // It's so big, it overflows integer, making an exception
+            int? length = null;
+            if(sysobjectInfo["CHARACTER_MAXIMUM_LENGTH"].CanConvertTo<int?>())
+                length = sysobjectInfo["CHARACTER_MAXIMUM_LENGTH"].ConvertTo<int?>();
             // Hack - Sql throws a hissy fit if you try to specify a length beyond 8000, but some field types
             // (ie, ntext, return a massive value from the system tables
-            var length  = sysobjectInfo["CHARACTER_MAXIMUM_LENGTH"].ConvertTo<int?>();
             if (length > 8000)
                 length = null;
 
