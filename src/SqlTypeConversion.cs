@@ -38,6 +38,10 @@ namespace Lasy
             _toSqlMappings.Add(typeof(XmlDocument), new SqlColumnType(SqlDbType.Xml, true));
             _toSqlMappings.Add(typeof(Guid?), new SqlColumnType(SqlDbType.UniqueIdentifier, true));
             _toSqlMappings.Add(typeof(Guid), new SqlColumnType(SqlDbType.UniqueIdentifier));
+            _toSqlMappings.Add(typeof(Byte), new SqlColumnType(SqlDbType.TinyInt));
+            // Note - this isn't ideal - SByte is signed 8-bit, while SmallInt is signed 16-bit
+            // I don't think there's an exact match
+            _toSqlMappings.Add(typeof(SByte), new SqlColumnType(SqlDbType.SmallInt));
 
             // _toCMappings are just the inverses of the _toSqlMappings, plus a few overloads
             _toCMappings = _toSqlMappings.Invert();
@@ -46,12 +50,13 @@ namespace Lasy
             _toCMappings.Add(new SqlColumnType(SqlDbType.VarChar), typeof(string));
             _toCMappings.Add(new SqlColumnType(SqlDbType.Xml), typeof(XmlDocument));
 
+
             // _toDbMappings contain mappings of SqlDbTypes to DbTypes
             // DbTypes are used for database-agnostic mapping, while SqlDbTypes are SQL-server specific
             _toDbMappings.Add(SqlDbType.BigInt, DbType.Int64);
             _toDbMappings.Add(SqlDbType.Binary, DbType.Binary);
             _toDbMappings.Add(SqlDbType.Bit, DbType.Boolean);
-            _toDbMappings.Add(SqlDbType.Char, DbType.Byte);
+            _toDbMappings.Add(SqlDbType.Char, DbType.AnsiString);
             _toDbMappings.Add(SqlDbType.Date, DbType.Date);
             _toDbMappings.Add(SqlDbType.DateTime, DbType.DateTime);
             _toDbMappings.Add(SqlDbType.DateTime2, DbType.DateTime2);
@@ -62,17 +67,18 @@ namespace Lasy
             _toDbMappings.Add(SqlDbType.Int, DbType.Int32);
             _toDbMappings.Add(SqlDbType.Money, DbType.Currency);
             _toDbMappings.Add(SqlDbType.NChar, DbType.String);
-            // NText
+            
+            _toDbMappings.Add(SqlDbType.NText, DbType.String);
             _toDbMappings.Add(SqlDbType.NVarChar, DbType.String);
             _toDbMappings.Add(SqlDbType.Real, DbType.Double);
             _toDbMappings.Add(SqlDbType.SmallDateTime, DbType.DateTime);
             _toDbMappings.Add(SqlDbType.SmallInt, DbType.Int16);
             _toDbMappings.Add(SqlDbType.SmallMoney, DbType.Currency);
             //SqlDbType.Structured
-            //SqlDbType.Text
+            _toDbMappings.Add(SqlDbType.Text, DbType.String);
             _toDbMappings.Add(SqlDbType.Time, DbType.Time);
             // SqlDbType.Timestamp
-            _toDbMappings.Add(SqlDbType.TinyInt, DbType.SByte);
+            _toDbMappings.Add(SqlDbType.TinyInt, DbType.Byte);
             //SqlDbType.Udt
             _toDbMappings.Add(SqlDbType.UniqueIdentifier, DbType.Guid);
             _toDbMappings.Add(SqlDbType.VarBinary, DbType.Binary);
@@ -91,7 +97,7 @@ namespace Lasy
         {
             if (dotNetType == null)
                 return new SqlColumnType(SqlDbType.NVarChar, true, 100);
-
+            
             // For enumerations, map to ints
             if (dotNetType.IsEnum)
                 return new SqlColumnType(SqlDbType.Int);

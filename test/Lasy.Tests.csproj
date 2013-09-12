@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="AbstractTableTests.cs" />
     <Compile Include="EventTests.cs" />
+    <Compile Include="IntegrationTests\MySql.cs" />
     <Compile Include="JsonDBTests.cs" />
     <Compile Include="DictBasedTestObject.cs" />
     <Compile Include="Sql\ModifyableMySqlTests.cs" />
