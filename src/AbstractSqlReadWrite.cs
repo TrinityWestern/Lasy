@@ -77,6 +77,15 @@ namespace Lasy
             return whereClause;
         }
 
+        protected Dictionary<string, object> _coerceToTableTypes(string tableName, Dictionary<string, object> data)
+        {
+            var fieldTypes = SqlAnalyzer.GetFieldTypes(tableName);
+            return data.Select(kv => new KeyValuePair<string, object>(
+                    kv.Key, 
+                    data[kv.Key].ConvertTo(SqlTypeConversion.GetDotNetType(fieldTypes[kv.Key]))))
+                .ToDictionary();
+        }
+
         public virtual string MakeReadSql(string tableName, Dictionary<string, object> keyFields, IEnumerable<string> fields = null, bool useParameters = true)
         {   
             fields = fields ?? new string[]{};
@@ -85,7 +94,8 @@ namespace Lasy
             if (fields.Any())
                 fieldClause = fields.Join(", ");
 
-            var whereClause = MakeWhereClause(keyFields, "", useParameters);
+            var coercedKeys = _coerceToTableTypes(tableName, keyFields);
+            var whereClause = MakeWhereClause(coercedKeys, "", useParameters);
 
             var sql = "SELECT " + fieldClause + " FROM " + QualifiedTable(tableName) + whereClause;
 
