@@ -48,6 +48,8 @@ namespace Lasy
             _toCMappings.Add(new SqlColumnType(SqlDbType.NVarChar), typeof(string));
             _toCMappings.Add(new SqlColumnType(SqlDbType.VarChar, true), typeof(string));
             _toCMappings.Add(new SqlColumnType(SqlDbType.VarChar), typeof(string));
+            _toCMappings.Add(new SqlColumnType(SqlDbType.Char), typeof(string));
+            _toCMappings.Add(new SqlColumnType(SqlDbType.NChar), typeof(string));
             _toCMappings.Add(new SqlColumnType(SqlDbType.Xml), typeof(XmlDocument));
 
 
