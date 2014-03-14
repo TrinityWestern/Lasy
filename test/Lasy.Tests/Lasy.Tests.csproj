@@ -33,8 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.0.12051, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.2.6.0.12054\lib\nunit.framework.dll</HintPath>
+    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Nvelope, Version=1.0.1.16, Culture=neutral, PublicKeyToken=6713b367eb0b228d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -49,7 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractTableTests.cs" />
+    <Compile Include="TestEnv.cs" />
     <Compile Include="EventTests.cs" />
     <Compile Include="IntegrationTests\MySql.cs" />
     <Compile Include="JsonDBTests.cs" />
@@ -74,7 +74,7 @@
     <Compile Include="SqlTypeConversionTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\Lasy.csproj">
+    <ProjectReference Include="..\..\src\Lasy\Lasy.csproj">
       <Project>{99A415F9-8D5A-4977-AC8B-86EA82C891D3}</Project>
       <Name>Lasy</Name>
     </ProjectReference>

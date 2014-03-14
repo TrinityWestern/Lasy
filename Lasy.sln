@@ -1,9 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lasy", "src\Lasy.csproj", "{99A415F9-8D5A-4977-AC8B-86EA82C891D3}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2013 for Web
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lasy", "src\Lasy\Lasy.csproj", "{99A415F9-8D5A-4977-AC8B-86EA82C891D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lasy.Tests", "test\Lasy.Tests.csproj", "{088A595B-4550-475E-B1D0-47CB70FBDE6E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lasy.Tests", "test\Lasy.Tests\Lasy.Tests.csproj", "{088A595B-4550-475E-B1D0-47CB70FBDE6E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ECC3DC6F-4EBA-4E2A-BE09-D7EAC57D1101}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,7 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ECC3DC
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nvelope.Reactive", "lib\Nvelope.Reactive\Nvelope.Reactive.csproj", "{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nvelope.Reactive", "src\Nvelope.Reactive\Nvelope.Reactive.csproj", "{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nvelope.Reactive.Tests", "test\Nvelope.Reactive.Tests\Nvelope.Reactive.Tests.csproj", "{CCDA44AC-B4D2-46CA-B3FE-A88C83E9ECBB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +35,10 @@ Global
 		{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCDA44AC-B4D2-46CA-B3FE-A88C83E9ECBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCDA44AC-B4D2-46CA-B3FE-A88C83E9ECBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCDA44AC-B4D2-46CA-B3FE-A88C83E9ECBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCDA44AC-B4D2-46CA-B3FE-A88C83E9ECBB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

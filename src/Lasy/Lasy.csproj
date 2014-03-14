@@ -105,7 +105,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lib\Nvelope.Reactive\Nvelope.Reactive.csproj">
+    <ProjectReference Include="..\Nvelope.Reactive\Nvelope.Reactive.csproj">
       <Project>{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}</Project>
       <Name>Nvelope.Reactive</Name>
     </ProjectReference>

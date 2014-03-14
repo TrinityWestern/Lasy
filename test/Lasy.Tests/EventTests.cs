@@ -9,17 +9,19 @@ using Nvelope.Reflection;
 
 namespace LasyTests
 {
-    public class EventTests<T> : AbstractTableTests<T> where T: IRWEvented, ITransactable, new()
+    public abstract class EventTests
     {
+        public abstract IRWEvented _getDb();
+
         [Test]
         public void OnInsert()
         {
-            var db = _setupInsert();
+            var db = TestEnv.SetupInsert(_getDb());
             // When we do an insert, it should increment the counter
             var count = 0;
             db.OnInsert += (x, y) => ++count;
 
-            db.Insert(_table, _keys);
+            db.Insert(TestEnv.Table, TestEnv.Keys);
 
             Assert.AreEqual(1, count,
                 "The operation did not fire the event on the database");
@@ -28,13 +30,18 @@ namespace LasyTests
         [Test]
         public void OnInsertTransaction()
         {
-            var db = _setupInsert();
+            var db = TestEnv.SetupInsert(_getDb());
             // When we do an insert, it should increment the counter
             var count = 0;
             db.OnInsert += (x, y) => ++count;
 
-            var trans = db.BeginTransaction();
-            trans.Insert(_table, _keys);
+            if (!(db is ITransactable))
+                return;
+            
+            var tdb = db as ITransactable;
+
+            var trans = tdb.BeginTransaction();
+            trans.Insert(TestEnv.Table, TestEnv.Keys);
             trans.Commit();
 
             Assert.AreEqual(1, count,
@@ -44,11 +51,11 @@ namespace LasyTests
         [Test]
         public void OnUpdate()
         {
-            var db = _setupUpdate();
+            var db = TestEnv.SetupUpdate(_getDb());
             var count = 0;
             db.OnUpdate += (x, y, z) => ++count;
 
-            db.Update(_table, _keys, _updatedRow);
+            db.Update(TestEnv.Table, TestEnv.Keys, TestEnv.UpdatedRow);
 
             Assert.AreEqual(1, count,
                 "The operation did not fire the event on the database");
@@ -57,12 +64,17 @@ namespace LasyTests
         [Test]
         public void OnUpdateTransaction()
         {
-            var db = _setupUpdate();
+            var db = TestEnv.SetupUpdate(_getDb());
             var count = 0;
             db.OnUpdate += (x, y, z) => ++count;
 
-            var trans = db.BeginTransaction();
-            trans.Update(_table, _keys, _updatedRow);
+            if (!(db is ITransactable))
+                return;
+
+            var tdb = db as ITransactable;
+
+            var trans = tdb.BeginTransaction();
+            trans.Update(TestEnv.Table, TestEnv.Keys, TestEnv.UpdatedRow);
             trans.Commit();
 
             Assert.AreEqual(1, count,
@@ -72,11 +84,11 @@ namespace LasyTests
         [Test]
         public void OnDelete()
         {
-            var db = _setupDelete();
+            var db = TestEnv.SetupDelete(_getDb());
             var count = 0;
             db.OnDelete += (x,y) => ++count;
 
-            db.Delete(_table, _keys);
+            db.Delete(TestEnv.Table, TestEnv.Keys);
 
             Assert.AreEqual(1, count,
                 "The operation did not fire the event on the database");
@@ -85,12 +97,17 @@ namespace LasyTests
         [Test]
         public void OnDeleteTransaction()
         {
-            var db = _setupDelete();
+            var db = TestEnv.SetupDelete(_getDb());
             var count = 0;
             db.OnDelete += (x,y) => ++count;
 
-            var trans = db.BeginTransaction();
-            trans.Delete(_table, _keys);
+            if (!(db is ITransactable))
+                return;
+
+            var tdb = db as ITransactable;
+
+            var trans = tdb.BeginTransaction();
+            trans.Delete(TestEnv.Table, TestEnv.Keys);
             trans.Commit();
 
             Assert.AreEqual(1, count,
@@ -100,11 +117,11 @@ namespace LasyTests
         [Test]
         public void OnRead()
         {
-            var db = _setupUpdate();
+            var db = TestEnv.SetupUpdate(_getDb());
             var count = 0;
             db.OnRead += (x,y) => ++count;
 
-            db.Read(_table, _keys);
+            db.Read(TestEnv.Table, TestEnv.Keys);
 
             Assert.AreEqual(1, count, 
                 "The operation did not fire the event on the database");
@@ -113,12 +130,17 @@ namespace LasyTests
         [Test]
         public void OnReadTransaction()
         {
-            var db = _setupUpdate();
+            var db = TestEnv.SetupUpdate(_getDb());
             var count = 0;
             db.OnRead += (x, y) => ++count;
 
-            var trans = db.BeginTransaction();
-            trans.Read(_table, _keys);
+            if (!(db is ITransactable))
+                return;
+
+            var tdb = db as ITransactable;
+
+            var trans = tdb.BeginTransaction();
+            trans.Read(TestEnv.Table, TestEnv.Keys);
             trans.Commit();
 
             Assert.AreEqual(1, count,

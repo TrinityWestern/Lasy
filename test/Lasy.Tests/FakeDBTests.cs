@@ -9,16 +9,31 @@ using System.Linq;
 namespace LasyTests
 {
     [TestFixture]
-    public class FakeDbReadConsistency : ReadConsistencyTests<FakeDB>
-    { }
+    public class FakeDbReadConsistency : ReadConsistencyTests
+    {
+        protected override IReadWrite _getDb()
+        {
+            return new FakeDB();
+        }
+    }
 
     [TestFixture]
-    public class FakeDbTransactionTests : TransactionTests<FakeDB>
-    { }
+    public class FakeDbTransactionTests : TransactionTests
+    {
+        public override ITransactable _getDb()
+        {
+            return new FakeDB();
+        }
+    }
 
     [TestFixture]
-    public class FakeDBEventTests : EventTests<FakeDB>
-    { }
+    public class FakeDBEventTests : EventTests
+    {
+        public override IRWEvented _getDb()
+        {
+            return new FakeDB();
+        }
+    }
 
     [TestFixture]
     public class FakeDBTests

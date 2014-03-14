@@ -16,40 +16,42 @@ namespace LasyTests
     /// for an example
     /// </summary>
     /// <typeparam name="TDb"></typeparam>
-    public class TransactionTests<T> : AbstractTableTests<T> where T: ITransactable, new()
+    public abstract class TransactionTests
     {
+        public abstract ITransactable _getDb();
+
         [Test]
         public void RollbackInsert()
         {
-            var db = _setupInsert();
+            var db = TestEnv.SetupInsert(_getDb());
             var trans = db.BeginTransaction();
-            trans.Insert(_table, _row);
+            trans.Insert(TestEnv.Table, TestEnv.Row);
             trans.Rollback();
             // The row shouldn't exist anymore
-            _assertGone(db);
+            TestEnv.AssertGone(db);
         }
 
         [Test]
         public void CommitInsert()
         {
-            var db = _setupInsert();
+            var db = TestEnv.SetupInsert(_getDb());
             var trans = db.BeginTransaction();
-            trans.Insert(_table, _row);
+            trans.Insert(TestEnv.Table, TestEnv.Row);
             trans.Commit();
             // The row should be in the db now
-            _assertHas(db, _row);
+            TestEnv.AssertHas(db, TestEnv.Row);
         }
 
         [Test(Description="Make sure the operation isn't visible outside the scope of the transaction until it is commited")]
         public void IsoloateInsert()
         {
-            var db = _setupInsert();
+            var db = TestEnv.SetupInsert(_getDb());
             var trans = db.BeginTransaction();
-            trans.Insert(_table, _row);
+            trans.Insert(TestEnv.Table, TestEnv.Row);
             // At this point, before we commit the transaction, the change should't be visible outside the transaction
             // But it should be visible inside the transaction
-            _assertGone(db);
-            _assertHas(trans, _row);
+            TestEnv.AssertGone(db);
+            TestEnv.AssertHas(trans, TestEnv.Row);
 
             trans.Commit();
         }
@@ -57,34 +59,34 @@ namespace LasyTests
         [Test]
         public void RollbackUpdate()
         {
-            var db = _setupUpdate();
+            var db = TestEnv.SetupUpdate(_getDb());
             var trans = db.BeginTransaction();
-            trans.Update(_table, _updatedRow, _keys);
+            trans.Update(TestEnv.Table, TestEnv.UpdatedRow, TestEnv.Keys);
             trans.Rollback();
             // The row be in it's original state
-            _assertHas(db, _row);
+            TestEnv.AssertHas(db, TestEnv.Row);
         }
 
         [Test]
         public void CommitUpdate()
         {
-            var db = _setupUpdate();
+            var db = TestEnv.SetupUpdate(_getDb());
             var trans = db.BeginTransaction();
-            trans.Update(_table, _updatedRow, _keys);
+            trans.Update(TestEnv.Table, TestEnv.UpdatedRow, TestEnv.Keys);
             trans.Commit();
             // The row should now be updated
-            _assertHas(db, _updatedRow);
+            TestEnv.AssertHas(db, TestEnv.UpdatedRow);
         }
 
         [Test(Description="Make sure the operation isn't visible outside the scope of the transaction until it is commited")]
         public void IsolateUpdate()
         {
-            var db = _setupUpdate();
+            var db = TestEnv.SetupUpdate(_getDb());
             var trans = db.BeginTransaction();
-            trans.Update(_table, _updatedRow, _keys);
+            trans.Update(TestEnv.Table, TestEnv.UpdatedRow, TestEnv.Keys);
             // At this point, the row should be updated in the transaction, but not outside of it
-            _assertHas(trans, _updatedRow);
-            _assertHas(db, _row);
+            TestEnv.AssertHas(trans, TestEnv.UpdatedRow);
+            TestEnv.AssertHas(db, TestEnv.Row);
 
             trans.Commit();
         }
@@ -92,34 +94,34 @@ namespace LasyTests
         [Test]
         public void RollbackDelete()
         {
-            var db = _setupDelete();
+            var db = TestEnv.SetupDelete(_getDb());
             var trans = db.BeginTransaction();
-            trans.Delete(_table, _keys);
+            trans.Delete(TestEnv.Table, TestEnv.Keys);
             trans.Rollback();
             // The row should still exist
-            _assertHas(db, _row);
+            TestEnv.AssertHas(db, TestEnv.Row);
         }
 
         [Test]
         public void CommitDelete()
         {
-            var db = _setupDelete();
+            var db = TestEnv.SetupDelete(_getDb());
             var trans = db.BeginTransaction();
-            trans.Delete(_table, _keys);
+            trans.Delete(TestEnv.Table, TestEnv.Keys);
             trans.Commit();
             // The row should be gone
-            _assertGone(db);
+            TestEnv.AssertGone(db);
         }
 
         [Test(Description="Make sure the operation isn't visible outside the scope of the transaction until it is commited")]
         public void IsolateDelete()
         {
-            var db = _setupDelete();
+            var db = TestEnv.SetupDelete(_getDb());
             var trans = db.BeginTransaction();
-            trans.Delete(_table, _keys);
+            trans.Delete(TestEnv.Table, TestEnv.Keys);
             // At this point, the row should be deleted in the transaction, but not outside it
-            _assertGone(trans);
-            _assertHas(db, _row);
+            TestEnv.AssertGone(trans);
+            TestEnv.AssertHas(db, TestEnv.Row);
 
             trans.Commit();
         }

@@ -9,25 +9,16 @@ using NUnit.Framework;
 
 namespace LasyTests
 {
-    public class AbstractTableTests<T> where T: IReadWrite, new()
+    public static class TestEnv
     {
-        /// <summary>
-        /// Create a new db
-        /// </summary>
-        /// <returns></returns>
-        protected virtual T _newDb()
-        {
-            return new T();
-        }
-
         /// <summary>
         /// The name of the table we'll be testing on
         /// </summary>
-        protected virtual string _table { get { return "Tbl"; } }
+        public static string Table { get { return "Tbl"; } }
         /// <summary>
         /// The row we'll either insert or delete
         /// </summary>
-        protected virtual Dictionary<string, object> _row
+        public static Dictionary<string, object> Row
         {
             get
             {
@@ -37,11 +28,11 @@ namespace LasyTests
         /// <summary>
         /// The contents of the row after we do an update
         /// </summary>
-        protected virtual Dictionary<string, object> _updatedRow
+        public static Dictionary<string, object> UpdatedRow
         {
             get
             {
-                return _row.Assoc("Val", 42);
+                return Row.Assoc("Val", 42);
             }
         }
 
@@ -51,12 +42,12 @@ namespace LasyTests
         /// that is unique to the test row and doesn't change between _row and 
         /// _updatedRow
         /// </summary>
-        protected virtual Dictionary<string, object> _keys
+        public static Dictionary<string, object> Keys
         {
             get
             {
-                var diff = _row.Diff(_updatedRow);
-                return _row.Except(diff.Keys);
+                var diff = Row.Diff(UpdatedRow);
+                return Row.Except(diff.Keys);
             }
         }
 
@@ -64,19 +55,18 @@ namespace LasyTests
         /// Setup the db for inserts - just return a new db generally
         /// </summary>
         /// <returns></returns>
-        protected virtual T _setupInsert()
+        public static T SetupInsert<T>(T db) where T: IWriteable
         {
-            return _newDb();
+            return db;
         }
 
         /// <summary>
         /// Setup the db for updates - ie insert _row into it
         /// </summary>
         /// <returns></returns>
-        protected virtual T _setupUpdate()
+        public static T SetupUpdate<T>(T db) where T: IWriteable
         {
-            var db = _newDb();
-            db.Insert(_table, _row);
+            db.Insert(Table, Row);
             return db;
         }
 
@@ -84,10 +74,9 @@ namespace LasyTests
         /// Setup the db for deletes - ie insert _row into it
         /// </summary>
         /// <returns></returns>
-        protected virtual T _setupDelete()
+        public static T SetupDelete<T>(T db) where T: IWriteable
         {
-            var db = _newDb();
-            db.Insert(_table, _row);
+            db.Insert(Table, Row);
             return db;
         }
 
@@ -97,11 +86,11 @@ namespace LasyTests
         /// <param name="db"></param>
         /// <param name="trans">If supplied read using the transaction</param>
         /// <param name="contents"></param>
-        protected void _assertHas(IReadWrite db, Dictionary<string, object> contents)
+        public static void AssertHas(IReadWrite db, Dictionary<string, object> contents)
         {
-            var rows = db.Read(_table, _keys);
+            var rows = db.Read(Table, Keys);
             Assert.AreEqual(1, rows.Count(), "Expected the row to be in the database");
-            var exceptAutokey = rows.Single().Except(db.Analyzer.GetAutoNumberKey(_table));
+            var exceptAutokey = rows.Single().Except(db.Analyzer.GetAutoNumberKey(Table));
             Assert.AreEqual(contents.Print(), exceptAutokey.Print(), "The row was there, but not with the values we expected");
         }
 
@@ -110,9 +99,9 @@ namespace LasyTests
         /// </summary>
         /// <param name="db"></param>
         /// <param name="trans"></param>
-        protected void _assertGone(IReadWrite db)
+        public static void AssertGone(IReadWrite db)
         {
-            Assert.False(db.Read(_table, _keys).Any(), "Expected there to be no row in the database");
+            Assert.False(db.Read(Table, Keys).Any(), "Expected there to be no row in the database");
         }
     }
 }

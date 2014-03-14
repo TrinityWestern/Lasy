@@ -13,17 +13,14 @@ namespace LasyTests
     /// it with the [TestFixture] attribute. See FakeDbReadConsistency for example
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ReadConsistencyTests<T> where T: IReadWrite, new()
+    public abstract class ReadConsistencyTests
     {
-        protected IReadWrite _newRw()
-        {
-            return new T();
-        }
+        protected abstract IReadWrite _getDb();
 
         [Test]
         public void RawReadReturnsCopiesOfDicts()
         {
-            var db = _newRw();
+            var db = _getDb();
             var row = new { A = 1, B = 2 };
             var id = db.Insert("Tbl", row);
             var fromDb = db.RawRead("Tbl", id).Single();
@@ -35,7 +32,7 @@ namespace LasyTests
         [Test]
         public void RawReadExecutesImmediately()
         {
-            var db = _newRw();
+            var db = _getDb();
             var row = new { A = 1, B = 2 };
             var id = db.Insert("Tbl", row);
             
@@ -51,7 +48,7 @@ namespace LasyTests
         [Test]
         public void RawReadAllReturnsCopiesOfDicts()
         {
-            var db = _newRw();
+            var db = _getDb();
             var row = new { A = 1, B = 2 };
             var id = db.Insert("Tbl", row);
             var fromDb = db.ReadAll("Tbl").Single();
@@ -63,7 +60,7 @@ namespace LasyTests
         [Test]
         public void RawReadAllExecutesImmediately()
         {
-            var db = _newRw();
+            var db = _getDb();
             var row = new { A = 1, B = 2 };
             var id = db.Insert("Tbl", row);
 

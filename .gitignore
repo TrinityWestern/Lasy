@@ -1,9 +1,9 @@
-bin
-obj
+**\bin
+**\obj
 *.suo
 *.swp
 *.csproj.user
 /src/*.nupkg
 *.VisualState.xml
-test/TestResult.xml
-/packages/
+TestResult.xml
+**\packages
