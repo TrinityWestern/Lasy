@@ -3,7 +3,7 @@
 *.suo
 *.swp
 *.csproj.user
-/src/*.nupkg
+*.nupkg
 *.VisualState.xml
 TestResult.xml
 **\packages
