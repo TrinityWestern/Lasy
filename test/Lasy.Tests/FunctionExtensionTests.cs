@@ -6,8 +6,9 @@ using NUnit.Framework;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
+using Lasy;
 
-namespace Nvelope.Reactive.Tests
+namespace LasyTests
 {
     [TestFixture]
     public class FunctionExtensionTests

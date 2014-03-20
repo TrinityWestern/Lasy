@@ -5,7 +5,7 @@ using System.Text;
 using System.Reactive;
 using Nvelope;
 
-namespace Nvelope.Reactive
+namespace Lasy
 {
     /// <summary>
     /// Encapsulates extension methods for Reactive-programming function extensions

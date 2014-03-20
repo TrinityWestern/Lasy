@@ -77,6 +77,7 @@
     <Compile Include="FakeDBTable.cs" />
     <Compile Include="FakeDBTransaction.cs" />
     <Compile Include="FileDB.cs" />
+    <Compile Include="FunctionExtensions.cs" />
     <Compile Include="IAnalyzable.cs" />
     <Compile Include="IDBAnalyzer.cs" />
     <Compile Include="IDBModifier.cs" />
@@ -116,12 +117,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Nvelope.Reactive\Nvelope.Reactive.csproj">
-      <Project>{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}</Project>
-      <Name>Nvelope.Reactive</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

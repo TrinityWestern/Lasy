@@ -2,10 +2,8 @@
   <Settings activeconfig="Debug" />
   <Config name="Debug" binpathtype="Auto">
     <assembly path="test\Lasy.Tests\bin\Debug\LasyTests.dll" />
-    <assembly path="test\Nvelope.Reactive.Tests\bin\Debug\Nvelope.Reactive.Tests.dll" />
   </Config>
   <Config name="Release" binpathtype="Auto" >
     <assembly path="test\Lasy.Tests\bin\Release\LasyTests.dll" />
-    <assembly path="test\Nvelope.Reactive.Tests\bin\Release\Nvelope.Reactive.Tests.dll" />
 	</Config>
 </NUnitProject>

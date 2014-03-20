@@ -13,10 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ECC3DC
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nvelope.Reactive", "src\Nvelope.Reactive\Nvelope.Reactive.csproj", "{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nvelope.Reactive.Tests", "test\Nvelope.Reactive.Tests\Nvelope.Reactive.Tests.csproj", "{CCDA44AC-B4D2-46CA-B3FE-A88C83E9ECBB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,14 +27,6 @@ Global
 		{088A595B-4550-475E-B1D0-47CB70FBDE6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{088A595B-4550-475E-B1D0-47CB70FBDE6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{088A595B-4550-475E-B1D0-47CB70FBDE6E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ABE2BBAB-8110-40F9-AB11-3A2E927D06CE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CCDA44AC-B4D2-46CA-B3FE-A88C83E9ECBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CCDA44AC-B4D2-46CA-B3FE-A88C83E9ECBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CCDA44AC-B4D2-46CA-B3FE-A88C83E9ECBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CCDA44AC-B4D2-46CA-B3FE-A88C83E9ECBB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
