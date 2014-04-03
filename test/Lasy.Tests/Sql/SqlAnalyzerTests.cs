@@ -11,11 +11,17 @@ namespace LasyTests.Sql
     [TestFixture]
     public class SqlAnalyzerTests
     {
-        [Test]
-        public void TableExists()
+        [TestCase("Person", Result=true)]
+        [TestCase("Bar", Result = false)]
+        [TestCase("[Person]", Result = true)]
+        [TestCase("[dbo].[Person]", Result = true)]
+        [TestCase("SchemaA.Foo", Result = true)]
+        [TestCase("SchemaB.Foo", Result = true)]
+        [TestCase("Foo", Result=false)]
+        public bool TableExists(string table)
         {
             var ana = new SqlAnalyzer(Config.TestDBConnectionString);
-            Assert.True(ana.TableExists("Person"));
+            return ana.TableExists(table);
         }
 
         [Test]
@@ -25,12 +31,16 @@ namespace LasyTests.Sql
             Assert.True(ana.TableExists("ID_NUMView"));
         }
 
-        [Test]
-        public void GetFields()
+        [TestCase("Person", Result= "(PersonId,FirstName,LastName,Age)")]
+        [TestCase("[Person]", Result = "(PersonId,FirstName,LastName,Age)")]
+        [TestCase("[dbo].[Person]", Result = "(PersonId,FirstName,LastName,Age)")]
+        [TestCase("SchemaA.Foo", Result="(FooId)", Description="Shouldn't crash if 2 tables in different schemas with same name")]
+        [TestCase("SchemaA.Foo", Result = "(FooId)", Description = "Shouldn't crash if 2 tables in different schemas with same name")]
+        public string GetFields(string table)
         {
             var ana = new SqlAnalyzer(Config.TestDBConnectionString);
-            var fields = ana.GetFields("Person");
-            Assert.AreEqual("(PersonId,FirstName,LastName,Age)", fields.Print());
+            var fields = ana.GetFields(table);
+            return fields.Print();
         }
 
         [Test]
@@ -58,6 +68,23 @@ namespace LasyTests.Sql
             Assert.AreEqual("([Age,int NULL],[FirstName,nvarchar(50) NULL],[ID_NUM,int NOT NULL],[LastName,nvarchar(50) NULL],[PersonId,int NOT NULL])", 
                 fields.Print());
         }
+
+        [TestCase("SchemaA.Baz", Result="BazId")]
+        [TestCase("Organization", Result="OrganizationId")]
+        public string GetAutoNumberKey(string table)
+        {
+            var ana = new SqlAnalyzer(Config.TestDBConnectionString);
+            return ana.GetAutoNumberKey(table);
+        }
+
+        [TestCase("SchemaA.Baz", Result = "(BazId)")]
+        [TestCase("Organization", Result = "(OrganizationId)")]
+        public string GetPrimaryKeys(string table)
+        {
+            var ana = new SqlAnalyzer(Config.TestDBConnectionString);
+            return ana.GetPrimaryKeys(table).Print();
+        }
+
 
     }
 }

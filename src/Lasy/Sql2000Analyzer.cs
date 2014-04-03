@@ -60,5 +60,24 @@ namespace Lasy
             // The only schema is dbo
             return "select @schema = 'dbo'";
         }
+
+        protected internal override string _getFieldTypeSql()
+        {
+            return @"SELECT     
+                    isc.*
+                FROM 
+                    sysobjects tbl
+                    inner join syscolumns c
+                    on tbl.id = c.id
+                    inner join information_schema.columns isc
+                    on isc.column_name = c.name and isc.table_name = tbl.name
+                    left outer join information_schema.key_column_usage k
+                    on k.table_name = tbl.name and objectproperty(object_id(constraint_name), 'IsPrimaryKey') = 1
+                        and k.column_name = c.name
+                WHERE 
+                    tbl.xtype in ('U','V')
+                    and tbl.name = @table
+                order by isc.ORDINAL_POSITION";
+        }
     }
 }

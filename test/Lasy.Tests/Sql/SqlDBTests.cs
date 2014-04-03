@@ -19,6 +19,8 @@ namespace LasyTests.Sql
             {
                 conn.Execute("delete Person");
                 conn.Execute("delete Organization");
+                conn.Execute("delete SchemaA.Foo");
+                conn.Execute("delete SchemaB.Foo");
             }
 
         }
@@ -74,8 +76,6 @@ namespace LasyTests.Sql
             Assert.True(fromDb.Any());
             fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", null } });
             Assert.True(fromDb.Any());
-
-            db.Delete("Person", dataKeys);
         }
 
         [Test]
@@ -90,14 +90,13 @@ namespace LasyTests.Sql
             Assert.True(fromDb.Any());
             fromDb = db.Read("Person", new Dictionary<string, object>() { { "Age", null } }.Union(dataKeys));
             Assert.True(fromDb.Any());
-
-            db.Delete("Person", dataKeys);
         }
 
         [Test]
         public void ReadsFromView()
         {
             var db = ConnectTo.Sql2005(Config.TestDBConnectionString);
+            db.Insert("Person", new Person());
             Assert.AreNotEqual(0, db.ReadAll("ID_NUMView"));
         }
 
@@ -116,6 +115,22 @@ namespace LasyTests.Sql
             db.StrictTables = true;
             Assert.Throws<NotATableException>(() => db.Read(table, null),
                 "We had StrictTables set to true, so we should have throw an exception");
+        }
+
+        [Test]
+        public void CRUDOnTwoTablesSameNameDifferentSchema()
+        {
+            var db = ConnectTo.Sql2005(Config.TestDBConnectionString);
+            var data = new { FooId = 4 }._AsDictionary();
+            db.Insert("SchemaA.Foo", data);
+            var fromDb = db.Read("SchemaA.Foo", data).Single();
+            Assert.True(fromDb.IsSameAs(data));
+            var newData = new { FooId = 7 }._AsDictionary();
+            db.Update("SchemaA.Foo", newData, data);
+            fromDb = db.Read("SchemaA.Foo", newData).Single();
+            Assert.True(fromDb.IsSameAs(newData));
+            db.Delete("SchemaA.Foo", newData);
+            Assert.IsEmpty(db.Read("SchemaA.Foo", new { }));
         }
 
         /// <summary>

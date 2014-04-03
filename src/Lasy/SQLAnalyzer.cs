@@ -100,7 +100,7 @@ namespace Lasy
                     on cu.TABLE_SCHEMA = isc.TABLE_SCHEMA and cu.TABLE_NAME = isc.TABLE_NAME and cu.COLUMN_NAME = isc.COLUMN_NAME
                     left join INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
                     on cu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
-                    where isc.TABLE_NAME = @table and tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
+                    where isc.TABLE_NAME = @table and isc.TABLE_SCHEMA = @schema and tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
                     order by ORDINAL_POSITION";
         }
 
@@ -115,7 +115,7 @@ namespace Lasy
                     on cu.TABLE_SCHEMA = isc.TABLE_SCHEMA and cu.TABLE_NAME = isc.TABLE_NAME and cu.COLUMN_NAME = isc.COLUMN_NAME
                     left join INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
                     on cu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
-                    where isc.TABLE_NAME = @table and is_identity = 1
+                    where isc.TABLE_NAME = @table and isc.TABLE_SCHEMA = @schema and is_identity = 1
                     order by ORDINAL_POSITION";
         }
 
@@ -140,17 +140,19 @@ namespace Lasy
             return @"SELECT     
                     isc.*
                 FROM 
-                    sysobjects tbl
-                    inner join syscolumns c
-                    on tbl.id = c.id
+					sys.objects tbl
+					inner join sys.schemas schemas
+					on tbl.schema_id = schemas.schema_id
+                    inner join sys.columns c
+                    on tbl.object_id = c.object_id
                     inner join information_schema.columns isc
-                    on isc.column_name = c.name and isc.table_name = tbl.name
+                    on isc.column_name = c.name and isc.table_name = tbl.name and isc.table_schema = schemas.name
                     left outer join information_schema.key_column_usage k
                     on k.table_name = tbl.name and objectproperty(object_id(constraint_name), 'IsPrimaryKey') = 1
                         and k.column_name = c.name
                 WHERE 
-                    tbl.xtype in ('U','V')
-                    and tbl.name = @table
+                    tbl.name = @table
+					and schemas.name = @schema 
                 order by isc.ORDINAL_POSITION";
         }
 
@@ -168,7 +170,7 @@ namespace Lasy
         {
             using (var conn = _getConnection(_connectionString))
             {
-                return conn.ExecuteSingleColumn<string>(_getPrimaryKeySql(), new { table = TableName(tableName) });
+                return conn.ExecuteSingleColumn<string>(_getPrimaryKeySql(), new { table = TableName(tableName), schema = SchemaName(tableName) });
             }
         }
 
@@ -181,8 +183,8 @@ namespace Lasy
         {
             using (var conn = _getConnection(_connectionString))
             {
-                var res = conn.ExecuteSingleColumn<string>(_getAutonumberKeySql(), new { table = TableName(tableName) });
-                return res.FirstOr(null);
+                var res = conn.ExecuteSingleColumn<string>(_getAutonumberKeySql(), new { table = TableName(tableName), schema = SchemaName(tableName) });
+                return res.SingleOr(null);
             }           
         }
 
@@ -204,7 +206,7 @@ namespace Lasy
         protected Dictionary<string, SqlColumnType> _getFieldTypesFromDB(string tableName)
         {
             using (var conn = _getConnection(_connectionString))
-                return _convertTypes(conn.Execute(_getFieldTypeSql(), new { table = TableName(tableName) }));
+                return _convertTypes(conn.Execute(_getFieldTypeSql(), new { table = TableName(tableName), schema = SchemaName(tableName) }));
         }
 
         protected Dictionary<string, SqlColumnType> _convertTypes(ICollection<Dictionary<string, object>> sysobjectsInfos)
