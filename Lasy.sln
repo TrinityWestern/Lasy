@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ECC3DC
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lasy-net4", "src\Lasy-net4\Lasy-net4.csproj", "{1D26E9C4-24C7-4D6A-8C47-F608F6314F58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{088A595B-4550-475E-B1D0-47CB70FBDE6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{088A595B-4550-475E-B1D0-47CB70FBDE6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{088A595B-4550-475E-B1D0-47CB70FBDE6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D26E9C4-24C7-4D6A-8C47-F608F6314F58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D26E9C4-24C7-4D6A-8C47-F608F6314F58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D26E9C4-24C7-4D6A-8C47-F608F6314F58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D26E9C4-24C7-4D6A-8C47-F608F6314F58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

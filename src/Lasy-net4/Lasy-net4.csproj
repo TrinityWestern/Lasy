@@ -5,12 +5,12 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{99A415F9-8D5A-4977-AC8B-86EA82C891D3}</ProjectGuid>
+    <ProjectGuid>{1D26E9C4-24C7-4D6A-8C47-F608F6314F58}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Lasy</RootNamespace>
     <AssemblyName>Lasy</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Lasy\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -43,24 +43,24 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Nvelope">
-      <HintPath>..\..\packages\Nvelope.1.1.0.2\lib\net451\Nvelope.dll</HintPath>
+      <HintPath>..\..\packages\Nvelope.1.1.0.2\lib\net40\Nvelope.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core">
-      <HintPath>..\..\packages\Rx-Core.2.2.2\lib\net45\System.Reactive.Core.dll</HintPath>
+      <HintPath>..\..\packages\Rx-Core.2.2.2\lib\net40\System.Reactive.Core.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Interfaces">
-      <HintPath>..\..\packages\Rx-Interfaces.2.2.2\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <HintPath>..\..\packages\Rx-Interfaces.2.2.2\lib\net40\System.Reactive.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Linq">
-      <HintPath>..\..\packages\Rx-Linq.2.2.2\lib\net45\System.Reactive.Linq.dll</HintPath>
+      <HintPath>..\..\packages\Rx-Linq.2.2.2\lib\net40\System.Reactive.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.PlatformServices">
-      <HintPath>..\..\packages\Rx-PlatformServices.2.2.3\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+      <HintPath>..\..\packages\Rx-PlatformServices.2.2.3\lib\net40\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -69,51 +69,51 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractSqlReadWrite.cs" />
-    <Compile Include="ConnectTo.cs" />
-    <Compile Include="DictionaryExtensions.cs" />
-    <Compile Include="FakeDB.cs" />
-    <Compile Include="FakeDBMeta.cs" />
-    <Compile Include="FakeDBTable.cs" />
-    <Compile Include="FakeDBTransaction.cs" />
-    <Compile Include="FileDB.cs" />
-    <Compile Include="FunctionExtensions.cs" />
-    <Compile Include="IAnalyzable.cs" />
-    <Compile Include="IDBAnalyzer.cs" />
-    <Compile Include="IDBModifier.cs" />
-    <Compile Include="IModifiable.cs" />
-    <Compile Include="INameQualifier.cs" />
-    <Compile Include="IRWEvented.cs" />
-    <Compile Include="JsonDB.cs" />
-    <Compile Include="ModifiableSqlDB.cs" />
-    <Compile Include="ModifiableSqlDbTransaction.cs" />
-    <Compile Include="MySqlAnalyzer.cs" />
-    <Compile Include="MySqlDB.cs" />
-    <Compile Include="MySqlModifier.cs" />
-    <Compile Include="MySqlNameQualifier.cs" />
-    <Compile Include="ObjectAnalyzer.cs" />
-    <Compile Include="Sql2000Analyzer.cs" />
-    <Compile Include="Sql2000NameQualifier.cs" />
-    <Compile Include="SqlColumnType.cs">
+    <Compile Include="..\Lasy\AbstractSqlReadWrite.cs" />
+    <Compile Include="..\Lasy\ConnectTo.cs" />
+    <Compile Include="..\Lasy\DictionaryExtensions.cs" />
+    <Compile Include="..\Lasy\FakeDB.cs" />
+    <Compile Include="..\Lasy\FakeDBMeta.cs" />
+    <Compile Include="..\Lasy\FakeDBTable.cs" />
+    <Compile Include="..\Lasy\FakeDBTransaction.cs" />
+    <Compile Include="..\Lasy\FileDB.cs" />
+    <Compile Include="..\Lasy\FunctionExtensions.cs" />
+    <Compile Include="..\Lasy\IAnalyzable.cs" />
+    <Compile Include="..\Lasy\IDBAnalyzer.cs" />
+    <Compile Include="..\Lasy\IDBModifier.cs" />
+    <Compile Include="..\Lasy\IModifiable.cs" />
+    <Compile Include="..\Lasy\INameQualifier.cs" />
+    <Compile Include="..\Lasy\IRWEvented.cs" />
+    <Compile Include="..\Lasy\JsonDB.cs" />
+    <Compile Include="..\Lasy\ModifiableSqlDB.cs" />
+    <Compile Include="..\Lasy\ModifiableSqlDbTransaction.cs" />
+    <Compile Include="..\Lasy\MySqlAnalyzer.cs" />
+    <Compile Include="..\Lasy\MySqlDB.cs" />
+    <Compile Include="..\Lasy\MySqlModifier.cs" />
+    <Compile Include="..\Lasy\MySqlNameQualifier.cs" />
+    <Compile Include="..\Lasy\ObjectAnalyzer.cs" />
+    <Compile Include="..\Lasy\Sql2000Analyzer.cs" />
+    <Compile Include="..\Lasy\Sql2000NameQualifier.cs" />
+    <Compile Include="..\Lasy\SqlColumnType.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="SqlModifier.cs" />
-    <Compile Include="IReadWrite.cs" />
-    <Compile Include="ITransactable.cs" />
-    <Compile Include="ITransaction.cs" />
-    <Compile Include="LasyExceptions.cs" />
-    <Compile Include="IReadable.cs" />
-    <Compile Include="IWriteable.cs" />
-    <Compile Include="LockBox.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqlDB.cs" />
-    <Compile Include="SqlDBTransaction.cs" />
-    <Compile Include="SqlAnalyzer.cs" />
-    <Compile Include="SqlExtensions.cs" />
-    <Compile Include="SqlNameQualifier.cs" />
-    <Compile Include="SqlTypeAttribute.cs" />
-    <Compile Include="SqlTypeConversion.cs" />
-    <Compile Include="UnreliableDb.cs" />
+    <Compile Include="..\Lasy\SqlModifier.cs" />
+    <Compile Include="..\Lasy\IReadWrite.cs" />
+    <Compile Include="..\Lasy\ITransactable.cs" />
+    <Compile Include="..\Lasy\ITransaction.cs" />
+    <Compile Include="..\Lasy\LasyExceptions.cs" />
+    <Compile Include="..\Lasy\IReadable.cs" />
+    <Compile Include="..\Lasy\IWriteable.cs" />
+    <Compile Include="..\Lasy\LockBox.cs" />
+    <Compile Include="..\Lasy\Properties\AssemblyInfo.cs" />
+    <Compile Include="..\Lasy\SqlDB.cs" />
+    <Compile Include="..\Lasy\SqlDBTransaction.cs" />
+    <Compile Include="..\Lasy\SqlAnalyzer.cs" />
+    <Compile Include="..\Lasy\SqlExtensions.cs" />
+    <Compile Include="..\Lasy\SqlNameQualifier.cs" />
+    <Compile Include="..\Lasy\SqlTypeAttribute.cs" />
+    <Compile Include="..\Lasy\SqlTypeConversion.cs" />
+    <Compile Include="..\Lasy\UnreliableDb.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
