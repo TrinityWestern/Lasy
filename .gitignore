@@ -7,3 +7,4 @@
 *.VisualState.xml
 TestResult.xml
 **\packages
+*.zip
