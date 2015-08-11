@@ -48,7 +48,11 @@ namespace Lasy
             _toCMappings.Add(new SqlColumnType(SqlDbType.NVarChar), typeof(string));
             _toCMappings.Add(new SqlColumnType(SqlDbType.VarChar, true), typeof(string));
             _toCMappings.Add(new SqlColumnType(SqlDbType.VarChar), typeof(string));
+            var charTypes = _toCMappings.WhereKeys(k => k.SqlType == SqlDbType.Char).Keys;
+            foreach (var charType in charTypes)
+                _toCMappings.Remove(charType);
             _toCMappings.Add(new SqlColumnType(SqlDbType.Char), typeof(string));
+            _toCMappings.Add(new SqlColumnType(SqlDbType.Char, true), typeof(string));
             _toCMappings.Add(new SqlColumnType(SqlDbType.NChar), typeof(string));
             _toCMappings.Add(new SqlColumnType(SqlDbType.Xml), typeof(XmlDocument));
 
@@ -203,7 +207,9 @@ namespace Lasy
             var mapped = _toCMappings.Where(kv => kv.Key.SqlType == ct.SqlType && kv.Key.IsNullable == ct.IsNullable);
             if (!mapped.Any())
                 throw new NotImplementedException("Don't know how to convert SqlColumnType '" + ct.Print() + "' to a .Net type");
-
+            if (mapped.Count() > 1)
+                throw new NotImplementedException("There was more than one mapping to a .Net type for SqlColumnType " + ct.Print());
+ 
             return mapped.First().Value;
         }
     }
