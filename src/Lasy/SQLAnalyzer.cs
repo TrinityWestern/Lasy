@@ -184,7 +184,8 @@ namespace Lasy
             using (var conn = _getConnection(_connectionString))
             {
                 var res = conn.ExecuteSingleColumn<string>(_getAutonumberKeySql(), new { table = TableName(tableName), schema = SchemaName(tableName) });
-                return res.SingleOr(null);
+                // Under certain circumstances, we get duplicated rows back. In taht situation, don't crash
+                return res.FirstOr(null);
             }           
         }
 
