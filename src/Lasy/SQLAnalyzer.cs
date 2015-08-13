@@ -115,7 +115,7 @@ namespace Lasy
                     on cu.TABLE_SCHEMA = isc.TABLE_SCHEMA and cu.TABLE_NAME = isc.TABLE_NAME and cu.COLUMN_NAME = isc.COLUMN_NAME
                     left join INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
                     on cu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
-                    where isc.TABLE_NAME = @table and isc.TABLE_SCHEMA = @schema and 
+                    where isc.TABLE_NAME = @table and isc.TABLE_SCHEMA = @schema 
                     and (is_identity = 1 or (tc.CONSTRAINT_TYPE = 'PRIMARY KEY' and isc.COLUMN_DEFAULT is not null))
                     order by ORDINAL_POSITION";
         }
