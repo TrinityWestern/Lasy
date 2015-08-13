@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{99A415F9-8D5A-4977-AC8B-86EA82C891D3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Lasy</RootNamespace>
+    <AssemblyName>Lasy</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Lasy\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Release\Lasy.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MySql.Data, Version=6.7.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\MySql.Data.6.7.4\lib\net40\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Nvelope, Version=1.1.0.2, Culture=neutral, PublicKeyToken=6713b367eb0b228d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Nvelope.1.1.0.2\lib\net451\Nvelope.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\..\packages\Rx-Core.2.2.2\lib\net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\..\packages\Rx-Interfaces.2.2.2\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\..\packages\Rx-Linq.2.2.2\lib\net45\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices">
+      <HintPath>..\..\packages\Rx-PlatformServices.2.2.3\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AbstractSqlReadWrite.cs" />
+    <Compile Include="ConnectTo.cs" />
+    <Compile Include="DictionaryExtensions.cs" />
+    <Compile Include="FakeDB.cs" />
+    <Compile Include="FakeDBMeta.cs" />
+    <Compile Include="FakeDBTable.cs" />
+    <Compile Include="FakeDBTransaction.cs" />
+    <Compile Include="FileDB.cs" />
+    <Compile Include="FunctionExtensions.cs" />
+    <Compile Include="IAnalyzable.cs" />
+    <Compile Include="IDBAnalyzer.cs" />
+    <Compile Include="IDBModifier.cs" />
+    <Compile Include="IModifiable.cs" />
+    <Compile Include="INameQualifier.cs" />
+    <Compile Include="IRWEvented.cs" />
+    <Compile Include="JsonDB.cs" />
+    <Compile Include="ModifiableSqlDB.cs" />
+    <Compile Include="ModifiableSqlDbTransaction.cs" />
+    <Compile Include="MySqlAnalyzer.cs" />
+    <Compile Include="MySqlDB.cs" />
+    <Compile Include="MySqlModifier.cs" />
+    <Compile Include="MySqlNameQualifier.cs" />
+    <Compile Include="ObjectAnalyzer.cs" />
+    <Compile Include="Sql2000Analyzer.cs" />
+    <Compile Include="Sql2000NameQualifier.cs" />
+    <Compile Include="SqlColumnType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SqlModifier.cs" />
+    <Compile Include="IReadWrite.cs" />
+    <Compile Include="ITransactable.cs" />
+    <Compile Include="ITransaction.cs" />
+    <Compile Include="LasyExceptions.cs" />
+    <Compile Include="IReadable.cs" />
+    <Compile Include="IWriteable.cs" />
+    <Compile Include="LockBox.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlDB.cs" />
+    <Compile Include="SqlDBTransaction.cs" />
+    <Compile Include="SqlAnalyzer.cs" />
+    <Compile Include="SqlExtensions.cs" />
+    <Compile Include="SqlNameQualifier.cs" />
+    <Compile Include="SqlTypeAttribute.cs" />
+    <Compile Include="SqlTypeConversion.cs" />
+    <Compile Include="UnreliableDb.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,4 +1,10 @@
-**/bin/
-**/obj
+**\bin
+**\obj
 *.suo
 *.swp
+*.csproj.user
+*.nupkg
+*.VisualState.xml
+TestResult.xml
+**\packages
+*.zip
